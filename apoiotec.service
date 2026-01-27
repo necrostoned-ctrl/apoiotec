@@ -1,0 +1,33 @@
+[Unit]
+Description=Apoiotec Informática - Sistema de Gestão de Assistência Técnica
+Documentation=https://github.com/apoiotec/sistema
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=apoiotec
+Group=apoiotec
+WorkingDirectory=/opt/apoiotec
+Environment="NODE_ENV=production"
+EnvironmentFile=/opt/apoiotec/.env
+ExecStart=/usr/bin/node /opt/apoiotec/dist/index.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=apoiotec
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/apoiotec/logs /opt/apoiotec/backups
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

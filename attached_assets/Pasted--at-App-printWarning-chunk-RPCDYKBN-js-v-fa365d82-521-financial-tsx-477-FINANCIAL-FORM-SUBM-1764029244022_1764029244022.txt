@@ -1,0 +1,53 @@
+    at App
+printWarning @ chunk-RPCDYKBN.js?v=fa365d82:521
+financial.tsx:477 === FINANCIAL FORM SUBMIT ===
+financial.tsx:478 Form data: {description: 'testes', resolution: '', clientId: 63, type: 'entrada', amount: '500', …}
+financial.tsx:479 Installment Count: 10
+financial.tsx:480 Installment Values: (10) ['50.00', '50.00', '50.00', '50.00', '50.00', '50.00', '50.00', '50.00', '50.00', '50.00']
+financial.tsx:481 Installment Dates: (10) ['2025-11-25', '2025-12-25', '2026-01-25', '2026-02-25', '2026-03-25', '2026-04-25', '2026-05-25', '2026-06-25', '2026-07-25', '2026-08-25']
+financial.tsx:521 === CRIANDO PARCELAS ===
+financial.tsx:522 Total de parcelas a criar: 10
+financial.tsx:528 Parcela 1: {número: 1, valor: 50, data: '2025-11-25', dataISO: '2025-11-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 1 criada com sucesso
+financial.tsx:528 Parcela 2: {número: 2, valor: 50, data: '2025-12-25', dataISO: '2025-12-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 2 criada com sucesso
+financial.tsx:528 Parcela 3: {número: 3, valor: 50, data: '2026-01-25', dataISO: '2026-01-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 3 criada com sucesso
+financial.tsx:528 Parcela 4: {número: 4, valor: 50, data: '2026-02-25', dataISO: '2026-02-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 4 criada com sucesso
+financial.tsx:528 Parcela 5: {número: 5, valor: 50, data: '2026-03-25', dataISO: '2026-03-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 5 criada com sucesso
+financial.tsx:528 Parcela 6: {número: 6, valor: 50, data: '2026-04-25', dataISO: '2026-04-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 6 criada com sucesso
+financial.tsx:528 Parcela 7: {número: 7, valor: 50, data: '2026-05-25', dataISO: '2026-05-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 7 criada com sucesso
+financial.tsx:528 Parcela 8: {número: 8, valor: 50, data: '2026-06-25', dataISO: '2026-06-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 8 criada com sucesso
+financial.tsx:528 Parcela 9: {número: 9, valor: 50, data: '2026-07-25', dataISO: '2026-07-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 9 criada com sucesso
+financial.tsx:528 Parcela 10: {número: 10, valor: 50, data: '2026-08-25', dataISO: '2026-08-25T00:00:00.000Z'}
+financial.tsx:547 ✓ Parcela 10 criada com sucesso
+financial.tsx:1047 === FILTRANDO TRANSAÇÕES FINANCEIRAS ===
+financial.tsx:1048 Total de transações: 290
+financial.tsx:1049 Filtros aplicados: {periodFilter: 'este-mes', customStartDate: '', customEndDate: '', typeFilter: '', clientFilter: '', …}
+financial.tsx:1057 Período filtrado: {startDate: '01/11/2025', endDate: '24/11/2025', startDateISO: '2025-11-01T03:00:00.000Z', endDateISO: '2025-11-25T00:06:30.017Z'}
+financial.tsx:1109 === FILTRO TRANSAÇÃO 167 (index 0) ===
+financial.tsx:1110 Data da transação: Mon Dec 01 2025 00:00:00 GMT-0300 (Horário Padrão de Brasília)
+financial.tsx:1111 Período filtro: {startDate: Sat Nov 01 2025 00:00:00 GMT-0300 (Horário Padrão de Brasília), endDate: Mon Nov 24 2025 21:06:30 GMT-0300 (Horário Padrão de Brasília)}
+financial.tsx:1112 Filtros ativos: {periodFilter: 'este-mes', typeFilter: '', clientFilter: '', statusFilter: '', filterUser: 'todos', …}
+financial.tsx:1113 Resultados do filtro: {id: 167, date: '01/12/2025', type: 'entrada', client: 'Cia da Fórmula', status: 'pendente', …}
+financial.tsx:1109 === FILTRO TRANSAÇÃO 172 (index 1) ===
+financial.tsx:1110 Data da transação: Mon Dec 01 2025 00:00:00 GMT-0300 (Horário Padrão de Brasília)
+financial.tsx:1111 Período filtro: {startDate: Sat Nov 01 2025 00:00:00 GMT-0300 (Horário Padrão de Brasília), endDate: Mon Nov 24 2025 21:06:30 GMT-0300 (Horário Padrão de Brasília)}
+financial.tsx:1112 Filtros ativos: {periodFilter: 'este-mes', typeFilter: '', clientFilter: '', statusFilter: '', filterUser: 'todos', …}
+financial.tsx:1113 Resultados do filtro: {id: 172, date: '01/12/2025', type: 'entrada', client: 'Cia da Fórmula', status: 'pendente', …}
+financial.tsx:1109 === FILTRO TRANSAÇÃO 162 (index 2) ===
+financial.tsx:1110 Data da transação: Mon Dec 01 2025 00:00:00 GMT-0300 (Horário Padrão de Brasília)
+financial.tsx:1111 Período filtro: {startDate: Sat Nov 01 2025 00:00:00 GMT-0300 (Horário Padrão de Brasília), endDate: Mon Nov 24 2025 21:06:30 GMT-0300 (Horário Padrão de Brasília)}
+financial.tsx:1112 Filtros ativos: {periodFilter: 'este-mes', typeFilter: '', clientFilter: '', statusFilter: '', filterUser: 'todos', …}
+financial.tsx:1113 Resultados do filtro: {id: 162, date: '01/12/2025', type: 'entrada', client: 'Cia da Fórmula', status: 'pendente', …}
+financial.tsx:1109 === FILTRO TRANSAÇÃO 105 (index 226) ===
+financial.tsx:1110 Data da transação: Mon Jul 28 2025 00:00:00 GMT-0300 (Horário Padrão de Brasília)
+financial.tsx:1111 Período filtro: {startDate: Sat Nov 01 2025 00:00:00 GMT-0300 (Horário Padrão de Brasília), endDate: Mon Nov 24 2025 21:06:30 GMT-0300 (Horário Padrão de Brasília)}
+financial.tsx:1112 Filtros ativos: {periodFilter: 'este-mes', typeFilter: '', clientFilter: '', statusFilter: '', filterUser: 'todos', …}
+financial.tsx:1113 Resultados do filtro: {id: 105, date: '28/07/2025', type: 'entrada', client: 'Empório Atual', status: 'pendente', …}

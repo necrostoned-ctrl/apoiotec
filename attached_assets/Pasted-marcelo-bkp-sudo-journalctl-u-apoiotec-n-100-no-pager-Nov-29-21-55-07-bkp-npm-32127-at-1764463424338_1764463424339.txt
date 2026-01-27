@@ -1,0 +1,101 @@
+marcelo@bkp:~$ sudo journalctl -u apoiotec -n 100 --no-pager
+Nov 29 21:55:07 bkp npm[32127]:     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+Nov 29 21:55:07 bkp npm[32127]:     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+Nov 29 21:55:07 bkp npm[32127]:     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Nov 29 21:55:07 bkp npm[32127]: Node.js v20.19.6
+Nov 29 21:55:07 bkp systemd[1]: apoiotec.service: Main process exited, code=exited, status=1/FAILURE
+Nov 29 21:55:07 bkp systemd[1]: apoiotec.service: Failed with result 'exit-code'.
+Nov 29 21:55:07 bkp systemd[1]: apoiotec.service: Consumed 3.684s CPU time.
+Nov 29 21:55:17 bkp systemd[1]: apoiotec.service: Scheduled restart job, restart counter is at 10.
+Nov 29 21:55:17 bkp systemd[1]: Started apoiotec.service - Apoiotec Informática.
+Nov 29 21:55:17 bkp npm[32167]: > rest-express@1.0.0 dev
+Nov 29 21:55:17 bkp npm[32167]: > NODE_ENV=development tsx server/index.ts
+Nov 29 21:55:19 bkp npm[32190]: /home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9
+Nov 29 21:55:19 bkp npm[32190]:   throw new Error(
+Nov 29 21:55:19 bkp npm[32190]:         ^
+Nov 29 21:55:19 bkp npm[32190]: Error: DATABASE_URL must be set. Did you forget to provision a database?
+Nov 29 21:55:19 bkp npm[32190]:     at <anonymous> (/home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9:9)
+Nov 29 21:55:19 bkp npm[32190]:     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+Nov 29 21:55:19 bkp npm[32190]:     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+Nov 29 21:55:19 bkp npm[32190]:     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Nov 29 21:55:19 bkp npm[32190]: Node.js v20.19.6
+Nov 29 21:55:19 bkp systemd[1]: apoiotec.service: Main process exited, code=exited, status=1/FAILURE
+Nov 29 21:55:19 bkp systemd[1]: apoiotec.service: Failed with result 'exit-code'.
+Nov 29 21:55:19 bkp systemd[1]: apoiotec.service: Consumed 3.714s CPU time.
+Nov 29 21:55:29 bkp systemd[1]: apoiotec.service: Scheduled restart job, restart counter is at 11.
+Nov 29 21:55:29 bkp systemd[1]: Started apoiotec.service - Apoiotec Informática.
+Nov 29 21:55:29 bkp npm[32227]: > rest-express@1.0.0 dev
+Nov 29 21:55:29 bkp npm[32227]: > NODE_ENV=development tsx server/index.ts
+Nov 29 21:55:31 bkp npm[32250]: /home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9
+Nov 29 21:55:31 bkp npm[32250]:   throw new Error(
+Nov 29 21:55:31 bkp npm[32250]:         ^
+Nov 29 21:55:31 bkp npm[32250]: Error: DATABASE_URL must be set. Did you forget to provision a database?
+Nov 29 21:55:31 bkp npm[32250]:     at <anonymous> (/home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9:9)
+Nov 29 21:55:31 bkp npm[32250]:     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+Nov 29 21:55:31 bkp npm[32250]:     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+Nov 29 21:55:31 bkp npm[32250]:     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Nov 29 21:55:31 bkp npm[32250]: Node.js v20.19.6
+Nov 29 21:55:31 bkp systemd[1]: apoiotec.service: Main process exited, code=exited, status=1/FAILURE
+Nov 29 21:55:31 bkp systemd[1]: apoiotec.service: Failed with result 'exit-code'.
+Nov 29 21:55:31 bkp systemd[1]: apoiotec.service: Consumed 3.749s CPU time.
+Nov 29 21:55:41 bkp systemd[1]: apoiotec.service: Scheduled restart job, restart counter is at 12.
+Nov 29 21:55:41 bkp systemd[1]: Started apoiotec.service - Apoiotec Informática.
+Nov 29 21:55:41 bkp npm[32288]: > rest-express@1.0.0 dev
+Nov 29 21:55:41 bkp npm[32288]: > NODE_ENV=development tsx server/index.ts
+Nov 29 21:55:43 bkp npm[32311]: /home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9
+Nov 29 21:55:43 bkp npm[32311]:   throw new Error(
+Nov 29 21:55:43 bkp npm[32311]:         ^
+Nov 29 21:55:43 bkp npm[32311]: Error: DATABASE_URL must be set. Did you forget to provision a database?
+Nov 29 21:55:43 bkp npm[32311]:     at <anonymous> (/home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9:9)
+Nov 29 21:55:43 bkp npm[32311]:     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+Nov 29 21:55:43 bkp npm[32311]:     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+Nov 29 21:55:43 bkp npm[32311]:     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Nov 29 21:55:43 bkp npm[32311]: Node.js v20.19.6
+Nov 29 21:55:43 bkp systemd[1]: apoiotec.service: Main process exited, code=exited, status=1/FAILURE
+Nov 29 21:55:43 bkp systemd[1]: apoiotec.service: Failed with result 'exit-code'.
+Nov 29 21:55:43 bkp systemd[1]: apoiotec.service: Consumed 3.695s CPU time.
+Nov 29 21:55:53 bkp systemd[1]: apoiotec.service: Scheduled restart job, restart counter is at 13.
+Nov 29 21:55:53 bkp systemd[1]: Started apoiotec.service - Apoiotec Informática.
+Nov 29 21:55:53 bkp npm[32352]: > rest-express@1.0.0 dev
+Nov 29 21:55:53 bkp npm[32352]: > NODE_ENV=development tsx server/index.ts
+Nov 29 21:55:55 bkp npm[32375]: /home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9
+Nov 29 21:55:55 bkp npm[32375]:   throw new Error(
+Nov 29 21:55:55 bkp npm[32375]:         ^
+Nov 29 21:55:55 bkp npm[32375]: Error: DATABASE_URL must be set. Did you forget to provision a database?
+Nov 29 21:55:55 bkp npm[32375]:     at <anonymous> (/home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9:9)
+Nov 29 21:55:55 bkp npm[32375]:     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+Nov 29 21:55:55 bkp npm[32375]:     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+Nov 29 21:55:55 bkp npm[32375]:     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Nov 29 21:55:55 bkp npm[32375]: Node.js v20.19.6
+Nov 29 21:55:55 bkp systemd[1]: apoiotec.service: Main process exited, code=exited, status=1/FAILURE
+Nov 29 21:55:55 bkp systemd[1]: apoiotec.service: Failed with result 'exit-code'.
+Nov 29 21:55:55 bkp systemd[1]: apoiotec.service: Consumed 3.687s CPU time.
+Nov 29 21:56:05 bkp systemd[1]: apoiotec.service: Scheduled restart job, restart counter is at 14.
+Nov 29 21:56:05 bkp systemd[1]: Started apoiotec.service - Apoiotec Informática.
+Nov 29 21:56:05 bkp npm[32413]: > rest-express@1.0.0 dev
+Nov 29 21:56:05 bkp npm[32413]: > NODE_ENV=development tsx server/index.ts
+Nov 29 21:56:07 bkp npm[32436]: /home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9
+Nov 29 21:56:07 bkp npm[32436]:   throw new Error(
+Nov 29 21:56:07 bkp npm[32436]:         ^
+Nov 29 21:56:07 bkp npm[32436]: Error: DATABASE_URL must be set. Did you forget to provision a database?
+Nov 29 21:56:07 bkp npm[32436]:     at <anonymous> (/home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9:9)
+Nov 29 21:56:07 bkp npm[32436]:     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+Nov 29 21:56:07 bkp npm[32436]:     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+Nov 29 21:56:07 bkp npm[32436]:     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Nov 29 21:56:07 bkp npm[32436]: Node.js v20.19.6
+Nov 29 21:56:07 bkp systemd[1]: apoiotec.service: Main process exited, code=exited, status=1/FAILURE
+Nov 29 21:56:07 bkp systemd[1]: apoiotec.service: Failed with result 'exit-code'.
+Nov 29 21:56:07 bkp systemd[1]: apoiotec.service: Consumed 3.679s CPU time.
+Nov 29 21:56:17 bkp systemd[1]: apoiotec.service: Scheduled restart job, restart counter is at 15.
+Nov 29 21:56:17 bkp systemd[1]: Started apoiotec.service - Apoiotec Informática.
+Nov 29 21:56:17 bkp npm[32475]: > rest-express@1.0.0 dev
+Nov 29 21:56:17 bkp npm[32475]: > NODE_ENV=development tsx server/index.ts
+Nov 29 21:56:19 bkp npm[32498]: /home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9
+Nov 29 21:56:19 bkp npm[32498]:   throw new Error(
+Nov 29 21:56:19 bkp npm[32498]:         ^
+Nov 29 21:56:19 bkp npm[32498]: Error: DATABASE_URL must be set. Did you forget to provision a database?
+Nov 29 21:56:19 bkp npm[32498]:     at <anonymous> (/home/marcelo/sistemaapoiotec/TechSupportManager/server/db.ts:9:9)
+Nov 29 21:56:19 bkp npm[32498]:     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+Nov 29 21:56:19 bkp npm[32498]:     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+Nov 29 21:56:19 bkp npm[32498]:     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Nov 29 21:56:19 bkp npm[32498]: Node.js v20.19.6

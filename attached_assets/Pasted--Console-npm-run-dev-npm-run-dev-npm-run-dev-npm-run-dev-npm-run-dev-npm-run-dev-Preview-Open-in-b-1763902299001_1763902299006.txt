@@ -1,0 +1,222 @@
+
+Console
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+Preview
+/
+Open in browser
+
+Agent
+2 hours ago
+Add a notes feature for clients to store additional information
+1 minute of work
+Bom é mais ou menos isso aí que eu quero só que eu salvei uma nota agora e não vejo no outro lugar nenhum eu quero uma tela quando eu apertar no caderninho no card do cliente eu quero uma tela funcional que me mostre uma lista com as notas que eu já fiz anteriormente e uma opção de criar novos aqui com isso eu tenha como fazer várias notas separadas para o mesmo cliente tenha como acessá-las obviamente eu preciso de acessar e quero uma tela bonitinha para colocar essas notas
+
+2 hours ago
+2 hours ago
+Add a system for managing multiple notes for each client
+2 minutes of work
+Beleza se chama de notas funcionou agora eu tô vendo que os cards estão apertando os nomes dos clientes alguns clientes que tem o nome Grande estão perdendo caracteres eu tô tendo cards em dois duas filhas de cards né duas colunas eu quero colocar somente uma coluna e quero deixar o carro mais largo e um pouquinho mais baixo ou seja você diminui a altura do card aperta ele um pouco desse para ficar um pouquinho mais fino em altura e deixa mais largo para as laterais para deixar só um card por linha
+
+1 hour ago
+1 hour ago
+Adjust client cards to display one per line and optimize layout
+31 seconds of work
+Beleza gostei dos carros assim mas tô vendo que a borda azul que você colocou no carro de ficou um pouco estranho eu quero seguir a mesma configuração dos cards na tela de serviço em relação a essa borda azul aí quero que ela fique fininha
+
+1 hour ago
+1 hour ago
+Make client card borders match service card styling
+35 seconds of work
+Essa borda aí que eu quero mas eu não queria na esquerda eu queria na parte de cima do carro mesmo
+
+1 hour ago
+1 hour ago
+Move the blue border from the left side to the top of client cards
+15 seconds of work
+Beleza só falta mais uma coisa agora na tela dos clientes o filtro tá vindo expandido eu quero que ele venha fechado igual nas outras telas para que eu possa abrir ele quando eu precisar
+
+1 hour ago
+1 hour ago
+Update client filters to appear closed by default
+15 seconds of work
+1 hour ago
+•
+Free
+•
+Publish
+Published your App
+Agora que eu percebi que a fonte do título das páginas está diferente por exemplo a palavra chamados na tela de chamados tá com a fonte maior do que a palavra de movimentações financeiras ou do que a palavra clientes na tela de clientes por exemplo isso é o título da página dá uma olhada nisso aí
+
+1 hour ago
+1 hour ago
+Standardize page title font sizes for a consistent look
+47 seconds of work
+1 hour ago
+•
+Free
+•
+Publish
+Published your App
+Beleza tá tudo funcionando eu fiz um teste aqui agora nas notificações criam chamado ele notificou transformou o chamado em serviço notificou transformei o serviço em faturamento nota ficou só que eu exclui uma entrada no na tela de faturamento e não notificou eu preciso que seja notificado também quando eu excluir dados de qualquer uma das telas se eu excluir um chamado eu quero receber uma notificação da mesma forma serviços excluir um serviço quero nada ficar entradas na tela de financeiro faturamento ao excluir quero que seja notificado também as notificações todas bem feitas com os nomes dos clientes tudo bonitinho seguindo o mesmo padrão que já vem nas outras do sistema é possível
+
+14 minutes ago
+13 minutes ago
+Add notifications for deleted financial data and services
+1 minute of work
+11 minutes ago
+•
+Free
+•
+Publish
+Published your App
+Beleza agora a configuração do telegram que foi feita dividido por usuários separando por usuários cada usuário tem o seu chat ID a possibilidade de salvar vários aparentemente não está funcionando no meu usuário principal que eu estou operando eu configurei o meu chat de e o chatboot é um só configurei o mesmo chatboot para dois usuários diferentes e o meu usuário eu coloquei o meu chat de no outro usuário foi colocado o chat dele do outro usuário e eu percebi que a configuração ficou a mesma para os dois ou seja não tá salvando o chat de respectivo ao usuário eu preciso que fique salvo pelo por usuário quando eu logar no sistema com usuário um vai ter o chat de um e quando eu logar no usuário dois vai ter o chat de dois o segundo chat dele do outro usuário e assim por diante o chat deles atrelados ao usuário em questão foi esse o plano inicial
+
+4 minutes ago
+3 minutes ago
+Save unique Telegram chat IDs for each user
+1 minute of work
+Eu não quero que o sistema atualize nenhum campo eu quero que eu consiga logar no primeiro usuário e coloca o meu boot token e o chat d e salve essa configuração fique salvo para o meu usuário quando eu entrar em outro usuário quero fazer a configuração também colocar um boot token em um chat de salvar e quero que fique salvo quando eu voltar para o primeiro usuário eu quero que ele puxa a configuração que eu salvei antes não precisa mudar nada não deixa a configuração do jeito que eu fizer se eu fiz a configuração para o primeiro usuário eu quero que fique essa configuração para ele quando eu entrar em outro usuário e salvar uma configuração para esse usuário eu quero que ele puxa a mesma configuração quando ele logar
+
+2 minutes ago
+
+Make targeted changes, 5x faster…
+
+Publishing
+Production
+Status
+Marcelo published 7 minutes ago
+Visibility
+Public
+Domain
+https://apoiotec.replit.app
+Type
+Autoscale
+(1 vCPU / 1 GiB RAM / 3 Max)
+See all usage
+047da155
+MA
+
+marcelo119
+Marcelo
+published about 1 hour ago
+2c475f04
+MA
+
+marcelo119
+Marcelo
+published about 1 hour ago
+80dd6e21
+MA
+
+marcelo119
+Marcelo
+published about 10 hours ago
+30675fe1
+MA
+
+marcelo119
+Marcelo
+published about 20 hours ago
+2c1517e8
+MA
+
+marcelo119
+Marcelo
+published about 22 hours ago
+a8f0b39e
+MA
+
+marcelo119
+Marcelo
+published 1 day ago
+58170609
+MA
+
+marcelo119
+Marcelo
+published 1 day ago
+706ba9b4
+MA
+
+marcelo119
+Marcelo
+published 24 days ago
+90bc74d2
+MA
+
+marcelo119
+Marcelo
+published about 1 month ago
+b5965ccb
+MA
+
+marcelo119
+Marcelo
+published about 2 months ago
+228fe634
+MA
+
+marcelo119
+Marcelo
+published 2 months ago
+552dd463
+MA
+
+marcelo119
+Marcelo
+published 2 months ago
+7ab48a82
+MA
+
+marcelo119
+Marcelo
+published 3 months ago
+c961ce6a
+MA
+
+marcelo119
+Marcelo
+published 3 months ago
+0bb8efe9
+MA
+
+marcelo119
+Marcelo
+published 4 months ago
+2750c727
+MA
+
+marcelo119
+Marcelo
+published 4 months ago
+3f2e39f6
+MA
+
+marcelo119
+Marcelo
+published 4 months ago
+4fa07b90
+MA
+
+marcelo119
+Marcelo
+published 4 months ago
+cfcb8957
+MA
+
+marcelo119
+Marcelo
+published 4 months ago
+9bc3350f
+MA
+
+marcelo119
+Marcelo
+published 4 months ago
+Agent
+Agent can make changes, review its work, and debug itself automatically.
