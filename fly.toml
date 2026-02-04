@@ -12,10 +12,9 @@ primary_region = 'gru'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
-
 [[vm]]
   memory = '256mb'
   cpus = 1
   memory_mb = 256
   [processes]
-  app = "/bin/sh -c 'swapon /swapfile ; node dist/index.js'"
+  app = "/bin/sh -c 'swapon /swapfile ; node dist/index.js'"
