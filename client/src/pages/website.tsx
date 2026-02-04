@@ -168,7 +168,7 @@ export default function Website() {
         
         <CardContent className="p-0">
           {/* Web Content Frame */}
-          <div className="border rounded-b-lg overflow-hidden bg-white relative">
+          <div className="border rounded-b-lg overflow-hidden bg-background relative">
             {hasError ? (
               <div className="flex items-center justify-center h-[600px] bg-slate-900">
                 <div className="text-center space-y-4">
@@ -190,7 +190,7 @@ export default function Website() {
             ) : (
               <>
                 {isLoading && (
-                  <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                  <div className="absolute inset-0 bg-background bg-opacity-75 flex items-center justify-center z-10">
                     <div className="text-center">
                       <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-cyan-400" />
                       <p className="text-cyan-100">Carregando...</p>

@@ -254,7 +254,7 @@ export default function Services() {
           <h2 className="text-3xl font-bold text-cyan-300 mb-2">Serviços em Andamento</h2>
           <p className="text-cyan-100">Acompanhe o progresso dos serviços que estão sendo executados</p>
         </div>
-        <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={handleAdd} className="bg-primary hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
           Adicionar Serviço
         </Button>
@@ -425,7 +425,7 @@ export default function Services() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleSendToInvoice(service)}
-                          className="text-blue-600"
+                          className="text-primary"
                         >
                           <DollarSign className="h-4 w-4" />
                         </Button>

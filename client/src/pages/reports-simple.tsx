@@ -129,7 +129,7 @@ export default function ReportsSimple() {
             <CardTitle className="text-sm font-medium">Total Transações</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-primary">
               {transactions.length}
             </div>
             <p className="text-xs text-gray-500">Todas as transações</p>

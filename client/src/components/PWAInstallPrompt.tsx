@@ -51,7 +51,7 @@ export default function PWAInstallPrompt() {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white dark:bg-slate-800 border-2 border-blue-500 dark:border-blue-400 rounded-lg shadow-xl p-4 z-50 animate-in slide-in-from-bottom-4">
+    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-background dark:bg-slate-800 border-2 border-blue-500 dark:border-blue-400 rounded-lg shadow-xl p-4 z-50 animate-in slide-in-from-bottom-4">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1">
           <h3 className="font-bold text-sm text-gray-900 dark:text-white mb-1">
@@ -74,7 +74,7 @@ export default function PWAInstallPrompt() {
       {!isIOS && deferredPrompt && (
         <Button
           onClick={handleInstall}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2"
+          className="w-full bg-blue-500 hover:bg-primary text-white flex items-center justify-center gap-2"
         >
           <Download className="h-4 w-4" />
           Instalar Agora
@@ -82,7 +82,7 @@ export default function PWAInstallPrompt() {
       )}
 
       {isIOS && (
-        <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold">
+        <p className="text-xs text-primary dark:text-blue-400 font-semibold">
           📱 Abra este site no Safari e procure pela opção de compartilhar!
         </p>
       )}

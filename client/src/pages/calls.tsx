@@ -612,11 +612,11 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
             setSortByDate(!sortByDate);
             setQuickFilterPriority(null);
           }} className="transition-all hover:-translate-y-1">
-            <Card className={`bg-white dark:bg-slate-800 border-4 border-blue-600 dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all cursor-pointer h-28 ${sortByDate ? 'ring-4 ring-blue-400 scale-105' : ''}`}>
+            <Card className={`bg-background dark:bg-slate-800 border-4 border-primary dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all cursor-pointer h-28 ${sortByDate ? 'ring-4 ring-blue-400 scale-105' : ''}`}>
               <CardContent className="h-full flex flex-col items-center justify-center p-4">
-                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Total</p>
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.total}</div>
-                {sortByDate && <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-2">📅 Cronológico</p>}
+                <p className="text-sm font-semibold text-primary dark:text-blue-400 mb-2">Total</p>
+                <div className="text-3xl font-bold text-primary dark:text-blue-400">{stats.total}</div>
+                {sortByDate && <p className="text-xs text-primary dark:text-blue-400 font-semibold mt-2">📅 Cronológico</p>}
               </CardContent>
             </Card>
           </button>
@@ -625,7 +625,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
             setQuickFilterPriority(quickFilterPriority === "urgente" ? null : "urgente");
             setSortByDate(false);
           }} className="transition-all hover:-translate-y-1">
-            <Card className={`bg-white dark:bg-slate-800 border-4 border-red-600 dark:border-red-500 hover:shadow-lg hover:shadow-red-600/50 shadow-lg dark:shadow-red-600/20 transition-all cursor-pointer h-28 ${quickFilterPriority === "urgente" ? 'ring-4 ring-red-400 scale-105' : ''}`}>
+            <Card className={`bg-background dark:bg-slate-800 border-4 border-red-600 dark:border-red-500 hover:shadow-lg hover:shadow-red-600/50 shadow-lg dark:shadow-red-600/20 transition-all cursor-pointer h-28 ${quickFilterPriority === "urgente" ? 'ring-4 ring-red-400 scale-105' : ''}`}>
               <CardContent className="h-full flex flex-col items-center justify-center p-4">
                 <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Urgente</p>
                 <div className="text-3xl font-bold text-red-600 dark:text-red-400">{stats.urgentes}</div>
@@ -638,7 +638,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
             setQuickFilterPriority(quickFilterPriority === "alta" ? null : "alta");
             setSortByDate(false);
           }} className="transition-all hover:-translate-y-1">
-            <Card className={`bg-white dark:bg-slate-800 border-4 border-orange-600 dark:border-orange-500 hover:shadow-lg hover:shadow-orange-600/50 shadow-lg dark:shadow-orange-600/20 transition-all cursor-pointer h-28 ${quickFilterPriority === "alta" ? 'ring-4 ring-orange-400 scale-105' : ''}`}>
+            <Card className={`bg-background dark:bg-slate-800 border-4 border-orange-600 dark:border-orange-500 hover:shadow-lg hover:shadow-orange-600/50 shadow-lg dark:shadow-orange-600/20 transition-all cursor-pointer h-28 ${quickFilterPriority === "alta" ? 'ring-4 ring-orange-400 scale-105' : ''}`}>
               <CardContent className="h-full flex flex-col items-center justify-center p-4">
                 <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mb-2">Alta</p>
                 <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">{stats.altas}</div>
@@ -651,7 +651,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
             setQuickFilterPriority(quickFilterPriority === "media" ? null : "media");
             setSortByDate(false);
           }} className="transition-all hover:-translate-y-1">
-            <Card className={`bg-white dark:bg-slate-800 border-4 border-yellow-500 dark:border-yellow-400 hover:shadow-lg hover:shadow-yellow-500/50 shadow-lg dark:shadow-yellow-500/20 transition-all cursor-pointer h-28 ${quickFilterPriority === "media" ? 'ring-4 ring-yellow-300 scale-105' : ''}`}>
+            <Card className={`bg-background dark:bg-slate-800 border-4 border-yellow-500 dark:border-yellow-400 hover:shadow-lg hover:shadow-yellow-500/50 shadow-lg dark:shadow-yellow-500/20 transition-all cursor-pointer h-28 ${quickFilterPriority === "media" ? 'ring-4 ring-yellow-300 scale-105' : ''}`}>
               <CardContent className="h-full flex flex-col items-center justify-center p-4">
                 <p className="text-sm font-semibold text-yellow-600 dark:text-yellow-400 mb-2">Média</p>
                 <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{stats.media}</div>
@@ -664,7 +664,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
             setQuickFilterPriority(quickFilterPriority === "baixa" ? null : "baixa");
             setSortByDate(false);
           }} className="transition-all hover:-translate-y-1">
-            <Card className={`bg-white dark:bg-slate-800 border-4 border-green-600 dark:border-green-500 hover:shadow-lg hover:shadow-green-600/50 shadow-lg dark:shadow-green-600/20 transition-all cursor-pointer h-28 ${quickFilterPriority === "baixa" ? 'ring-4 ring-green-400 scale-105' : ''}`}>
+            <Card className={`bg-background dark:bg-slate-800 border-4 border-green-600 dark:border-green-500 hover:shadow-lg hover:shadow-green-600/50 shadow-lg dark:shadow-green-600/20 transition-all cursor-pointer h-28 ${quickFilterPriority === "baixa" ? 'ring-4 ring-green-400 scale-105' : ''}`}>
               <CardContent className="h-full flex flex-col items-center justify-center p-4">
                 <p className="text-sm font-semibold text-green-600 dark:text-green-400 mb-2">Baixa</p>
                 <div className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.baixas}</div>
@@ -676,10 +676,10 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       </div>
 
       {/* Filtros e Busca */}
-      <Card className="mb-6 bg-white dark:bg-slate-800 border-0 shadow-md">
+      <Card className="mb-6 bg-background dark:bg-slate-800 border-0 shadow-md">
         <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowFilters(!showFilters)}>
           <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <Search className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <Search className="h-5 w-5 text-primary dark:text-blue-400" />
             Filtros
             <span className={`text-sm transition-transform ${showFilters ? 'rotate-180' : ''}`}>⬇️</span>
           </CardTitle>
@@ -689,12 +689,12 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
           <div className="space-y-4">
             {/* Busca Principal */}
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
               <Input
                 placeholder="🔍 Buscar por equipamento, descrição, cliente..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 pr-4 py-2.5 bg-white dark:bg-slate-800 border-4 border-gray-200 dark:border-slate-700 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-colors text-gray-900 dark:text-white placeholder-gray-500"
+                className="pl-12 pr-4 py-2.5 bg-background dark:bg-slate-800 border-4 border-gray-200 dark:border-slate-700 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 transition-colors text-gray-900 dark:text-white placeholder-gray-500"
               />
             </div>
             
@@ -714,7 +714,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Status</label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                  <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
@@ -729,7 +729,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Prioridade</label>
                 <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                  <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                  <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
@@ -746,7 +746,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Criado Por</label>
                 <Select value={userFilter} onValueChange={setUserFilter}>
-                  <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                  <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
@@ -774,7 +774,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                     setPriorityFilter("");
                     setUserFilter("todos");
                   }}
-                  className="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs font-medium"
+                  className="text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs font-medium"
                 >
                   ✕ Limpar todos os filtros
                 </Button>
@@ -792,7 +792,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
           <p className="mt-4 text-gray-600 dark:text-gray-400">Carregando chamados...</p>
         </div>
       ) : filteredCalls.length === 0 ? (
-        <Card className="bg-white dark:bg-slate-800 border-4 border-purple-500 dark:border-purple-400 hover:shadow-lg hover:shadow-purple-500/50 shadow-lg dark:shadow-purple-500/20 transition-all shadow-md">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-purple-500 dark:border-purple-400 hover:shadow-lg hover:shadow-purple-500/50 shadow-lg dark:shadow-purple-500/20 transition-all shadow-md">
           <CardContent className="py-12 text-center">
             <AlertCircle className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-2 font-semibold">Nenhum chamado encontrado</p>
@@ -807,7 +807,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       ) : (
         <div className={`grid ${getGridClass()} gap-4`}>
           {filteredCalls.map((call) => (
-            <Card key={call.id} className={`bg-white dark:bg-slate-800 border-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer group flex flex-col h-full shadow-lg ${
+            <Card key={call.id} className={`bg-background dark:bg-slate-800 border-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer group flex flex-col h-full shadow-lg ${
               call.priority === "urgente" ? "border-red-500 dark:border-red-400 hover:shadow-red-500/50 dark:shadow-red-500/20" :
               call.priority === "alta" ? "border-orange-500 dark:border-orange-400 hover:shadow-orange-500/50 dark:shadow-orange-500/20" :
               call.priority === "media" ? "border-yellow-500 dark:border-yellow-400 hover:shadow-yellow-500/50 dark:shadow-yellow-500/20" :
@@ -877,7 +877,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleTransformToService(call)}
-                        className="h-8 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex flex-col items-center justify-center p-1"
+                        className="h-8 text-xs text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 flex flex-col items-center justify-center p-1"
                         title="Converter para Serviço"
                       >
                         <ArrowRight className="h-3.5 w-3.5" />
@@ -942,7 +942,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                 </Button>
                 <Button
                   onClick={handleConfirmService}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-blue-700 text-white"
                   disabled={transformToServiceMutation.isPending}
                 >
                   {transformToServiceMutation.isPending ? "Enviando..." : "Sim, Enviar para Serviço"}
@@ -1298,7 +1298,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  className="flex-1 bg-primary hover:bg-blue-700"
                 >
                   {actionType === "service" && "Transformar em Serviço"}
                   {actionType === "invoice" && "Enviar para Faturamento"}

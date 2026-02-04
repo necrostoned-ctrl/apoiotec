@@ -159,7 +159,7 @@ export default function Templates() {
     return (
       <div className="p-6">
         <div className="flex items-center gap-3 mb-6">
-          <Settings className="h-6 w-6 text-blue-600" />
+          <Settings className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold">Templates</h1>
         </div>
         <p>Carregando templates...</p>
@@ -171,10 +171,10 @@ export default function Templates() {
     <div className="p-4 md:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <Settings className="h-6 w-6 text-blue-600" />
+          <Settings className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold">Templates</h1>
         </div>
-        <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={handleNew} className="bg-primary hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
           Novo Template
         </Button>
@@ -187,7 +187,7 @@ export default function Templates() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-50 rounded-lg">
-                    <FileText className="h-5 w-5 text-blue-600" />
+                    <FileText className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <CardTitle className="text-lg">{template.name}</CardTitle>
@@ -238,7 +238,7 @@ export default function Templates() {
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Nenhum template encontrado</h3>
               <p className="text-gray-500 mb-4">Crie seu primeiro template para personalizar os documentos</p>
-              <Button onClick={handleNew} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={handleNew} className="bg-primary hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />
                 Criar Primeiro Template
               </Button>
@@ -388,7 +388,7 @@ export default function Templates() {
                 </Button>
                 <Button 
                   type="submit" 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  className="flex-1 bg-primary hover:bg-blue-700"
                   disabled={createTemplateMutation.isPending || updateTemplateMutation.isPending}
                 >
                   {editingTemplate ? "Atualizar" : "Criar"}

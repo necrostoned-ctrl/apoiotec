@@ -141,7 +141,7 @@ Data: {{data}}`,
         <h1 className="text-3xl font-bold">Templates Simplificados</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={resetForm} className="bg-primary hover:bg-blue-700">
               Novo Template
             </Button>
           </DialogTrigger>
@@ -269,7 +269,7 @@ Data: {{data}}`,
                 <div className="space-y-4">
                   <Label>Preview</Label>
                   <div 
-                    className="border rounded p-4 bg-white text-black min-h-[400px]"
+                    className="border rounded p-4 bg-background text-black min-h-[400px]"
                     style={{
                       fontSize: `${formData.fontSize}px`,
                       color: formData.primaryColor,
@@ -294,7 +294,7 @@ Data: {{data}}`,
                 <Button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-primary hover:bg-blue-700"
                 >
                   {editingTemplate ? "Atualizar" : "Criar"}
                 </Button>

@@ -745,7 +745,7 @@ export function BackupTab() {
                           className={`flex-shrink-0 border ${
                             backup.wasScheduled
                               ? "bg-purple-900 text-purple-200 border-purple-600"
-                              : "bg-blue-900 text-blue-200 border-blue-600"
+                              : "bg-blue-900 text-blue-200 border-primary"
                           }`}
                           data-testid={`badge-backup-type-${backup.id}`}
                         >
@@ -852,7 +852,7 @@ export function BackupTab() {
                 Enviar também pelo Telegram
               </label>
             </div>
-            <div className="p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
+            <div className="p-4 bg-blue-900/20 border border-primary rounded-lg">
               <p className="text-sm text-blue-200">
                 {sendToTelegram 
                   ? "O backup será gerado, baixado e enviado para Telegram com informações detalhadas."
@@ -870,7 +870,7 @@ export function BackupTab() {
               <Button
                 onClick={() => generateBackupMutation.mutate()}
                 disabled={generateBackupMutation.isPending}
-                className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-500"
+                className="bg-primary hover:bg-blue-700 text-white border border-blue-500"
                 data-testid="button-backup-generate"
               >
                 {generateBackupMutation.isPending ? (
@@ -1015,7 +1015,7 @@ export function BackupTab() {
                   size="sm"
                   variant="outline"
                   onClick={toggleSelectAll}
-                  className={`border-slate-600 ${selectedBackups.size === backupFilesQuery.data.files.length && selectedBackups.size > 0 ? 'bg-blue-600 text-white' : 'text-slate-300'}`}
+                  className={`border-slate-600 ${selectedBackups.size === backupFilesQuery.data.files.length && selectedBackups.size > 0 ? 'bg-primary text-white' : 'text-slate-300'}`}
                   data-testid="button-select-all-backups"
                 >
                   {selectedBackups.size === backupFilesQuery.data.files.length && selectedBackups.size > 0 ? "✓ Todos Selecionados" : "Selecionar Todos"}

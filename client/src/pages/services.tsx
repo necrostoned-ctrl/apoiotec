@@ -1316,17 +1316,17 @@ export default function Services({ currentUser }: { currentUser?: any }) {
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
         <Card 
           onClick={() => setPriorityFilter(priorityFilter === "" ? "" : "")}
-          className={`bg-white dark:bg-slate-800 border-4 border-blue-600 dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all cursor-pointer h-28 ${priorityFilter === "" ? "ring-4 ring-blue-400 scale-105" : ""}`}
+          className={`bg-background dark:bg-slate-800 border-4 border-primary dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all cursor-pointer h-28 ${priorityFilter === "" ? "ring-4 ring-blue-400 scale-105" : ""}`}
         >
           <CardContent className="h-full flex flex-col items-center justify-center p-4">
-            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Total</p>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{totalServices}</p>
+            <p className="text-sm font-semibold text-primary dark:text-blue-400 mb-2">Total</p>
+            <p className="text-3xl font-bold text-primary dark:text-blue-400">{totalServices}</p>
           </CardContent>
         </Card>
 
         <Card 
           onClick={() => setPriorityFilter(priorityFilter === "urgente" ? "" : "urgente")}
-          className={`bg-white dark:bg-slate-800 border-4 border-red-600 dark:border-red-500 hover:shadow-lg hover:shadow-red-600/50 shadow-lg dark:shadow-red-600/20 transition-all cursor-pointer h-28 ${priorityFilter === "urgente" ? "ring-4 ring-red-400 scale-105" : ""}`}
+          className={`bg-background dark:bg-slate-800 border-4 border-red-600 dark:border-red-500 hover:shadow-lg hover:shadow-red-600/50 shadow-lg dark:shadow-red-600/20 transition-all cursor-pointer h-28 ${priorityFilter === "urgente" ? "ring-4 ring-red-400 scale-105" : ""}`}
         >
           <CardContent className="h-full flex flex-col items-center justify-center p-4">
             <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Urgente</p>
@@ -1336,7 +1336,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
 
         <Card 
           onClick={() => setPriorityFilter(priorityFilter === "alta" ? "" : "alta")}
-          className={`bg-white dark:bg-slate-800 border-4 border-orange-600 dark:border-orange-500 hover:shadow-lg hover:shadow-orange-600/50 shadow-lg dark:shadow-orange-600/20 transition-all cursor-pointer h-28 ${priorityFilter === "alta" ? "ring-4 ring-orange-400 scale-105" : ""}`}
+          className={`bg-background dark:bg-slate-800 border-4 border-orange-600 dark:border-orange-500 hover:shadow-lg hover:shadow-orange-600/50 shadow-lg dark:shadow-orange-600/20 transition-all cursor-pointer h-28 ${priorityFilter === "alta" ? "ring-4 ring-orange-400 scale-105" : ""}`}
         >
           <CardContent className="h-full flex flex-col items-center justify-center p-4">
             <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mb-2">Alta</p>
@@ -1346,7 +1346,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
 
         <Card 
           onClick={() => setPriorityFilter(priorityFilter === "media" ? "" : "media")}
-          className={`bg-white dark:bg-slate-800 border-4 border-yellow-500 dark:border-yellow-400 hover:shadow-lg hover:shadow-yellow-500/50 shadow-lg dark:shadow-yellow-500/20 transition-all cursor-pointer h-28 ${priorityFilter === "media" ? "ring-4 ring-yellow-300 scale-105" : ""}`}
+          className={`bg-background dark:bg-slate-800 border-4 border-yellow-500 dark:border-yellow-400 hover:shadow-lg hover:shadow-yellow-500/50 shadow-lg dark:shadow-yellow-500/20 transition-all cursor-pointer h-28 ${priorityFilter === "media" ? "ring-4 ring-yellow-300 scale-105" : ""}`}
         >
           <CardContent className="h-full flex flex-col items-center justify-center p-4">
             <p className="text-sm font-semibold text-yellow-600 dark:text-yellow-400 mb-2">Média</p>
@@ -1356,7 +1356,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
 
         <Card 
           onClick={() => setPriorityFilter(priorityFilter === "baixa" ? "" : "baixa")}
-          className={`bg-white dark:bg-slate-800 border-4 border-green-600 dark:border-green-500 hover:shadow-lg hover:shadow-green-600/50 shadow-lg dark:shadow-green-600/20 transition-all cursor-pointer h-28 ${priorityFilter === "baixa" ? "ring-4 ring-green-400 scale-105" : ""}`}
+          className={`bg-background dark:bg-slate-800 border-4 border-green-600 dark:border-green-500 hover:shadow-lg hover:shadow-green-600/50 shadow-lg dark:shadow-green-600/20 transition-all cursor-pointer h-28 ${priorityFilter === "baixa" ? "ring-4 ring-green-400 scale-105" : ""}`}
         >
           <CardContent className="h-full flex flex-col items-center justify-center p-4">
             <p className="text-sm font-semibold text-green-600 dark:text-green-400 mb-2">Baixa</p>
@@ -1366,7 +1366,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
       </div>
 
       {/* Filters - Mobile Optimized */}
-      <Card className="mb-6 bg-white dark:bg-slate-800 border-0 shadow-md">
+      <Card className="mb-6 bg-background dark:bg-slate-800 border-0 shadow-md">
         <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowFilters(!showFilters)}>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -1391,7 +1391,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                   placeholder="Nome ou descrição..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+                  className="pl-10 h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700"
                 />
               </div>
             </div>
@@ -1414,7 +1414,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                 Status
               </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1432,7 +1432,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                 Período
               </label>
               <Select value={periodFilter} onValueChange={setPeriodFilter}>
-                <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1451,7 +1451,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                 Criado Por
               </label>
               <Select value={userFilter} onValueChange={setUserFilter}>
-                <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1471,7 +1471,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                 Prioridade
               </label>
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1569,7 +1569,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
       {isLoading ? (
         <div className={`grid ${getGridClass()} gap-6`}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="border-4 border-blue-700 dark:border-blue-600 hover:shadow-lg hover:shadow-blue-700/50 shadow-lg dark:shadow-blue-700/20 transition-all">
+            <Card key={i} className="border-4 border-blue-700 dark:border-primary hover:shadow-lg hover:shadow-blue-700/50 shadow-lg dark:shadow-blue-700/20 transition-all">
               <CardContent className="p-6">
                 <div className="animate-pulse space-y-4">
                   <div className="flex items-center gap-3">
@@ -1596,7 +1596,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
           ))}
         </div>
       ) : filteredServices.length === 0 ? (
-        <Card className="bg-white dark:bg-slate-800 border-0 shadow-md">
+        <Card className="bg-background dark:bg-slate-800 border-0 shadow-md">
           <CardContent className="py-12 text-center">
             <Wrench className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-2 font-semibold">Nenhum serviço encontrado</p>
@@ -1613,7 +1613,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
           {filteredServices
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .map((service) => (
-            <Card key={service.id} className={`bg-white dark:bg-slate-800 border-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer group flex flex-col h-full shadow-lg ${
+            <Card key={service.id} className={`bg-background dark:bg-slate-800 border-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer group flex flex-col h-full shadow-lg ${
               service.priority === "urgente" ? "border-red-500 dark:border-red-400 hover:shadow-red-500/50 dark:shadow-red-500/20" :
               service.priority === "alta" ? "border-orange-500 dark:border-orange-400 hover:shadow-orange-500/50 dark:shadow-orange-500/20" :
               service.priority === "media" ? "border-yellow-500 dark:border-yellow-400 hover:shadow-yellow-500/50 dark:shadow-yellow-500/20" :
@@ -1670,7 +1670,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                     const valorTotal = items.reduce((sum: number, item: any) => sum + parseFloat(item.price || item.amount || "0"), 0);
                     return (
                       <div className="pt-1">
-                        <span className="font-bold text-lg text-blue-600">
+                        <span className="font-bold text-lg text-primary">
                           {formatCurrency(valorTotal.toFixed(2))}
                         </span>
                       </div>
@@ -1714,7 +1714,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                           e.stopPropagation();
                           handleEditProducts(service);
                         }}
-                        className="h-8 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex flex-col items-center justify-center p-1"
+                        className="h-8 text-xs text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 flex flex-col items-center justify-center p-1"
                         title="Gerenciar Produtos/Serviços"
                         data-testid={`button-products-${service.id}`}
                       >
@@ -2108,7 +2108,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                           variant="outline"
                           size="sm"
                           onClick={() => handleEditProductItem(index)}
-                          className="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          className="text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -2129,7 +2129,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                 <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold text-gray-900 dark:text-white">Valor Total:</span>
-                    <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                    <span className="text-xl font-bold text-primary dark:text-blue-400">
                       R$ {getTotalProductsValue().toFixed(2).replace('.', ',')}
                     </span>
                   </div>
@@ -2165,7 +2165,7 @@ export default function Services({ currentUser }: { currentUser?: any }) {
                         });
                       }
                     }}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+                    className="w-4 h-4 rounded border-gray-300 text-primary cursor-pointer"
                   />
                   <label htmlFor="manualMode" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
                     Modo Manual

@@ -117,7 +117,7 @@ export function PDFViewer({ open, onOpenChange, pdfDataUrl, filename }: PDFViewe
         </div>
 
         {/* Action Buttons */}
-        <div className="border-t p-4 flex gap-3 bg-white">
+        <div className="border-t p-4 flex gap-3 bg-background">
           <Button 
             variant="default" 
             onClick={handleShare}

@@ -250,7 +250,7 @@ export default function Inventory() {
           <TabsTrigger value="products" className="flex items-center justify-center gap-2 py-3 px-6 rounded-lg border-2 border-green-500 bg-green-600 hover:bg-green-700 text-white font-bold transition-all shadow-lg shadow-green-500/50 data-[state=active]:bg-green-600 data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/80">
             <Package className="w-5 h-5" /> Produtos
           </TabsTrigger>
-          <TabsTrigger value="services" className="flex items-center justify-center gap-2 py-3 px-6 rounded-lg border-2 border-blue-500 bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-lg shadow-blue-500/50 data-[state=active]:bg-blue-600 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/80">
+          <TabsTrigger value="services" className="flex items-center justify-center gap-2 py-3 px-6 rounded-lg border-2 border-blue-500 bg-primary hover:bg-blue-700 text-white font-bold transition-all shadow-lg shadow-blue-500/50 data-[state=active]:bg-primary data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/80">
             <Wrench className="w-5 h-5" /> Serviços
           </TabsTrigger>
         </TabsList>

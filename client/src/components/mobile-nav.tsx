@@ -35,7 +35,7 @@ export function MobileNav({ onMenuClick, currentUser, onLogout }: MobileNavProps
       {currentUser && onLogout && (
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-white">
-            <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-background/20 rounded-full flex items-center justify-center">
               <User className="h-3 w-3 text-white" />
             </div>
             <span className="text-sm font-medium hidden sm:block">
@@ -46,7 +46,7 @@ export function MobileNav({ onMenuClick, currentUser, onLogout }: MobileNavProps
             onClick={toggleTheme}
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/20"
+            className="text-white hover:bg-background/20"
           >
             {theme === "dark" ? (
               <Sun className="h-4 w-4" />
@@ -59,7 +59,7 @@ export function MobileNav({ onMenuClick, currentUser, onLogout }: MobileNavProps
             onClick={onLogout}
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/20"
+            className="text-white hover:bg-background/20"
           >
             <LogOut className="h-4 w-4" />
           </Button>

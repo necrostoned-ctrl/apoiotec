@@ -54,7 +54,7 @@ export function OptimizedHistoryTimeline({ events, maxDisplay = 10 }: OptimizedH
 
             {/* Event card */}
             <div className="flex-1 pb-2">
-              <div className="bg-white dark:bg-gray-800 rounded p-3 border border-gray-200 dark:border-gray-700 text-xs">
+              <div className="bg-background dark:bg-gray-800 rounded p-3 border border-gray-200 dark:border-gray-700 text-xs">
                 <div className="font-semibold text-gray-900 dark:text-white mb-1">
                   {getEventLabel(event.eventType)}
                 </div>
@@ -82,7 +82,7 @@ export function OptimizedHistoryTimeline({ events, maxDisplay = 10 }: OptimizedH
       {events.length > maxDisplay && !showAll && (
         <button
           onClick={() => setShowAll(true)}
-          className="w-full py-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+          className="w-full py-2 text-xs text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
         >
           Mostrar mais {events.length - maxDisplay} eventos
         </button>

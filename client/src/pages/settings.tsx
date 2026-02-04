@@ -849,7 +849,7 @@ export default function Settings({ currentUser }: { currentUser?: any }) {
 
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
                       <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">Pré-visualização do Cabeçalho PDF:</h4>
-                      <div className="bg-blue-600 text-white p-4 rounded" style={{backgroundColor: settings.primaryColor}}>
+                      <div className="bg-primary text-white p-4 rounded" style={{backgroundColor: settings.primaryColor}}>
                         <div className="font-bold text-lg">{settings.companyName}</div>
                         <div className="text-sm">{settings.pdfSubtitle}</div>
                         <div className="text-xs mt-2">
@@ -1011,7 +1011,7 @@ export default function Settings({ currentUser }: { currentUser?: any }) {
                   <Button
                     onClick={() => saveTelegramMutation.mutate()}
                     disabled={saveTelegramMutation.isPending}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    className="flex-1 bg-primary hover:bg-blue-700"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Salvar Telegram
@@ -1058,7 +1058,7 @@ export default function Settings({ currentUser }: { currentUser?: any }) {
                     userForm.reset();
                     setShowAddUserDialog(true);
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-primary hover:bg-blue-700 text-white"
                   data-testid="button-add-user"
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -1077,10 +1077,10 @@ export default function Settings({ currentUser }: { currentUser?: any }) {
                           {/* Header com status */}
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1">
-                              <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Usuário</p>
+                              <p className="text-xs font-semibold text-primary dark:text-blue-400 uppercase tracking-wide">Usuário</p>
                               <p className="font-bold text-gray-900 dark:text-white text-lg">{user.username}</p>
                             </div>
-                            <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
+                            <span className="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
                               {user.role === 'admin' ? '👑 Admin' : '👤 User'}
                             </span>
                           </div>
@@ -1248,7 +1248,7 @@ export default function Settings({ currentUser }: { currentUser?: any }) {
               )} />
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setShowAddUserDialog(false)}>Cancelar</Button>
-                <Button type="submit" disabled={createUserMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+                <Button type="submit" disabled={createUserMutation.isPending} className="bg-primary hover:bg-blue-700">
                   {createUserMutation.isPending ? "Criando..." : "Criar"}
                 </Button>
               </div>
@@ -1316,7 +1316,7 @@ export default function Settings({ currentUser }: { currentUser?: any }) {
               )} />
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setShowEditUserDialog(false)}>Cancelar</Button>
-                <Button type="submit" disabled={updateUserMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+                <Button type="submit" disabled={updateUserMutation.isPending} className="bg-primary hover:bg-blue-700">
                   {updateUserMutation.isPending ? "Salvando..." : "Salvar"}
                 </Button>
               </div>
@@ -1353,7 +1353,7 @@ export default function Settings({ currentUser }: { currentUser?: any }) {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Função</p>
                 <p className="font-medium">{viewingUser.role === 'admin' ? '👑 Administrador' : '👤 Usuário'}</p>
               </div>
-              <Button onClick={() => setShowViewUserDialog(false)} className="w-full bg-blue-600 hover:bg-blue-700">Fechar</Button>
+              <Button onClick={() => setShowViewUserDialog(false)} className="w-full bg-primary hover:bg-blue-700">Fechar</Button>
             </div>
           )}
         </DialogContent>
@@ -1409,7 +1409,7 @@ export default function Settings({ currentUser }: { currentUser?: any }) {
                     }
                   }}
                   disabled={resetPasswordMutation.isPending || !newPassword}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-primary hover:bg-blue-700"
                   data-testid="button-confirm-reset"
                 >
                   {resetPasswordMutation.isPending ? "Resetando..." : "Resetar"}

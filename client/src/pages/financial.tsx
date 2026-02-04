@@ -1246,7 +1246,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
           setQuickFilterType(quickFilterType === "entrada" && quickFilterStatus === "pago" ? null : "entrada");
           setQuickFilterStatus(quickFilterType === "entrada" && quickFilterStatus === "pago" ? null : "pago");
         }} className="transition-all hover:-translate-y-1">
-          <Card className={`bg-white dark:bg-slate-800 border-4 border-green-600 dark:border-green-500 hover:shadow-lg hover:shadow-green-600/50 shadow-lg dark:shadow-green-600/20 transition-all cursor-pointer h-28 ${quickFilterType === "entrada" && quickFilterStatus === "pago" ? 'ring-4 ring-green-400 scale-105' : ''}`}>
+          <Card className={`bg-background dark:bg-slate-800 border-4 border-green-600 dark:border-green-500 hover:shadow-lg hover:shadow-green-600/50 shadow-lg dark:shadow-green-600/20 transition-all cursor-pointer h-28 ${quickFilterType === "entrada" && quickFilterStatus === "pago" ? 'ring-4 ring-green-400 scale-105' : ''}`}>
             <CardContent className="h-full flex flex-col items-center justify-center p-3">
               <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">Recebido</p>
               <p className="text-lg font-bold text-green-600 dark:text-green-400 text-center break-words">{formatCurrency(stats.income)}</p>
@@ -1259,7 +1259,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
           setQuickFilterType(quickFilterType === "saida" ? null : "saida");
           setQuickFilterStatus(null);
         }} className="transition-all hover:-translate-y-1">
-          <Card className={`bg-white dark:bg-slate-800 border-4 border-red-600 dark:border-red-500 hover:shadow-lg hover:shadow-red-600/50 shadow-lg dark:shadow-red-600/20 transition-all cursor-pointer h-28 ${quickFilterType === "saida" ? 'ring-4 ring-red-400 scale-105' : ''}`}>
+          <Card className={`bg-background dark:bg-slate-800 border-4 border-red-600 dark:border-red-500 hover:shadow-lg hover:shadow-red-600/50 shadow-lg dark:shadow-red-600/20 transition-all cursor-pointer h-28 ${quickFilterType === "saida" ? 'ring-4 ring-red-400 scale-105' : ''}`}>
             <CardContent className="h-full flex flex-col items-center justify-center p-3">
               <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-1">Saídas</p>
               <p className="text-lg font-bold text-red-600 dark:text-red-400 text-center break-words">{formatCurrency(stats.expenses)}</p>
@@ -1272,7 +1272,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
           setQuickFilterType(quickFilterType === "entrada" && quickFilterStatus === "pendente" ? null : "entrada");
           setQuickFilterStatus(quickFilterType === "entrada" && quickFilterStatus === "pendente" ? null : "pendente");
         }} className="transition-all hover:-translate-y-1">
-          <Card className={`bg-white dark:bg-slate-800 border-4 border-yellow-500 dark:border-yellow-400 hover:shadow-lg hover:shadow-yellow-500/50 shadow-lg dark:shadow-yellow-500/20 transition-all cursor-pointer h-28 ${quickFilterType === "entrada" && quickFilterStatus === "pendente" ? 'ring-4 ring-yellow-300 scale-105' : ''}`}>
+          <Card className={`bg-background dark:bg-slate-800 border-4 border-yellow-500 dark:border-yellow-400 hover:shadow-lg hover:shadow-yellow-500/50 shadow-lg dark:shadow-yellow-500/20 transition-all cursor-pointer h-28 ${quickFilterType === "entrada" && quickFilterStatus === "pendente" ? 'ring-4 ring-yellow-300 scale-105' : ''}`}>
             <CardContent className="h-full flex flex-col items-center justify-center p-3">
               <p className="text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-1">Pendente</p>
               <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400 text-center break-words">{formatCurrency(stats.pending)}</p>
@@ -1283,7 +1283,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
       </div>
 
       {/* Filters - Mobile Optimized with Collapsible */}
-      <Card className="mb-6 bg-white dark:bg-slate-800 border-0 shadow-md">
+      <Card className="mb-6 bg-background dark:bg-slate-800 border-0 shadow-md">
         <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowFiltersPanel(!showFiltersPanel)}>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -1306,7 +1306,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                 Período
               </label>
               <Select value={periodFilter} onValueChange={setPeriodFilter}>
-                <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1325,7 +1325,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                 Tipo
               </label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1342,7 +1342,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                 Status
               </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1380,7 +1380,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                     type="date"
                     value={customStartDate}
                     onChange={(e) => setCustomStartDate(e.target.value)}
-                    className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+                    className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700"
                   />
                 </div>
                 <div>
@@ -1391,7 +1391,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                     type="date"
                     value={customEndDate}
                     onChange={(e) => setCustomEndDate(e.target.value)}
-                    className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+                    className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700"
                   />
                 </div>
               </div>
@@ -1416,7 +1416,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                     Criado por
                   </label>
                   <Select value={filterUser} onValueChange={setFilterUser}>
-                    <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                    <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1436,7 +1436,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                     Marcado como pago por
                   </label>
                   <Select value={completedByFilter} onValueChange={setCompletedByFilter}>
-                    <SelectTrigger className="h-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                    <SelectTrigger className="h-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1498,7 +1498,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
           <p className="mt-4 text-gray-600 dark:text-gray-400">Carregando movimentações...</p>
         </div>
       ) : filteredTransactions.length === 0 ? (
-        <Card className="bg-white dark:bg-slate-800 border-0 shadow-md">
+        <Card className="bg-background dark:bg-slate-800 border-0 shadow-md">
           <CardContent className="py-12 text-center">
             <TrendingUp className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-2 font-semibold">Nenhuma movimentação encontrada</p>
@@ -1515,7 +1515,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
           {filteredTransactions
             .sort((a, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
             .map((transaction) => (
-            <Card key={transaction.id} className={`bg-white dark:bg-slate-800 border-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer group relative flex flex-col h-full shadow-lg ${
+            <Card key={transaction.id} className={`bg-background dark:bg-slate-800 border-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer group relative flex flex-col h-full shadow-lg ${
               transaction.type === "entrada" && transaction.status === "pago" ? "border-green-500 dark:border-green-400 hover:shadow-green-500/50 dark:shadow-green-500/20" : (transaction.type === "entrada" && (transaction.status === "pendente" || transaction.status === "parcial") ? "border-yellow-400 dark:border-yellow-300 hover:shadow-yellow-400/50 dark:shadow-yellow-400/20" : "border-red-500 dark:border-red-400 hover:shadow-red-500/50 dark:shadow-red-500/20")
             }`}>
               <CardContent className="p-0 flex flex-col flex-1 relative">
@@ -1569,7 +1569,7 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                     <div className="text-xs bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded p-2 space-y-1">
                       <div className="flex justify-between text-gray-700 dark:text-gray-300">
                         <span>Total:</span>
-                        <span className="font-semibold text-blue-600 dark:text-blue-400">
+                        <span className="font-semibold text-primary dark:text-blue-400">
                           {formatCurrency(parseFloat(transaction.amount.toString()))}
                         </span>
                       </div>
@@ -2363,7 +2363,7 @@ function ParcelamentoDialog({
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               {getCleanDescription(transaction.description || "")}
             </p>
-            <p className="text-lg font-bold text-blue-600">
+            <p className="text-lg font-bold text-primary">
               Total: {formatCurrency(valorTotal)}
             </p>
           </div>
@@ -2461,7 +2461,7 @@ function ParcelamentoDialog({
             </div>
             <div className="flex justify-between items-center">
               <span className="font-medium">Valor Original:</span>
-              <span className="font-bold text-blue-600">
+              <span className="font-bold text-primary">
                 {formatCurrency(valorTotal)}
               </span>
             </div>
@@ -2704,7 +2704,7 @@ function InstallmentForm({
           <Button 
             type="submit" 
             disabled={isLoading || !amount || parseFloat(amount) <= 0 || parseFloat(amount) > remainingAmount}
-            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base"
+            className="w-full h-12 bg-primary hover:bg-blue-700 text-white font-semibold text-base"
           >
             {isLoading ? "Registrando..." : `Registrar Parcela de ${amount ? formatCurrency(parseFloat(amount)) : "R$ 0,00"}`}
           </Button>

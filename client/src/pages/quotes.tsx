@@ -661,7 +661,7 @@ export default function Quotes({ currentUser }: { currentUser?: any }) {
           <p className="text-gray-500">Carregando orçamentos...</p>
         </div>
       ) : quotes.length === 0 ? (
-        <Card className="bg-white dark:bg-slate-800 border-0 shadow-md">
+        <Card className="bg-background dark:bg-slate-800 border-0 shadow-md">
           <CardContent className="py-12 text-center">
             <FileText className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-2 font-semibold">Nenhum orçamento encontrado</p>
@@ -676,7 +676,7 @@ export default function Quotes({ currentUser }: { currentUser?: any }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {quotes.map((quote: QuoteWithClient) => (
-            <Card key={quote.id} className={`bg-white dark:bg-slate-800 border-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer group flex flex-col h-full shadow-lg ${
+            <Card key={quote.id} className={`bg-background dark:bg-slate-800 border-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer group flex flex-col h-full shadow-lg ${
               quote.status === "aprovado" ? "border-green-500 dark:border-green-400 hover:shadow-green-500/50 dark:shadow-green-500/20" :
               quote.status === "rejeitado" ? "border-red-500 dark:border-red-400 hover:shadow-red-500/50 dark:shadow-red-500/20" :
               "border-yellow-500 dark:border-yellow-400 hover:shadow-yellow-500/50 dark:shadow-yellow-500/20"
@@ -780,7 +780,7 @@ export default function Quotes({ currentUser }: { currentUser?: any }) {
                           e.stopPropagation();
                           transformQuoteToServiceMutation.mutate(quote);
                         }}
-                        className="h-8 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex flex-col items-center justify-center p-1"
+                        className="h-8 text-xs text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20 flex flex-col items-center justify-center p-1"
                         title="Converter para Serviço"
                         data-testid={`button-service-${quote.id}`}
                       >
@@ -1251,7 +1251,7 @@ export default function Quotes({ currentUser }: { currentUser?: any }) {
                       <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                         R$ {calculateTotal(items).toFixed(2).replace('.', ',')}
                       </p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                      <p className="text-xs text-primary dark:text-blue-400 mt-1">
                         {items.length} item{items.length !== 1 ? 's' : ''}
                       </p>
                     </div>

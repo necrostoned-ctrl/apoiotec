@@ -120,7 +120,7 @@ export default function TelegramSettings() {
           Configure o bot do Telegram para receber notificações de eventos do sistema
         </p>
         <div className="flex items-center gap-2 mt-4 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-          <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <Users className="h-4 w-4 text-primary dark:text-blue-400" />
           <span className="text-sm font-semibold text-blue-900 dark:text-blue-200">
             Configurando para: <span className="font-bold">{userName}</span>
           </span>
@@ -129,7 +129,7 @@ export default function TelegramSettings() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Formulário de Configuração */}
-        <Card className="bg-white dark:bg-slate-800 border-0 shadow-md">
+        <Card className="bg-background dark:bg-slate-800 border-0 shadow-md">
           <CardHeader>
             <CardTitle>Configurar Telegram</CardTitle>
           </CardHeader>
@@ -143,7 +143,7 @@ export default function TelegramSettings() {
                 placeholder="Digite o token do seu bot"
                 value={botToken}
                 onChange={(e) => setBotToken(e.target.value)}
-                className="bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600"
+                className="bg-background dark:bg-slate-700 border-gray-200 dark:border-slate-600"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Obtenha em https://t.me/BotFather
@@ -158,7 +158,7 @@ export default function TelegramSettings() {
                 placeholder="ID do chat ou grupo"
                 value={chatId}
                 onChange={(e) => setChatId(e.target.value)}
-                className="bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600"
+                className="bg-background dark:bg-slate-700 border-gray-200 dark:border-slate-600"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Envie /start para o bot para descobrir seu Chat ID
@@ -176,7 +176,7 @@ export default function TelegramSettings() {
               <Button
                 onClick={() => saveMutation.mutate()}
                 disabled={saveMutation.isPending}
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 bg-primary hover:bg-blue-700"
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Salvar Configurações
@@ -195,7 +195,7 @@ export default function TelegramSettings() {
         </Card>
 
         {/* Informações e Guia */}
-        <Card className="bg-white dark:bg-slate-800 border-0 shadow-md">
+        <Card className="bg-background dark:bg-slate-800 border-0 shadow-md">
           <CardHeader>
             <CardTitle>Como Configurar</CardTitle>
           </CardHeader>

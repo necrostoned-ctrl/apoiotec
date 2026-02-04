@@ -253,7 +253,7 @@ export default function TodayCalls() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Em Andamento</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-primary">
                   {todayCalls.filter(c => c.status === "em_andamento").length}
                 </p>
               </div>
@@ -344,7 +344,7 @@ export default function TodayCalls() {
                       <div className="flex items-center space-x-4 flex-1">
                         <div className="flex-shrink-0">
                           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <AlertCircle className="h-6 w-6 text-blue-600" />
+                            <AlertCircle className="h-6 w-6 text-primary" />
                           </div>
                         </div>
                         
@@ -394,7 +394,7 @@ export default function TodayCalls() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleAction(call, "edit")}
-                          className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                          className="text-primary border-blue-200 hover:bg-blue-50"
                         >
                           <Edit className="h-4 w-4 mr-1" />
                           Editar
@@ -403,7 +403,7 @@ export default function TodayCalls() {
                         <Button
                           size="sm"
                           onClick={() => handleAction(call, "service")}
-                          className="bg-blue-600 hover:bg-blue-700"
+                          className="bg-primary hover:bg-blue-700"
                         >
                           <ArrowRight className="h-4 w-4 mr-2" />
                           Serviço

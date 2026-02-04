@@ -129,18 +129,18 @@ export default function KnowledgeBase({ currentUser }: { currentUser?: any }) {
         </div>
         <Button 
           onClick={() => { setEditingArticle(null); form.reset(); setIsDialogOpen(true); }}
-          className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+          className="bg-primary hover:bg-blue-700 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4 mr-2" />
           Novo Artigo
         </Button>
       </div>
 
-      <Card className="mb-6 bg-white dark:bg-slate-800 border-0 shadow-md">
+      <Card className="mb-6 bg-background dark:bg-slate-800 border-0 shadow-md">
         <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowFilters(!showFilters)}>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Filter className="h-5 w-5 text-blue-600" />
+              <Filter className="h-5 w-5 text-primary" />
               Filtros
               <span className={`text-sm transition-transform ${showFilters ? 'rotate-180' : ''}`}>⬇️</span>
             </CardTitle>
@@ -155,13 +155,13 @@ export default function KnowledgeBase({ currentUser }: { currentUser?: any }) {
                 placeholder="Por título ou problema..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+                className="bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Categoria</label>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
@@ -223,7 +223,7 @@ export default function KnowledgeBase({ currentUser }: { currentUser?: any }) {
                       className="h-8 text-xs flex flex-col items-center justify-center p-1"
                       title="Visualizar Detalhes"
                     >
-                      <Eye className="h-3.5 w-3.5 text-blue-600" />
+                      <Eye className="h-3.5 w-3.5 text-primary" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -243,7 +243,7 @@ export default function KnowledgeBase({ currentUser }: { currentUser?: any }) {
                       className="h-8 text-xs flex flex-col items-center justify-center p-1"
                       title="Editar"
                     >
-                      <Edit className="h-3.5 w-3.5 text-blue-600" />
+                      <Edit className="h-3.5 w-3.5 text-primary" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -348,7 +348,7 @@ export default function KnowledgeBase({ currentUser }: { currentUser?: any }) {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="text-gray-700 dark:text-gray-300">
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-primary hover:bg-blue-700 text-white">
                   {editingArticle ? "Atualizar" : "Criar"}
                 </Button>
               </div>
@@ -374,7 +374,7 @@ export default function KnowledgeBase({ currentUser }: { currentUser?: any }) {
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
                   <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">Visualizações</p>
-                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{viewingArticle.views}</p>
+                  <p className="text-2xl font-bold text-primary dark:text-blue-400">{viewingArticle.views}</p>
                 </div>
                 <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
                   <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">Útil</p>
@@ -384,7 +384,7 @@ export default function KnowledgeBase({ currentUser }: { currentUser?: any }) {
 
               <div>
                 <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3">Problema</p>
-                <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg border-l-4 border-blue-600">
+                <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg border-l-4 border-primary">
                   <p className="text-gray-900 dark:text-white whitespace-pre-wrap break-words">{viewingArticle.problem}</p>
                 </div>
               </div>

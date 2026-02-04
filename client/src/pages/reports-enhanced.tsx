@@ -179,7 +179,7 @@ export default function ReportsEnhanced({ currentUser }: { currentUser?: any }) 
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-black">
+    <div className="flex flex-col h-full bg-background dark:bg-black">
       <div className="flex items-center justify-between p-4 border-b bg-blue-900 dark:bg-blue-900">
         <div>
           <h1 className="text-2xl font-bold text-white">Relatórios Financeiros</h1>
@@ -309,7 +309,7 @@ export default function ReportsEnhanced({ currentUser }: { currentUser?: any }) 
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Saldo Total</p>
+                  <p className="text-sm font-medium text-primary dark:text-blue-400">Saldo Total</p>
                   <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                     {formatCurrency(
                       filteredTransactions.reduce((sum, t) => {
@@ -319,7 +319,7 @@ export default function ReportsEnhanced({ currentUser }: { currentUser?: any }) 
                     )}
                   </p>
                 </div>
-                <FileText className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <FileText className="h-8 w-8 text-primary dark:text-blue-400" />
               </div>
             </CardContent>
           </Card>
@@ -371,7 +371,7 @@ export default function ReportsEnhanced({ currentUser }: { currentUser?: any }) 
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                             <div className="flex items-center gap-2 min-w-0">
-                              <Building className="h-4 w-4 text-blue-600 dark:text-green-400 flex-shrink-0" />
+                              <Building className="h-4 w-4 text-primary dark:text-green-400 flex-shrink-0" />
                               <span className="font-bold text-base text-gray-900 dark:text-white truncate">
                                 {transaction.client?.name || "Cliente não identificado"}
                               </span>

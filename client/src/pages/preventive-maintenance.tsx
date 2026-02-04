@@ -151,18 +151,18 @@ export default function PreventiveMaintenance({ currentUser }: { currentUser?: a
         </div>
         <Button 
           onClick={() => { setEditingMaintenance(null); form.reset(); setIsDialogOpen(true); }}
-          className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+          className="bg-primary hover:bg-blue-700 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4 mr-2" />
           Agendar Manutenção
         </Button>
       </div>
 
-      <Card className="mb-6 bg-white dark:bg-slate-800 border-0 shadow-md">
+      <Card className="mb-6 bg-background dark:bg-slate-800 border-0 shadow-md">
         <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowFilters(!showFilters)}>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Search className="h-5 w-5 text-blue-600" />
+              <Search className="h-5 w-5 text-primary" />
               Filtros
               <span className={`text-sm transition-transform ${showFilters ? 'rotate-180' : ''}`}>⬇️</span>
             </CardTitle>
@@ -181,12 +181,12 @@ export default function PreventiveMaintenance({ currentUser }: { currentUser?: a
                     isActive 
                       ? "border-l-blue-600 bg-blue-50 dark:bg-blue-950 shadow-md" 
                       : "border-l-gray-300 dark:border-l-gray-600 hover:shadow-md"
-                  } bg-white dark:bg-slate-800`}
+                  } bg-background dark:bg-slate-800`}
                   onClick={() => setStatusFilter(statusFilter === status ? "" : status)}
                 >
                   <CardContent className="p-4">
                     <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide capitalize">{status}</p>
-                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{count}</p>
+                    <p className="text-3xl font-bold text-primary dark:text-blue-400 mt-2">{count}</p>
                   </CardContent>
                 </Card>
               );
@@ -199,7 +199,7 @@ export default function PreventiveMaintenance({ currentUser }: { currentUser?: a
       {isLoading ? (
         <p className="text-center text-gray-500">Carregando...</p>
       ) : filteredMaintenances.length === 0 ? (
-        <Card className="bg-white dark:bg-slate-800 border-0">
+        <Card className="bg-background dark:bg-slate-800 border-0">
           <CardContent className="py-12 text-center">
             <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600 dark:text-gray-300">Nenhuma manutenção encontrada</p>
@@ -213,7 +213,7 @@ export default function PreventiveMaintenance({ currentUser }: { currentUser?: a
                 new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
             )
             .map((maintenance) => (
-              <Card key={maintenance.id} className="bg-white dark:bg-slate-800 border-4 border-blue-500 dark:border-blue-400 hover:shadow-xl hover:shadow-blue-500/50 shadow-lg dark:shadow-blue-500/20 transition-shadow flex flex-col h-full">
+              <Card key={maintenance.id} className="bg-background dark:bg-slate-800 border-4 border-blue-500 dark:border-blue-400 hover:shadow-xl hover:shadow-blue-500/50 shadow-lg dark:shadow-blue-500/20 transition-shadow flex flex-col h-full">
                 <CardContent className="p-0 flex flex-col flex-1">
                   <div className="p-4 space-y-3 flex-1">
                     <div className="flex items-start justify-between">
@@ -265,7 +265,7 @@ export default function PreventiveMaintenance({ currentUser }: { currentUser?: a
                         className="h-8 text-xs flex flex-col items-center justify-center p-1"
                         title="Visualizar Detalhes"
                       >
-                        <Eye className="h-3.5 w-3.5 text-blue-600" />
+                        <Eye className="h-3.5 w-3.5 text-primary" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -287,7 +287,7 @@ export default function PreventiveMaintenance({ currentUser }: { currentUser?: a
                         className="h-8 text-xs flex flex-col items-center justify-center p-1"
                         title="Editar"
                       >
-                        <Edit className="h-3.5 w-3.5 text-blue-600" />
+                        <Edit className="h-3.5 w-3.5 text-primary" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -418,7 +418,7 @@ export default function PreventiveMaintenance({ currentUser }: { currentUser?: a
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="text-gray-700 dark:text-gray-300">
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-primary hover:bg-blue-700 text-white">
                   {editingMaintenance ? "Atualizar" : "Agendar"}
                 </Button>
               </div>
@@ -463,7 +463,7 @@ export default function PreventiveMaintenance({ currentUser }: { currentUser?: a
               {viewingMaintenance.equipmentType && (
                 <div>
                   <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-2">Tipo de Equipamento</p>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border-l-4 border-blue-600">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border-l-4 border-primary">
                     <p className="text-gray-900 dark:text-white">{viewingMaintenance.equipmentType}</p>
                   </div>
                 </div>

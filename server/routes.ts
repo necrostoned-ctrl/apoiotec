@@ -1,11 +1,55 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
+import { createServer as createHttpServer } from "http"; 
+import { createServer as createHttpsServer, type Server } from "https"; 
 import { storage } from "./storage";
 import { db } from "./db";
 import bcrypt from "bcryptjs";
-import { insertClientSchema, insertServiceSchema, insertCallSchema, insertQuoteSchema, insertFinancialTransactionSchema, insertMessageSchema, insertClientNoteSchema, insertPreventiveMaintenanceSchema, insertKnowledgeBaseSchema, insertDownloadLinkSchema, insertInventoryProductSchema, insertInventoryServiceSchema, insertInventoryMovementSchema, clientNotes } from "@shared/schema";
+import { 
+  insertClientSchema, 
+  insertServiceSchema, 
+  insertCallSchema, 
+  insertQuoteSchema, 
+  insertFinancialTransactionSchema, 
+  insertMessageSchema, 
+  insertClientNoteSchema, 
+  insertPreventiveMaintenanceSchema, 
+  insertKnowledgeBaseSchema, 
+  insertDownloadLinkSchema, 
+  insertInventoryProductSchema, 
+  insertInventoryServiceSchema, 
+  insertInventoryMovementSchema, 
+  clientNotes 
+} from "@shared/schema";
 import { desc, sql } from "drizzle-orm";
-import { sendTelegramNotification, formatCallNotification, formatCallToServiceNotification, formatServiceToFinancialNotification, formatFinancialPaidNotification, formatFinancialToServiceNotification, formatClientCreatedNotification, formatClientUpdatedNotification, formatServiceCreatedNotification, formatServiceUpdatedNotification, formatCallCreatedNotification, formatCallUpdatedNotification, formatFinancialCreatedNotification, formatQuoteCreatedNotification, formatQuoteUpdatedNotification, formatCallDeletedNotification, formatServiceDeletedNotification, formatFinancialDeletedNotification, formatClientDeletedNotification, formatFinancialDiscountNotification, formatFinancialInstallmentNotification, formatFinancialPaymentNotification, formatFinancialPDFNotification, formatFinancialUpdateNotification, formatQuoteGeneratedNotification, formatUserCreatedNotification, formatUserUpdatedNotification } from "./utils/telegram";
+import { 
+  sendTelegramNotification, 
+  formatCallNotification, 
+  formatCallToServiceNotification, 
+  formatServiceToFinancialNotification, 
+  formatFinancialPaidNotification, 
+  formatFinancialToServiceNotification, 
+  formatClientCreatedNotification, 
+  formatClientUpdatedNotification, 
+  formatServiceCreatedNotification, 
+  formatServiceUpdatedNotification, 
+  formatCallCreatedNotification, 
+  formatCallUpdatedNotification, 
+  formatFinancialCreatedNotification, 
+  formatQuoteCreatedNotification, 
+  formatQuoteUpdatedNotification, 
+  formatCallDeletedNotification, 
+  formatServiceDeletedNotification, 
+  formatFinancialDeletedNotification, 
+  formatClientDeletedNotification, 
+  formatFinancialDiscountNotification, 
+  formatFinancialInstallmentNotification, 
+  formatFinancialPaymentNotification, 
+  formatFinancialPDFNotification, 
+  formatFinancialUpdateNotification, 
+  formatQuoteGeneratedNotification, 
+  formatUserCreatedNotification, 
+  formatUserUpdatedNotification 
+} from "./utils/telegram";
 import { validateNotificationPayload, ensureCorrectUserId } from "./utils/notificationValidator";
 import { generateHardwareFingerprint } from "./utils/hardware-fingerprint";
 import { execSync } from "child_process";
@@ -2673,47 +2717,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ============================================================================
-  // SISTEMA DE ATIVAÇÃO
-  // ============================================================================
-  app.post("/api/activation/check", async (req, res) => {
-    try {
-      const fingerprint = await generateHardwareFingerprint();
-      const activation = await storage.getActivation();
+ // ============================================================================
+// SISTEMA DE ATIVAÇÃO - (TRAVA DE HARDWARE REMOVIDA)
+// ============================================================================
 
-      // 1ª Execução: sem ativação prévia
-      if (!activation) {
-        console.log("🔍 [ATIVAÇÃO] PRIMEIRA EXECUÇÃO - Sistema não foi ativado ainda");
-        return res.json({ status: "not_activated", requiresSetup: true, fingerprint });
-      }
+// Esta rota agora sempre diz que o sistema está ativado
+app.post("/api/activation/check", async (req, res) => {
+  console.log("🔍 [ATIVAÇÃO] Check de hardware ignorado. Sistema liberado.");
+  return res.json({ status: "activated", activated: true });
+});
 
-      // Verifica se o hardware mudou (DMI + HD Serial + MAC diferente)
-      if (activation.hardwareFingerprint !== fingerprint) {
-        console.log("🔍 [ATIVAÇÃO] ⚠️  HARDWARE ALTERADO DETECTADO!");
-        console.log("   Fingerprint anterior:", activation.hardwareFingerprint);
-        console.log("   Fingerprint atual:   ", fingerprint);
-        return res.json({ status: "hardware_changed", requiresActivation: true, fingerprint });
-      }
-
-      // Verifica se está bloqueado por tentativas falhadas
-      if (activation.blockedUntil && activation.blockedUntil > new Date()) {
-        const secondsLeft = Math.ceil((activation.blockedUntil.getTime() - Date.now()) / 1000);
-        console.log("🔍 [ATIVAÇÃO] 🚫 Bloqueado por rate limiting:", secondsLeft, "segundos");
-        return res.json({ status: "blocked", secondsLeft });
-      }
-
-      // Hardware OK! Reseta tentativas se houver
-      if (activation.failedAttempts && activation.failedAttempts > 0) {
-        await storage.resetFailedAttempts();
-      }
-
-      console.log("🔍 [ATIVAÇÃO] ✅ LIBERADO - Hardware = Mesmo servidor, todos os dispositivos têm acesso");
-      res.json({ status: "activated", activated: true });
-    } catch (error) {
-      console.error("Erro ao verificar ativação:", error);
-      res.status(500).json({ message: "Erro ao verificar ativação" });
-    }
+// Esta rota aprova qualquer tentativa de ativação automaticamente
+app.post("/api/activation/activate", async (req, res) => {
+  console.log("🔐 [ATIVAÇÃO] Ativação automática processada com sucesso.");
+  return res.json({ 
+    success: true, 
+    activated: true, 
+    message: "Sistema liberado pela Apoiotec!" 
   });
+});
 
   app.post("/api/activation/activate", async (req, res) => {
     try {
@@ -3853,6 +3875,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
+ // ============================================================================
+  // INICIALIZAÇÃO DO SERVIDOR (HÍBRIDO: CLOUD/LOCAL)
+  // ============================================================================
+  
+  let server: any;
+
+  // Se estivermos em produção (Fly.io), ignoramos certificados e usamos HTTP
+  if (process.env.NODE_ENV === "production") {
+    server = createHttpServer(app);
+    console.log("🌐 [SERVER] Fly.io Detectado: Iniciando em modo HTTP (SSL via Proxy)");
+  } else {
+    try {
+      const keyPath = "/opt/apoiotec/certs/server.key";
+      const certPath = "/opt/apoiotec/certs/server.crt";
+
+      // Verifica se os arquivos existem no seu Arch Linux
+      if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+        server = createHttpsServer({
+          key: fs.readFileSync(keyPath),
+          cert: fs.readFileSync(certPath),
+        }, app);
+        console.log("🔐 [SERVER] Arch Linux Detectado: Iniciando em modo HTTPS Local");
+      } else {
+        server = createHttpServer(app);
+        console.log("⚠️ [SERVER] Certificados não encontrados em /opt/apoiotec/certs/. Usando HTTP.");
+      }
+    } catch (error) {
+      server = createHttpServer(app);
+      console.log("⚠️ [SERVER] Erro ao carregar certificados locais. Usando HTTP.");
+    }
+  }
+
+  // Opcional: Redirecionamento de porta 8080 (apenas para ambiente local se necessário)
+  if (process.env.NODE_ENV !== "production") {
+    createHttpServer((req, res) => {
+      const host = req.headers.host?.split(':')[0];
+      res.writeHead(301, { "Location": `https://${host}:5000${req.url}` });
+      res.end();
+    }).listen(8080, "0.0.0.0");
+  }
+
+  return server;
 }

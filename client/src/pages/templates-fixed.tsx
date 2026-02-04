@@ -150,7 +150,7 @@ export default function Templates() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-50 rounded-lg">
-                    <FileText className="h-5 w-5 text-blue-600" />
+                    <FileText className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <CardTitle className="text-lg">{template.name}</CardTitle>

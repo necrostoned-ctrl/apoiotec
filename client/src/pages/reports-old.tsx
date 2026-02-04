@@ -657,7 +657,7 @@ export default function Reports() {
                         <TableCell className="text-right text-red-600 font-medium">
                           {formatCurrency(data.totalSaidas)}
                         </TableCell>
-                        <TableCell className={`text-right font-bold ${saldo >= 0 ? 'text-blue-600' : 'text-yellow-600'}`}>
+                        <TableCell className={`text-right font-bold ${saldo >= 0 ? 'text-primary' : 'text-yellow-600'}`}>
                           {formatCurrency(saldo)}
                         </TableCell>
                         <TableCell className="text-center">

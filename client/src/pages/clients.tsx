@@ -230,7 +230,7 @@ export default function Clients({ currentUser }: { currentUser?: any }) {
       </div>
 
       {/* Filtros Card com Colapsável */}
-      <Card className="mb-6 bg-white dark:bg-slate-800 border-0 shadow-md">
+      <Card className="mb-6 bg-background dark:bg-slate-800 border-0 shadow-md">
         <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowFilters(!showFilters)}>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -248,11 +248,11 @@ export default function Clients({ currentUser }: { currentUser?: any }) {
               placeholder="Buscar cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+              className="pl-10 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-40 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+            <SelectTrigger className="w-full sm:w-40 bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -267,7 +267,7 @@ export default function Clients({ currentUser }: { currentUser?: any }) {
 
       {/* Clients List */}
       {filteredClients.length === 0 ? (
-        <Card className="bg-white dark:bg-slate-800 border-4 border-cyan-500 dark:border-cyan-400 shadow-lg dark:shadow-cyan-500/20 transition-all">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-cyan-500 dark:border-cyan-400 shadow-lg dark:shadow-cyan-500/20 transition-all">
           <CardContent className="py-12 text-center">
             <User className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-2 font-semibold">Nenhum cliente encontrado</p>
@@ -288,13 +288,13 @@ export default function Clients({ currentUser }: { currentUser?: any }) {
           {/* Responsive Cards Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {[...filteredClients].sort((a, b) => a.name.localeCompare(b.name)).map((client) => (
-              <Card key={client.id} className="bg-white dark:bg-slate-800 border-4 border-blue-500 dark:border-blue-400 hover:shadow-lg hover:shadow-blue-500/50 shadow-lg dark:shadow-blue-500/20 transition-all overflow-hidden rounded-lg flex flex-col">
+              <Card key={client.id} className="bg-background dark:bg-slate-800 border-4 border-blue-500 dark:border-blue-400 hover:shadow-lg hover:shadow-blue-500/50 shadow-lg dark:shadow-blue-500/20 transition-all overflow-hidden rounded-lg flex flex-col">
                 <CardContent className="p-2 flex-1 flex flex-col">
                   {/* Header com Ícone e Nome */}
                   <div className="flex items-start justify-between gap-1 mb-2">
                     <div className="flex items-center gap-1 flex-1 min-w-0">
                       <div className="h-6 w-6 bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/40 dark:to-cyan-900/40 rounded-md flex items-center justify-center flex-shrink-0">
-                        <User className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                        <User className="h-3 w-3 text-primary dark:text-blue-400" />
                       </div>
                       <h3 className="text-sm sm:text-xs font-bold text-gray-900 dark:text-white break-words line-clamp-3">{client.name}</h3>
                     </div>
@@ -348,7 +348,7 @@ export default function Clients({ currentUser }: { currentUser?: any }) {
                       title="Ver detalhes"
                       data-testid={`button-view-${client.id}`}
                     >
-                      <Eye className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                      <Eye className="h-3 w-3 text-primary dark:text-blue-400" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -601,7 +601,7 @@ export default function Clients({ currentUser }: { currentUser?: any }) {
               {/* Cards de Informações */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Card de Contato */}
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <div className="bg-background dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-center mb-3">
                     <Phone className="h-5 w-5 text-blue-500 mr-2" />
                     <h4 className="font-semibold text-gray-900 dark:text-white">Contato</h4>
@@ -627,7 +627,7 @@ export default function Clients({ currentUser }: { currentUser?: any }) {
                 </div>
 
                 {/* Card de Documentos */}
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <div className="bg-background dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-center mb-3">
                     <FileText className="h-5 w-5 text-purple-500 mr-2" />
                     <h4 className="font-semibold text-gray-900 dark:text-white">Documentos</h4>
@@ -653,7 +653,7 @@ export default function Clients({ currentUser }: { currentUser?: any }) {
 
               {/* Card de Endereço - Full Width */}
               {(viewingClient.address || viewingClient.city) && (
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <div className="bg-background dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-center mb-3">
                     <MapPin className="h-5 w-5 text-green-500 mr-2" />
                     <h4 className="font-semibold text-gray-900 dark:text-white">Endereço</h4>

@@ -222,7 +222,7 @@ export function ClientFilter({
 
       {/* Indicador de cliente selecionado */}
       {selectedClient && (
-        <div className="text-xs text-blue-600 mt-1 px-1">
+        <div className="text-xs text-primary mt-1 px-1">
           Filtrando por: {selectedClient.name}
         </div>
       )}

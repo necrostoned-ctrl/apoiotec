@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+// Removida a importação estática do ./vite para evitar erro de 'package vite not found'
 import bcryptjs from "bcryptjs";
 import { db } from "./db";
 import { users } from "@shared/schema";
@@ -9,10 +9,19 @@ import { eq } from "drizzle-orm";
 
 const app = express();
 
-// Função para criar usuário admin padrão
+// Função simples de log para substituir o do vite.ts em produção
+const log = (msg: string) => {
+  const time = new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  console.log(`[${time}] ${msg}`);
+};
+
 async function ensureDefaultAdmin() {
   try {
-    // Verificar se o usuário admin já existe
     const existingAdmin = await db.query.users.findFirst({
       where: eq(users.username, "admin"),
     });
@@ -22,10 +31,7 @@ async function ensureDefaultAdmin() {
       return;
     }
 
-    // Criar hash da senha padrão
     const hashedPassword = await bcryptjs.hash("admin", 10);
-
-    // Criar usuário admin padrão
     const newAdmin = await db.insert(users).values({
       username: "admin",
       name: "Administrador",
@@ -37,10 +43,10 @@ async function ensureDefaultAdmin() {
     console.error("❌ Erro ao criar usuário admin padrão:", error);
   }
 }
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// CRÍTICO: Desabilitar cache HTTP para APIs - força recarregamento de dados
 app.use((req, res, next) => {
   if (req.path.startsWith("/api")) {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
@@ -68,45 +74,38 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
       if (logLine.length > 80) {
         logLine = logLine.slice(0, 79) + "…";
       }
-
       log(logLine);
     }
   });
-
   next();
 });
 
 (async () => {
-  // Criar usuário admin padrão se não existir
   await ensureDefaultAdmin();
-
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // CARREGAMENTO DINÂMICO DO VITE: O segredo para funcionar na nuvem
   if (app.get("env") === "development") {
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
+    const { serveStatic } = await import("./vite");
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // PORTA DINÂMICA: Essencial para Fly.io, Render, etc.
+  const port = Number(process.env.PORT) || 5000;
+  
   server.listen({
     port,
     host: "0.0.0.0",

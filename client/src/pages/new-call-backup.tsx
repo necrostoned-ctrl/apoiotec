@@ -189,7 +189,7 @@ export default function NewCall() {
                               type="button"
                               variant="outline"
                               size="sm"
-                              className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                              className="text-primary border-blue-200 hover:bg-blue-50"
                             >
                               <Plus className="h-4 w-4 mr-1" />
                               Novo Cliente
@@ -470,7 +470,7 @@ export default function NewCall() {
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  className="flex-1 bg-primary hover:bg-blue-700"
                   disabled={createCallMutation.isPending}
                   onClick={() => {
                     console.log("Button clicked");

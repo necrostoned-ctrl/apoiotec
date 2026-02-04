@@ -81,7 +81,7 @@ export function NotificationSettings({
         {/* Header */}
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <Bell className="w-5 h-5 text-blue-600" />
+            <Bell className="w-5 h-5 text-primary" />
             Notificações Financeiras
           </h3>
           <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 px-3 py-1 rounded-full font-medium">
@@ -189,12 +189,12 @@ export function NotificationSettings({
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 z-50 w-96 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-lg p-4 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 top-full mt-2 z-50 w-96 bg-background dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-lg p-4 animate-in fade-in slide-in-from-top-2">
           <div className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 pb-3">
               <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Bell className="w-5 h-5 text-blue-600" />
+                <Bell className="w-5 h-5 text-primary" />
                 Configurações de Notificação
               </h3>
             </div>

@@ -164,7 +164,7 @@ export default function NewCallSimple() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
+                  className="w-full max-w-md bg-primary hover:bg-blue-700 text-white font-semibold py-3"
                   disabled={createCallMutation.isPending}
                 >
                   <Save className="h-4 w-4 mr-2" />

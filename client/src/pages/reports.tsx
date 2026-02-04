@@ -1119,7 +1119,7 @@ export default function Reports() {
                 Período
               </label>
               <Select value={periodFilter} onValueChange={setPeriodFilter}>
-                <SelectTrigger className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                <SelectTrigger className="bg-background dark:bg-slate-800 border-gray-200 dark:border-slate-700">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

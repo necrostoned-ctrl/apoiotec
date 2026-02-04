@@ -186,7 +186,7 @@ export function PDFViewer({ isOpen, onClose, pdfBlob, filename, title }: PDFView
       {/* Área do PDF */}
       <div className="flex-1 overflow-auto bg-gray-900 flex items-center justify-center p-2 md:p-4">
         <div 
-          className="bg-white shadow-2xl max-w-full max-h-full"
+          className="bg-background shadow-2xl max-w-full max-h-full"
           style={{
             transform: `scale(${zoom}) rotate(${rotation}deg)`,
             transformOrigin: 'center center',

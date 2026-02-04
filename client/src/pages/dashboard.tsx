@@ -361,16 +361,16 @@ export default function Dashboard() {
       {/* Cards de Estatísticas Principais */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <Link href="/calls">
-          <Card className="bg-white dark:bg-slate-800 border-4 border-blue-600 dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all cursor-pointer h-28">
+          <Card className="bg-background dark:bg-slate-800 border-4 border-primary dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all cursor-pointer h-28">
             <CardContent className="h-full flex flex-col items-center justify-center p-3">
-              <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Chamados Hoje</p>
-              <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{todayCalls}</p>
+              <p className="text-xs font-semibold text-primary dark:text-blue-400 mb-1">Chamados Hoje</p>
+              <p className="text-xl font-bold text-primary dark:text-blue-400">{todayCalls}</p>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/financial">
-          <Card className="bg-white dark:bg-slate-800 border-4 border-green-600 dark:border-green-500 hover:shadow-lg hover:shadow-green-600/50 shadow-lg dark:shadow-green-600/20 transition-all cursor-pointer h-28">
+          <Card className="bg-background dark:bg-slate-800 border-4 border-green-600 dark:border-green-500 hover:shadow-lg hover:shadow-green-600/50 shadow-lg dark:shadow-green-600/20 transition-all cursor-pointer h-28">
             <CardContent className="h-full flex flex-col items-center justify-center p-3">
               <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">Receita Mensal</p>
               <p className="text-lg font-bold text-green-600 dark:text-green-400 text-center break-words">{formatCurrency(stats.monthlyRevenue)}</p>
@@ -379,7 +379,7 @@ export default function Dashboard() {
         </Link>
 
         <Link href="/financial">
-          <Card className="bg-white dark:bg-slate-800 border-4 border-red-600 dark:border-red-500 hover:shadow-lg hover:shadow-red-600/50 shadow-lg dark:shadow-red-600/20 transition-all cursor-pointer h-28">
+          <Card className="bg-background dark:bg-slate-800 border-4 border-red-600 dark:border-red-500 hover:shadow-lg hover:shadow-red-600/50 shadow-lg dark:shadow-red-600/20 transition-all cursor-pointer h-28">
             <CardContent className="h-full flex flex-col items-center justify-center p-3">
               <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-1">Gastos do Mês</p>
               <p className="text-lg font-bold text-red-600 dark:text-red-400 text-center break-words">{formatCurrency(stats.monthlyExpenses)}</p>
@@ -388,7 +388,7 @@ export default function Dashboard() {
         </Link>
 
         <Link href="/financial">
-          <Card className="bg-white dark:bg-slate-800 border-4 border-yellow-500 dark:border-yellow-400 hover:shadow-lg hover:shadow-yellow-500/50 shadow-lg dark:shadow-yellow-500/20 transition-all cursor-pointer h-28">
+          <Card className="bg-background dark:bg-slate-800 border-4 border-yellow-500 dark:border-yellow-400 hover:shadow-lg hover:shadow-yellow-500/50 shadow-lg dark:shadow-yellow-500/20 transition-all cursor-pointer h-28">
             <CardContent className="h-full flex flex-col items-center justify-center p-3">
               <p className="text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-1">Pendências do Mês</p>
               <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400 text-center break-words">{formatCurrency(stats.monthlyPending)}</p>
@@ -400,7 +400,7 @@ export default function Dashboard() {
       {/* Gráficos e Cards Informativos - Grid 2 Colunas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         {/* Faturamento por Mês */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-purple-600 dark:border-purple-500 hover:shadow-lg hover:shadow-purple-600/50 shadow-lg dark:shadow-purple-600/20">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-purple-600 dark:border-purple-500 hover:shadow-lg hover:shadow-purple-600/50 shadow-lg dark:shadow-purple-600/20">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm">
               <TrendingUp className="h-4 w-4 text-purple-500" />
@@ -422,7 +422,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Distribuição Financeira */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-indigo-600 dark:border-indigo-500 hover:shadow-lg hover:shadow-indigo-600/50 shadow-lg dark:shadow-indigo-600/20">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-indigo-600 dark:border-indigo-500 hover:shadow-lg hover:shadow-indigo-600/50 shadow-lg dark:shadow-indigo-600/20">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm">
               <DollarSign className="h-4 w-4 text-indigo-500" />
@@ -442,7 +442,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Chamados por Prioridade */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-cyan-600 dark:border-cyan-500 hover:shadow-lg hover:shadow-cyan-600/50 shadow-lg dark:shadow-cyan-600/20">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-cyan-600 dark:border-cyan-500 hover:shadow-lg hover:shadow-cyan-600/50 shadow-lg dark:shadow-cyan-600/20">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm">
               <AlertTriangle className="h-4 w-4 text-cyan-500" />
@@ -463,7 +463,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Status dos Chamados */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-rose-600 dark:border-rose-500 hover:shadow-lg hover:shadow-rose-600/50 shadow-lg dark:shadow-rose-600/20">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-rose-600 dark:border-rose-500 hover:shadow-lg hover:shadow-rose-600/50 shadow-lg dark:shadow-rose-600/20">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm">
               <CheckCircle className="h-4 w-4 text-rose-500" />
@@ -486,7 +486,7 @@ export default function Dashboard() {
       {/* Gráficos Diversos - Figuras Representativas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         {/* Área Acumulada - Evolução de Receita e Despesa */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-emerald-600 dark:border-emerald-500 hover:shadow-lg hover:shadow-emerald-600/50 shadow-lg">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-emerald-600 dark:border-emerald-500 hover:shadow-lg hover:shadow-emerald-600/50 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm"><TrendingUp className="h-4 w-4 text-emerald-500" />Evolução Acumulada</CardTitle>
           </CardHeader>
@@ -505,7 +505,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Radar - Análise Multidimensional */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-violet-600 dark:border-violet-500 hover:shadow-lg hover:shadow-violet-600/50 shadow-lg">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-violet-600 dark:border-violet-500 hover:shadow-lg hover:shadow-violet-600/50 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm"><AlertTriangle className="h-4 w-4 text-violet-500" />Análise de Prioridades</CardTitle>
           </CardHeader>
@@ -523,7 +523,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Composição - Comparação Receita/Despesa por Status */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-cyan-600 dark:border-cyan-500 hover:shadow-lg hover:shadow-cyan-600/50 shadow-lg">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-cyan-600 dark:border-cyan-500 hover:shadow-lg hover:shadow-cyan-600/50 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm"><DollarSign className="h-4 w-4 text-cyan-500" />Composição Financeira</CardTitle>
           </CardHeader>
@@ -542,7 +542,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Tipo Dispersão - Distribuição de Valores */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-orange-600 dark:border-orange-500 hover:shadow-lg hover:shadow-orange-600/50 shadow-lg">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-orange-600 dark:border-orange-500 hover:shadow-lg hover:shadow-orange-600/50 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm"><TrendingUp className="h-4 w-4 text-orange-500" />Distribuição de Transações</CardTitle>
           </CardHeader>
@@ -561,7 +561,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Barras Comparativas - Status vs Prioridade */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-pink-600 dark:border-pink-500 hover:shadow-lg hover:shadow-pink-600/50 shadow-lg">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-pink-600 dark:border-pink-500 hover:shadow-lg hover:shadow-pink-600/50 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm"><Phone className="h-4 w-4 text-pink-500" />Panorama de Chamados</CardTitle>
           </CardHeader>
@@ -579,7 +579,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Donut duplo - Proporção Final */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-rose-600 dark:border-rose-500 hover:shadow-lg hover:shadow-rose-600/50 shadow-lg">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-rose-600 dark:border-rose-500 hover:shadow-lg hover:shadow-rose-600/50 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm"><CheckCircle className="h-4 w-4 text-rose-500" />Proporção Totais</CardTitle>
           </CardHeader>
@@ -598,7 +598,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Chamados Recentes */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-blue-600 dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-primary dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Phone className="h-5 w-5 text-cyan-500" />
@@ -664,7 +664,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Serviços em Andamento */}
-        <Card className="bg-white dark:bg-slate-800 border-4 border-blue-600 dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all">
+        <Card className="bg-background dark:bg-slate-800 border-4 border-primary dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Wrench className="h-5 w-5 text-green-500" />
@@ -680,7 +680,7 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {activeServices.slice(0, 5).map((service: any) => (
-                  <div key={service.id} className="flex items-center justify-between p-3 border-4 border-blue-600 dark:border-blue-500 rounded-lg transition-colors hover:shadow-lg hover:shadow-blue-600/50 dark:shadow-blue-600/20">
+                  <div key={service.id} className="flex items-center justify-between p-3 border-4 border-primary dark:border-blue-500 rounded-lg transition-colors hover:shadow-lg hover:shadow-blue-600/50 dark:shadow-blue-600/20">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
@@ -705,7 +705,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Transações Pendentes */}
-        <Card className="lg:col-span-2 bg-white dark:bg-slate-800 border-4 border-blue-600 dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all">
+        <Card className="lg:col-span-2 bg-background dark:bg-slate-800 border-4 border-primary dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
@@ -721,7 +721,7 @@ export default function Dashboard() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {pendingTransactions.slice(0, 4).map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-3 border-4 border-yellow-500 dark:border-yellow-400 rounded-lg hover:shadow-lg hover:shadow-yellow-500/50 dark:shadow-yellow-500/20 transition-colors bg-white dark:bg-slate-800">
+                  <div key={transaction.id} className="flex items-center justify-between p-3 border-4 border-yellow-500 dark:border-yellow-400 rounded-lg hover:shadow-lg hover:shadow-yellow-500/50 dark:shadow-yellow-500/20 transition-colors bg-background dark:bg-slate-800">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="text-sm font-medium text-gray-900 truncate">
@@ -749,7 +749,7 @@ export default function Dashboard() {
       </div>
 
       {/* Ações Rápidas */}
-      <Card className="bg-white dark:bg-slate-800 border-4 border-blue-600 dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all">
+      <Card className="bg-background dark:bg-slate-800 border-4 border-primary dark:border-blue-500 hover:shadow-lg hover:shadow-blue-600/50 shadow-lg dark:shadow-blue-600/20 transition-all">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
@@ -759,7 +759,7 @@ export default function Dashboard() {
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Link href="/new-call">
-              <Button className="h-20 flex-col gap-2 w-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 border-4 border-blue-500 dark:border-blue-600 hover:shadow-lg hover:shadow-blue-500/50 dark:shadow-blue-500/20">
+              <Button className="h-20 flex-col gap-2 w-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 border-4 border-blue-500 dark:border-primary hover:shadow-lg hover:shadow-blue-500/50 dark:shadow-blue-500/20">
                 <Phone className="h-6 w-6" />
                 <span className="text-sm">Novo Chamado</span>
               </Button>

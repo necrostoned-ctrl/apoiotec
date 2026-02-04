@@ -217,7 +217,7 @@ export function UniversalSearch() {
                           className="w-full text-left p-3 bg-blue-500/5 hover:bg-blue-500/15 border border-blue-500/20 hover:border-blue-500/50 rounded-lg transition-all"
                         >
                           <p className="font-semibold text-blue-300">{service.name}</p>
-                          <p className="text-xs text-blue-600">{service.clientName || "Sem cliente"}</p>
+                          <p className="text-xs text-primary">{service.clientName || "Sem cliente"}</p>
                         </button>
                       </Link>
                     ))}
@@ -293,7 +293,7 @@ export function UniversalSearch() {
                           className="w-full text-left p-3 bg-blue-500/5 hover:bg-blue-500/15 border border-blue-500/20 hover:border-blue-500/50 rounded-lg transition-all"
                         >
                           <p className="font-semibold text-blue-300">{note.clientName}</p>
-                          <p className="text-xs text-blue-600 line-clamp-2">{note.content}</p>
+                          <p className="text-xs text-primary line-clamp-2">{note.content}</p>
                         </button>
                       </Link>
                     ))}
