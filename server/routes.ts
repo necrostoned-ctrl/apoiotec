@@ -151,9 +151,29 @@ const DEFAULT_SETUP_USER = {
 
 
 
-async function createGoogleCalendarEvent(callData, creatorName) {
+
+async function createGoogleCalendarEvent(callData: any, creatorName: string) {
   try {
+    const creds = process.env.GOOGLE_CREDENTIALS;
+    if (!creds || creds.trim() === "") {
+      console.log("⚠️ [CALENDAR] Pulando sincronização: Variável GOOGLE_CREDENTIALS vazia.");
+      return;
+    }
+
+    let parsedCreds;
+    try {
+      parsedCreds = JSON.parse(creds);
+    } catch (e) {
+      console.error("❌ [CALENDAR] Erro de formato no JSON das credenciais.");
+      return;
+    }
+
     const auth = new google.auth.GoogleAuth({
+      credentials: parsedCreds,
+      scopes: ['https://www.googleapis.com/auth/calendar.events'],
+    });
+    // ... restante da função ...
+({
       keyFile: path.join(process.cwd(), 'google-key.json'),
       scopes: ['https://www.googleapis.com/auth/calendar.events'],
     });
