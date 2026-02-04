@@ -181,6 +181,30 @@ async function createGoogleCalendarEvent(callData: any, creatorName: string) {
   }
 }
 
+
+async function runPreBackupCleanup() {
+  console.log("🧹 [BACKUP-CLEANUP] Iniciando limpeza pré-backup...");
+  try {
+    // Limpa lixo de autenticação e sessões expiradas
+    await db.execute(sql`DELETE FROM "sessions" WHERE "expire" < NOW()`);
+    await db.execute(sql`DELETE FROM "one_time_tokens"`);
+    await db.execute(sql`DELETE FROM "refresh_tokens"`);
+    
+    // Mantém apenas os últimos 30 dias de histórico para não inflar o backup
+    await db.execute(sql`DELETE FROM "history_events" WHERE "created_at" < NOW() - INTERVAL '30 days'`);
+    
+    // Limpa logs de backup com mais de 7 dias
+    await db.execute(sql`DELETE FROM "backup_execution_logs" WHERE "created_at" < NOW() - INTERVAL '7 days'`);
+
+    // Compacta o banco fisicamente para o arquivo vir menor
+    await db.execute(sql`VACUUM ANALYZE`);
+    
+    console.log("✅ [BACKUP-CLEANUP] Banco limpo e compactado!");
+  } catch (error: any) {
+    console.log("⚠️ [BACKUP-CLEANUP] Erro na limpeza (mas o backup seguirá):", error.message);
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.post("/api/auth/login", async (req, res) => {
@@ -2866,6 +2890,7 @@ app.post("/api/activation/activate", async (req, res) => {
   const upload = multer({ storage: multer.memoryStorage() });
 
   app.post("/api/backup/generate", async (req, res) => {
+    await runPreBackupCleanup();
     try {
       const { sendToTelegram } = req.body;
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -2924,6 +2949,7 @@ app.post("/api/activation/activate", async (req, res) => {
   });
 
   app.get("/api/backup/history", async (req, res) => {
+    await runPreBackupCleanup();
     try {
       const history = await storage.getBackupHistory();
       res.json(history);
@@ -3051,6 +3077,7 @@ app.post("/api/activation/activate", async (req, res) => {
   
   // Criar agendamento
   app.post("/api/backup/schedules", async (req, res) => {
+    await runPreBackupCleanup();
     try {
       const userId = 1;
       const { frequency, scheduledTime, sendToTelegram } = req.body;
@@ -3075,6 +3102,7 @@ app.post("/api/activation/activate", async (req, res) => {
 
   // Listar agendamentos
   app.get("/api/backup/schedules", async (req, res) => {
+    await runPreBackupCleanup();
     try {
       const userId = 1;
       const schedules = await storage.getBackupSchedules(userId);
@@ -3123,6 +3151,7 @@ app.post("/api/activation/activate", async (req, res) => {
 
   // Listar logs de execução
   app.get("/api/backup/execution-logs", async (req, res) => {
+    await runPreBackupCleanup();
     try {
       const logs = await storage.getBackupExecutionLogs();
       res.json(logs);
@@ -3162,6 +3191,7 @@ app.post("/api/activation/activate", async (req, res) => {
 
   // Acessar pasta de backups
   app.get("/api/backup/folder-path", async (req, res) => {
+    await runPreBackupCleanup();
     try {
       const backupPath = path.join(process.cwd(), 'backups');
       if (!fs.existsSync(backupPath)) {
@@ -3175,6 +3205,7 @@ app.post("/api/activation/activate", async (req, res) => {
 
   // Listar arquivos de backup
   app.get("/api/backup/files", async (req, res) => {
+    await runPreBackupCleanup();
     try {
       const backupPath = path.join(process.cwd(), 'backups');
       if (!fs.existsSync(backupPath)) {
@@ -3203,6 +3234,7 @@ app.post("/api/activation/activate", async (req, res) => {
 
   // Testar execução imediata
   app.post("/api/backup/test-execution/:id", async (req, res) => {
+    await runPreBackupCleanup();
     try {
       const scheduleId = parseInt(req.params.id);
       const schedule = await storage.getBackupSchedule(scheduleId);
