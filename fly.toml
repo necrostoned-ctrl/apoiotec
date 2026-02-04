@@ -17,3 +17,5 @@ primary_region = 'gru'
   memory = '256mb'
   cpus = 1
   memory_mb = 256
+  [processes]
+  app = "/bin/sh -c 'swapon /swapfile ; node dist/index.js'"
