@@ -123,7 +123,7 @@ async function updateParentTransactionStatus(parentId: number) {
     
     console.log("Transação pai atualizada com status:", newStatus);
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao atualizar transação pai:", error);
   }
 }
@@ -155,60 +155,31 @@ const DEFAULT_SETUP_USER = {
 async function createGoogleCalendarEvent(callData: any, creatorName: string) {
   try {
     const creds = process.env.GOOGLE_CREDENTIALS;
-    if (!creds || creds.trim() === "") {
-      console.log("⚠️ [CALENDAR] Pulando sincronização: Variável GOOGLE_CREDENTIALS vazia.");
-      return;
-    }
-
-    let parsedCreds;
-    try {
-      parsedCreds = JSON.parse(creds);
-    } catch (e) {
-      console.error("❌ [CALENDAR] Erro de formato no JSON das credenciais.");
-      return;
-    }
+    if (!creds || creds.length < 10) return;
 
     const auth = new google.auth.GoogleAuth({
-      credentials: parsedCreds,
+      credentials: JSON.parse(creds),
       scopes: ['https://www.googleapis.com/auth/calendar.events'],
     });
-    // ... restante da função ...
-({
-      keyFile: path.join(process.cwd(), 'google-key.json'),
-      scopes: ['https://www.googleapis.com/auth/calendar.events'],
-    });
+    
     const calendar = google.calendar({ version: 'v3', auth });
     const client = await storage.getClient(callData.clientId);
-    const clientName = client ? client.name : "Cliente";
-
-    // Define data/hora (ou usa a atual se vazio)
-    let startDateTime = new Date(callData.callDate || new Date());
-    if (callData.scheduledDate && callData.scheduledTime) {
-      startDateTime = new Date(`${callData.scheduledDate}T${callData.scheduledTime}:00`);
-    }
-    const endDateTime = new Date(startDateTime.getTime() + (60 * 60 * 1000));
+    const clientName = client ? client.name : "Cliente #" + callData.clientId;
 
     await calendar.events.insert({
       calendarId: '49a59e6761efdb568a7ad42266f2eb33e8dec5984becb520c917e4baa3a59c97@group.calendar.google.com',
       requestBody: {
-        summary: `🛠️ ${clientName} | ${callData.equipment || 'Equipamento'}`,
-        description: `Descrição: ${callData.description}\n\nTécnico: ${creatorName}`,
-        start: { dateTime: startDateTime.toISOString(), timeZone: 'America/Sao_Paulo' },
-        end: { dateTime: endDateTime.toISOString(), timeZone: 'America/Sao_Paulo' },
-        reminders: {
-          useDefault: false,
-          overrides: [{ method: 'popup', minutes: 60 }],
-        },
+        summary: `🛠️ ${clientName}`,
+        description: `📝 PROBLEMA: ${callData.description || 'N/A'}\n\n🔒 OBSERVAÇÕES INTERNAS:\n${callData.internalNotes || 'Sem observações'}\n\n👤 TÉCNICO: ${creatorName}`,
+        start: { dateTime: new Date(callData.callDate || new Date()).toISOString() },
+        end: { dateTime: new Date(Date.now() + 3600000).toISOString() },
       },
     });
-    console.log("✅ [CALENDAR] Evento criado com Equipamento e Alerta!");
-  } catch (error) {
+    console.log("✅ [CALENDAR] Sincronizado com Observações!");
+  } catch (error: any) {
     console.log("❌ [CALENDAR] Erro:", error.message);
   }
 }
-
-
-
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
@@ -266,7 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.json(userWithoutPassword);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
@@ -276,7 +247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clients = await storage.getClients();
       res.json(clients);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch clients" });
     }
   });
@@ -289,7 +260,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Client not found" });
       }
       res.json(client);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch client" });
     }
   });
@@ -343,7 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.status(201).json(client);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Client creation error:", error);
       res.status(500).json({ message: "Failed to create client" });
     }
@@ -375,7 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await sendTelegramNotification(formatClientUpdatedNotification(client, userName), undefined, notificationUserId,  undefined, client.id || undefined);
       
       res.json(client);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: "Invalid client data" });
     }
   });
@@ -425,7 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Delete client error:", error);
       res.status(500).json({ message: "Failed to delete client" });
     }
@@ -440,7 +411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const notes = await storage.getClientNotes(clientId);
       res.json(notes);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch notes" });
     }
   });
@@ -475,7 +446,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await sendTelegramNotification(`📝 Nota adicionada ao cliente ${client?.name || `#${clientId}`}\n━━━━━━━━━━━━━━━━\n📋 Nota: ${validatedData.content?.substring(0, 100) || "Sem conteúdo"}...\n⏰ ${new Date().toLocaleTimeString("pt-BR")}`, "client_note_created", notificationUserId, userName);
       
       res.status(201).json(note);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: "Invalid note data" });
     }
   });
@@ -512,7 +483,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await sendTelegramNotification(`📝 Nota atualizada\n━━━━━━━━━━━━━━━━\n📋 Nota: ${content?.substring(0, 100) || "Sem conteúdo"}...\n⏰ ${new Date().toLocaleTimeString("pt-BR")}`, "client_note_updated", notificationUserId, userName);
       
       res.json(note);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: "Invalid note data" });
     }
   });
@@ -545,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await sendTelegramNotification(`🗑️ Nota deletada\n━━━━━━━━━━━━━━━━\n📝 Nota ID: ${id}\n⏰ ${new Date().toLocaleTimeString("pt-BR")}`, "client_note_deleted", notificationUserId, userName);
       
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to delete note" });
     }
   });
@@ -555,7 +526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const services = await storage.getServices();
       res.json(services);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch services" });
     }
   });
@@ -700,7 +671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(service);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Service creation error:", error);
       const errorMessage = error instanceof Error ? (error as Error).message : "Unknown error";
       res.status(400).json({ 
@@ -785,7 +756,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(service);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Service update error:", error);
       res.status(400).json({ message: "Invalid service data" });
     }
@@ -844,7 +815,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Service deletion error:", error);
       res.status(500).json({ message: "Failed to delete service" });
     }
@@ -855,7 +826,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const calls = await storage.getCalls();
       res.json(calls);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch calls" });
     }
   });
@@ -868,7 +839,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Call not found" });
       }
       res.json(call);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch call" });
     }
   });
@@ -942,7 +913,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Automação Google Agenda
     createGoogleCalendarEvent(call, "Marcelo");
     res.status(201).json(call);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Call creation error:", error);
       res.status(400).json({ message: "Invalid call data", error: (error as Error).message });
     }
@@ -969,7 +940,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Call not found" });
       }
       res.json(call);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Call update error:", error);
       res.status(400).json({ message: "Invalid call data" });
     }
@@ -1047,7 +1018,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(call);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Call patch error:", error);
       res.status(400).json({ message: "Invalid call data", error: (error as Error).message });
     }
@@ -1097,7 +1068,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Call deletion error:", error);
       res.status(500).json({ message: "Failed to delete call" });
     }
@@ -1108,7 +1079,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const quotes = await storage.getQuotes();
       res.json(quotes);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch quotes" });
     }
   });
@@ -1155,7 +1126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(quote);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Quote creation error:", error);
       res.status(400).json({ message: "Invalid quote data" });
     }
@@ -1196,7 +1167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(quote);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Quote update error:", error);
       res.status(400).json({ message: "Invalid quote data" });
     }
@@ -1210,7 +1181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Quote not found" });
       }
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Quote deletion error:", error);
       res.status(500).json({ message: "Failed to delete quote" });
     }
@@ -1221,7 +1192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const transactions = await storage.getFinancialTransactions();
       res.json(transactions);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching financial transactions:", error);
       res.status(500).json({ message: "Failed to fetch financial transactions", error: (error as Error).message });
     }
@@ -1337,7 +1308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(transaction);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Financial transaction creation error:", error);
       res.status(400).json({ message: "Invalid financial transaction data", error: (error as Error).message });
     }
@@ -1581,7 +1552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("Updated transaction:", transaction);
       res.json(transaction);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Transaction update error:", error);
       res.status(400).json({ message: "Invalid transaction data", error: (error as Error).message });
     }
@@ -1616,7 +1587,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Transaction deletion error:", error);
       
       // Provide specific error messages for common issues
@@ -1694,7 +1665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await sendTelegramNotification(`📦 Parcela Criada\n━━━━━━━━━━━━━━━━\n💳 Transação #${parentId}\n📋 Parcela ${installmentData.installmentNumber}/${installmentData.totalInstallments}\n💰 Valor: R$ ${installmentData.amount?.toString() || "0.00"}\n📅 Vencimento: ${new Date(installmentData.dueDate).toLocaleDateString("pt-BR")}\n⏰ ${new Date().toLocaleTimeString("pt-BR")}`, "installment_created", notificationUserId, userName);
 
       res.json(installment);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating installment:", error);
       res.status(500).json({ message: "Failed to create installment", error: (error as Error).message });
     }
@@ -1795,7 +1766,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         newAmount,
         transaction: updatedTransaction
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error applying discount:", error);
       res.status(500).json({ message: "Failed to apply discount", error: (error as Error).message });
     }
@@ -1910,7 +1881,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         parcelas: parcelasCreated
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao criar parcelamento:", error);
       res.status(500).json({ 
         message: "Erro interno do servidor", 
@@ -1924,7 +1895,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const messages = await storage.getMessages();
       res.json(messages);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch messages" });
     }
   });
@@ -1934,7 +1905,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertMessageSchema.parse(req.body);
       const message = await storage.createMessage(validatedData);
       res.status(201).json(message);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: "Invalid message data" });
     }
   });
@@ -1948,7 +1919,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Message not found" });
       }
       res.json(message);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Message update error:", error);
       res.status(400).json({ message: "Invalid message data" });
     }
@@ -1962,7 +1933,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Message not found" });
       }
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Message deletion error:", error);
       res.status(500).json({ message: "Failed to delete message" });
     }
@@ -1973,7 +1944,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const links = await storage.getDownloadLinks();
       res.json(links);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch download links" });
     }
   });
@@ -1983,7 +1954,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertDownloadLinkSchema.parse(req.body);
       const link = await storage.createDownloadLink(validatedData);
       res.status(201).json(link);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: "Invalid link data" });
     }
   });
@@ -1996,7 +1967,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Link not found" });
       }
       res.json(link);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: "Invalid link data" });
     }
   });
@@ -2009,7 +1980,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Link not found" });
       }
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to delete link" });
     }
   });
@@ -2020,7 +1991,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const users = await storage.getUsers();
       res.json(users);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch users" });
     }
   });
@@ -2043,7 +2014,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       res.status(201).json(user);
-    } catch (error) {
+    } catch (error: any) {
       console.error("User creation error:", error);
       res.status(400).json({ message: "Invalid user data" });
     }
@@ -2071,7 +2042,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       res.json(user);
-    } catch (error) {
+    } catch (error: any) {
       console.error("User update error:", error);
       res.status(400).json({ message: "Failed to update user" });
     }
@@ -2085,7 +2056,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       console.error("User deletion error:", error);
       res.status(500).json({ message: "Failed to delete user" });
     }
@@ -2114,7 +2085,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({ message: "Senha resetada com sucesso!" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Reset password error:", error);
       res.status(500).json({ message: "Erro ao resetar senha" });
     }
@@ -2124,7 +2095,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const stats = await storage.getDashboardStats();
       res.json(stats);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch dashboard stats" });
     }
   });
@@ -2152,7 +2123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         res.json(defaultSettings);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching settings:", error);
       res.status(500).json({ message: "Failed to fetch settings" });
     }
@@ -2163,7 +2134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Salvando configurações:", req.body);
       const savedSettings = await storage.updateSystemSettings(req.body);
       res.json(savedSettings);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving settings:", error);
       res.status(500).json({ message: "Failed to save settings" });
     }
@@ -2175,7 +2146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const templates = await storage.getTemplates();
       console.log("Templates fetched:", templates.length);
       res.json(templates);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching templates:", error);
       res.status(500).json({ message: "Failed to fetch templates" });
     }
@@ -2189,7 +2160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Template not found" });
       }
       res.json(template);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching template:", error);
       res.status(500).json({ message: "Failed to fetch template" });
     }
@@ -2201,7 +2172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const template = await storage.createTemplate(req.body);
       console.log("Template created:", template);
       res.status(201).json(template);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating template:", error);
       res.status(500).json({ message: "Failed to create template", error: (error as Error).message });
     }
@@ -2217,7 +2188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.log("Template updated:", template);
       res.json(template);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating template:", error);
       res.status(500).json({ message: "Failed to update template", error: (error as Error).message });
     }
@@ -2231,7 +2202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Template not found" });
       }
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting template:", error);
       res.status(500).json({ message: "Failed to delete template" });
     }
@@ -2255,7 +2226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true, 
         message: "Contadores de documentos zerados com sucesso. Novos documentos começarão do número 1." 
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao zerar contadores:", error);
       res.status(500).json({ message: "Erro ao zerar contadores", error: (error as Error).message });
     }
@@ -2307,7 +2278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           transactionsRemoved: orphanTransactions.rowCount || 0
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro na limpeza:", error);
       res.status(500).json({ message: "Erro na limpeza de dados", error: (error as Error).message });
     }
@@ -2328,7 +2299,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       res.json(enrichedEvents);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao buscar histórico do chamado", error: (error as Error).message });
     }
   });
@@ -2347,7 +2318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       res.json(enrichedEvents);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao buscar histórico do serviço", error: (error as Error).message });
     }
   });
@@ -2366,7 +2337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       res.json(enrichedEvents);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao buscar histórico da transação", error: (error as Error).message });
     }
   });
@@ -2380,7 +2351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const config = await storage.getTelegramConfig(userId);
       res.json(config || {});
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao buscar configuração Telegram", error: (error as Error).message });
     }
   });
@@ -2397,7 +2368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const config = await storage.updateTelegramConfig(userId, { userId, botToken, chatId, isActive });
       res.json(config);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao salvar configuração Telegram", error: (error as Error).message });
     }
   });
@@ -2425,7 +2396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(400).json({ message: "Erro ao enviar notificação", error: await response.text() });
       }
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao testar Telegram", error: (error as Error).message });
     }
   });
@@ -2436,7 +2407,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = parseInt(req.params.userId);
       const prefs = await storage.getNotificationPreferences(userId);
       res.json(prefs);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao buscar preferências", error: (error as Error).message });
     }
   });
@@ -2449,7 +2420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const pref = await storage.setNotificationPreference(userId, notificationType, enabled);
       res.json(pref);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao salvar preferência", error: (error as Error).message });
     }
   });
@@ -2479,7 +2450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const sent = await sendTelegramNotification(message, type);
       res.json({ success: sent, message: sent ? "Notificação enviada" : "Nenhuma configuração Telegram encontrada" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao enviar notificação customizada:", error);
       res.status(500).json({ message: "Erro ao enviar notificação", error: (error as Error).message });
     }
@@ -2490,7 +2461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const articles = await storage.getKnowledgeBase();
       res.json(articles);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar conhecimento:", error);
       res.status(500).json({ message: "Erro ao buscar base de conhecimento", error: (error as Error).message });
     }
@@ -2523,7 +2494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(article);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao criar artigo:", error);
       res.status(500).json({ message: "Erro ao criar artigo", error: (error as Error).message });
     }
@@ -2534,7 +2505,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const article = await storage.updateKnowledgeArticle(id, req.body);
       res.json(article);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao atualizar artigo" });
     }
   });
@@ -2544,7 +2515,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const success = await storage.deleteKnowledgeArticle(id);
       res.json({ success });
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao deletar artigo" });
     }
   });
@@ -2554,7 +2525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const maintenances = await storage.getPreventiveMaintenances();
       res.json(maintenances);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar manutenção preventiva:", error);
       res.status(500).json({ message: "Erro ao buscar manutenções", error: (error as Error).message });
     }
@@ -2593,7 +2564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(maintenance);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao criar manutenção:", error);
       res.status(500).json({ message: "Erro ao criar manutenção", error: (error as Error).message });
     }
@@ -2608,7 +2579,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } : req.body;
       const maintenance = await storage.updatePreventiveMaintenance(id, data);
       res.json(maintenance);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao atualizar manutenção" });
     }
   });
@@ -2618,7 +2589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const maintenance = await storage.completePreventiveMaintenance(id);
       res.json(maintenance);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao completar manutenção" });
     }
   });
@@ -2628,7 +2599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const success = await storage.deletePreventiveMaintenance(id);
       res.json({ success });
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao deletar manutenção" });
     }
   });
@@ -2716,7 +2687,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactions: filteredTransactions,
         notes: filteredNotes
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar:", error);
       res.status(500).json({ message: "Erro ao buscar" });
     }
@@ -2743,7 +2714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         calls: clientCalls,
         transactions: clientTransactions
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar items do cliente:", error);
       res.status(500).json({ message: "Erro ao buscar items" });
     }
@@ -2789,7 +2760,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           info: "Esses dados órfãos não aparecem mais nas buscas, mas são mantidos no sistema para segurança dos dados."
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao diagnosticar dados órfãos:", error);
       res.status(500).json({ message: "Erro ao diagnosticar", error: (error as Error).message });
     }
@@ -2883,7 +2854,7 @@ app.post("/api/activation/activate", async (req, res) => {
         console.log("   ✅ Sistema ativado pela primeira vez com fingerprint:", fingerprint);
         res.json({ success: true, activated: true, message: "Sistema ativado com sucesso!" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao ativar sistema:", error);
       res.status(500).json({ message: "Erro ao ativar sistema" });
     }
@@ -2908,7 +2879,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const dbUrl = process.env.DATABASE_URL;
       if (!dbUrl) throw new Error("DATABASE_URL não configurada");
 
-      const urlObj = new URL(dbUrl);
+      const urlObj = new URL(dbUrl!);
       const user = urlObj.username;
       const password = urlObj.password;
       const host = urlObj.hostname;
@@ -2946,7 +2917,7 @@ app.post("/api/activation/activate", async (req, res) => {
       res.setHeader('Content-Type', 'application/octet-stream');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.send(fileContent);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao gerar backup:", error);
       res.status(500).json({ message: "Erro ao gerar backup" });
     }
@@ -2956,7 +2927,7 @@ app.post("/api/activation/activate", async (req, res) => {
     try {
       const history = await storage.getBackupHistory();
       res.json(history);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao buscar histórico" });
     }
   });
@@ -2979,7 +2950,7 @@ app.post("/api/activation/activate", async (req, res) => {
       } else {
         res.status(404).json({ message: "Arquivo não encontrado" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao deletar arquivo:", error);
       res.status(500).json({ message: "Erro ao deletar arquivo" });
     }
@@ -3003,7 +2974,7 @@ app.post("/api/activation/activate", async (req, res) => {
       } else {
         res.status(404).json({ message: "Backup não encontrado" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao deletar backup:", error);
       res.status(500).json({ message: "Erro ao deletar backup" });
     }
@@ -3024,7 +2995,7 @@ app.post("/api/activation/activate", async (req, res) => {
       }
       console.log(`🗑️ ${history.length} backup(s) deletado(s)`);
       res.json({ message: `${history.length} backup(s) deletado(s) com sucesso`, count: history.length });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao limpar backups:", error);
       res.status(500).json({ message: "Erro ao limpar backups" });
     }
@@ -3039,7 +3010,7 @@ app.post("/api/activation/activate", async (req, res) => {
       fs.writeFileSync(backupPath, req.file.buffer);
 
       const dbUrl = process.env.DATABASE_URL;
-      const urlObj = new URL(dbUrl);
+      const urlObj = new URL(dbUrl!);
       const env = { 
         ...process.env, 
         PGPASSWORD: urlObj.password 
@@ -3068,7 +3039,7 @@ app.post("/api/activation/activate", async (req, res) => {
 
       if (fs.existsSync(backupPath)) fs.unlinkSync(backupPath);
       res.json({ success: true, message: "Backup restaurado com sucesso!" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro crítico no restore:", error);
       res.status(500).json({ message: "Erro ao restaurar backup" });
     }
@@ -3096,7 +3067,7 @@ app.post("/api/activation/activate", async (req, res) => {
         nextExecutionAt: new Date(),
       });
       res.json(schedule);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao criar agendamento:", error);
       res.status(500).json({ message: "Erro ao criar agendamento" });
     }
@@ -3108,7 +3079,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const userId = 1;
       const schedules = await storage.getBackupSchedules(userId);
       res.json(schedules);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao buscar agendamentos" });
     }
   });
@@ -3119,7 +3090,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const id = parseInt(req.params.id);
       const schedule = await storage.updateBackupSchedule(id, req.body);
       res.json(schedule);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao atualizar agendamento" });
     }
   });
@@ -3130,7 +3101,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const id = parseInt(req.params.id);
       const success = await storage.deleteBackupSchedule(id);
       res.json({ success });
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao deletar agendamento" });
     }
   });
@@ -3145,7 +3116,7 @@ app.post("/api/activation/activate", async (req, res) => {
         isActive: !schedule.isActive
       });
       res.json(updated);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao alternar agendamento" });
     }
   });
@@ -3155,7 +3126,7 @@ app.post("/api/activation/activate", async (req, res) => {
     try {
       const logs = await storage.getBackupExecutionLogs();
       res.json(logs);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar logs:", error);
       res.status(500).json({ message: "Erro ao buscar logs" });
     }
@@ -3171,7 +3142,7 @@ app.post("/api/activation/activate", async (req, res) => {
       } else {
         res.status(404).json({ message: "Log não encontrado" });
       }
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao deletar log" });
     }
   });
@@ -3197,7 +3168,7 @@ app.post("/api/activation/activate", async (req, res) => {
         fs.mkdirSync(backupPath, { recursive: true });
       }
       res.json({ path: backupPath });
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Erro ao obter caminho da pasta" });
     }
   });
@@ -3224,7 +3195,7 @@ app.post("/api/activation/activate", async (req, res) => {
         })
         .sort((a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime());
       res.json({ files: backupFiles, count: backupFiles.length });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao listar arquivos:", error);
       res.status(500).json({ message: "Erro ao listar arquivos" });
     }
@@ -3246,7 +3217,7 @@ app.post("/api/activation/activate", async (req, res) => {
         const backupPath = path.join(backupDir, filename);
         const dbUrl = process.env.DATABASE_URL;
         if (!dbUrl) throw new Error("DATABASE_URL não configurada");
-        const urlObj = new URL(dbUrl);
+        const urlObj = new URL(dbUrl!);
         const user2 = urlObj.username;
         const password = urlObj.password;
         const host = urlObj.hostname;
@@ -3274,11 +3245,11 @@ app.post("/api/activation/activate", async (req, res) => {
           }
         }
         res.json({ success: true, log: executionLog, fileSize });
-      } catch (error) {
+      } catch (error: any) {
         console.error("Erro ao testar backup:", error);
         res.status(500).json({ message: `Erro ao testar: ${error instanceof Error ? error.message : 'Erro desconhecido'}` });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao testar backup:", error);
       res.status(500).json({ message: `Erro ao testar: ${error instanceof Error ? error.message : 'Erro desconhecido'}` });
     }
@@ -3291,7 +3262,7 @@ app.post("/api/activation/activate", async (req, res) => {
     try {
       const products = await storage.getInventoryProducts();
       res.json(products);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching inventory products:", error);
       res.status(500).json({ message: "Erro ao buscar produtos" });
     }
@@ -3302,7 +3273,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const validated = insertInventoryProductSchema.parse(req.body);
       const product = await storage.createInventoryProduct(validated);
       res.status(201).json(product);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating inventory product:", error);
       res.status(400).json({ message: "Erro ao criar produto" });
     }
@@ -3315,7 +3286,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const product = await storage.updateInventoryProduct(id, validated);
       if (!product) return res.status(404).json({ message: "Produto não encontrado" });
       res.json(product);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating inventory product:", error);
       res.status(400).json({ message: "Erro ao atualizar produto" });
     }
@@ -3327,7 +3298,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const success = await storage.deleteInventoryProduct(id);
       if (!success) return res.status(404).json({ message: "Produto não encontrado" });
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting inventory product:", error);
       res.status(400).json({ message: "Erro ao deletar produto" });
     }
@@ -3340,7 +3311,7 @@ app.post("/api/activation/activate", async (req, res) => {
     try {
       const services = await storage.getInventoryServices();
       res.json(services);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching inventory services:", error);
       res.status(500).json({ message: "Erro ao buscar serviços" });
     }
@@ -3351,7 +3322,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const validated = insertInventoryServiceSchema.parse(req.body);
       const service = await storage.createInventoryService(validated);
       res.status(201).json(service);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating inventory service:", error);
       res.status(400).json({ message: "Erro ao criar serviço" });
     }
@@ -3364,7 +3335,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const service = await storage.updateInventoryService(id, validated);
       if (!service) return res.status(404).json({ message: "Serviço não encontrado" });
       res.json(service);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating inventory service:", error);
       res.status(400).json({ message: "Erro ao atualizar serviço" });
     }
@@ -3376,7 +3347,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const success = await storage.deleteInventoryService(id);
       if (!success) return res.status(404).json({ message: "Serviço não encontrado" });
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting inventory service:", error);
       res.status(400).json({ message: "Erro ao deletar serviço" });
     }
@@ -3389,7 +3360,7 @@ app.post("/api/activation/activate", async (req, res) => {
         await storage.deleteInventoryProduct(product.id);
       }
       res.json({ success: true, deleted: products.length });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting all inventory products:", error);
       res.status(400).json({ message: "Erro ao deletar produtos" });
     }
@@ -3401,7 +3372,7 @@ app.post("/api/activation/activate", async (req, res) => {
       const { inventoryMovements } = await import("@shared/schema");
       await (db2 as any).db.delete(inventoryMovements);
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting all movements:", error);
       res.status(400).json({ message: "Erro ao deletar movimentações" });
     }
@@ -3414,7 +3385,7 @@ app.post("/api/activation/activate", async (req, res) => {
     try {
       const stats = await storage.getInventoryStats();
       res.json(stats);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching inventory stats:", error);
       res.status(500).json({ message: "Erro ao buscar estatísticas" });
     }
@@ -3424,7 +3395,7 @@ app.post("/api/activation/activate", async (req, res) => {
     try {
       const movements = await storage.getInventoryMovements();
       res.json(movements);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching inventory movements:", error);
       res.status(500).json({ message: "Erro ao buscar movimentações" });
     }
@@ -3453,7 +3424,7 @@ app.post("/api/activation/activate", async (req, res) => {
       }
       
       res.status(201).json(movement);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating inventory movement:", error);
       res.status(400).json({ message: "Erro ao registrar movimentação" });
     }
@@ -3494,7 +3465,7 @@ app.post("/api/activation/activate", async (req, res) => {
       }
       
       res.json({ products, movements: filteredMovements, services });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar dados do relatório:", error);
       res.status(500).json({ message: "Erro ao buscar dados do relatório" });
     }
@@ -3556,7 +3527,7 @@ app.post("/api/activation/activate", async (req, res) => {
             const backupPath = path.join(backupDir, filename);
             const dbUrl = process.env.DATABASE_URL;
             if (!dbUrl) throw new Error("DATABASE_URL não configurada");
-            const urlObj = new URL(dbUrl);
+            const urlObj = new URL(dbUrl!);
             const dbUser = urlObj.username;
             const dbPassword = urlObj.password;
             const dbHost = urlObj.hostname;
@@ -3595,7 +3566,7 @@ app.post("/api/activation/activate", async (req, res) => {
               notes: `Backup automático - ${schedule.frequency}`
             });
             console.log(`✅ Backup agendado #${schedule.id} concluído com sucesso`);
-          } catch (error) {
+          } catch (error: any) {
             console.error(`❌ Erro ao executar backup agendado #${schedule.id}:`, error);
             const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
             const errorTime = new Date();
@@ -3631,7 +3602,7 @@ app.post("/api/activation/activate", async (req, res) => {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro no background job de backups:", error);
     }
   }, 1 * 60 * 1000);
@@ -3687,7 +3658,7 @@ app.post("/api/activation/activate", async (req, res) => {
       }
       
       res.json(certificates);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar certificados:", error);
       res.status(500).json({ error: "Erro ao buscar certificados" });
     }
@@ -3742,7 +3713,7 @@ app.post("/api/activation/activate", async (req, res) => {
         certificate: result.rows[0],
         info: validation.info
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao fazer upload do certificado:", error);
       res.status(500).json({ error: "Erro ao processar certificado" });
     }
@@ -3772,7 +3743,7 @@ app.post("/api/activation/activate", async (req, res) => {
       }
       
       res.json({ valid: true, info: validation.info });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao testar certificado:", error);
       res.status(500).json({ error: "Erro ao testar certificado" });
     }
@@ -3796,7 +3767,7 @@ app.post("/api/activation/activate", async (req, res) => {
       await db.execute(sql`DELETE FROM digital_certificates WHERE id = ${id}`);
       
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao deletar certificado:", error);
       res.status(500).json({ error: "Erro ao deletar certificado" });
     }
@@ -3896,7 +3867,7 @@ app.post("/api/activation/activate", async (req, res) => {
         success: true,
         signedPdfBase64: signatureResult.signedPdfBuffer?.toString('base64')
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao assinar documento:", error);
       res.status(500).json({ error: "Erro ao assinar documento" });
     }
@@ -3913,7 +3884,7 @@ app.post("/api/activation/activate", async (req, res) => {
       `);
       
       res.json(result.rows);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar log de assinaturas:", error);
       res.status(500).json({ error: "Erro ao buscar log de assinaturas" });
     }
@@ -3928,7 +3899,7 @@ app.post("/api/activation/activate", async (req, res) => {
       `);
       
       res.json(result.rows);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao verificar certificados:", error);
       res.status(500).json({ error: "Erro ao verificar certificados" });
     }
@@ -3960,7 +3931,7 @@ app.post("/api/activation/activate", async (req, res) => {
         server = createHttpServer(app);
         console.log("⚠️ [SERVER] Certificados não encontrados em /opt/apoiotec/certs/. Usando HTTP.");
       }
-    } catch (error) {
+    } catch (error: any) {
       server = createHttpServer(app);
       console.log("⚠️ [SERVER] Erro ao carregar certificados locais. Usando HTTP.");
     }
