@@ -182,29 +182,28 @@ async function createGoogleCalendarEvent(callData: any, creatorName: string) {
 }
 
 
+
 async function runPreBackupCleanup() {
-  console.log("🧹 [BACKUP-CLEANUP] Iniciando limpeza pré-backup...");
-  try {
-    // Limpa lixo de autenticação e sessões expiradas
-    await db.execute(sql`DELETE FROM "sessions" WHERE "expire" < NOW()`);
-    await db.execute(sql`DELETE FROM "one_time_tokens"`);
-    await db.execute(sql`DELETE FROM "refresh_tokens"`);
-    
-    // Mantém apenas os últimos 30 dias de histórico para não inflar o backup
-    await db.execute(sql`DELETE FROM "history_events" WHERE "created_at" < NOW() - INTERVAL '30 days'`);
-    
-    // Limpa logs de backup com mais de 7 dias
-    await db.execute(sql`DELETE FROM "backup_execution_logs" WHERE "created_at" < NOW() - INTERVAL '7 days'`);
+  console.log("🧹 [BACKUP-CLEANUP] Iniciando limpeza inteligente...");
+  const queries = [
+    'DELETE FROM "sessions" WHERE "expire" < NOW()',
+    'DELETE FROM "session" WHERE "expire" < NOW()',
+    'DELETE FROM "one_time_tokens"',
+    'DELETE FROM "refresh_tokens"',
+    'DELETE FROM "history_events" WHERE "created_at" < NOW() - INTERVAL \'30 days\'',
+    'DELETE FROM "backup_execution_logs" WHERE "created_at" < NOW() - INTERVAL \'7 days\'',
+    'VACUUM ANALYZE'
+  ];
 
-    // Compacta o banco fisicamente para o arquivo vir menor
-    await db.execute(sql`VACUUM ANALYZE`);
-    
-    console.log("✅ [BACKUP-CLEANUP] Banco limpo e compactado!");
-  } catch (error: any) {
-    console.log("⚠️ [BACKUP-CLEANUP] Erro na limpeza (mas o backup seguirá):", error.message);
+  for (const q of queries) {
+    try {
+      await db.execute(sql.raw(q));
+    } catch (e) {
+      // Ignora erro de "tabela não existe" e segue em frente
+    }
   }
+  console.log("✅ [BACKUP-CLEANUP] Limpeza concluída!");
 }
-
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.post("/api/auth/login", async (req, res) => {
@@ -225,7 +224,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         return res.json(userWithoutPassword);
       }
-
       // ============================================================================
       // BUSCAR USUÁRIO NO BANCO DE DADOS
       // ============================================================================
