@@ -1,163 +1,119 @@
 
-/* --- APOIOTEC-UI-UPGRADE-START --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-
+/* --- APOIOTEC CYBER-ROUNDED THEME --- */
 @layer base {
   :root, .dark {
-    --font-sans: 'Inter', sans-serif !important;
+    --radius: 0.75rem !important; /* Bordas arredondadas de volta */
+    --background: 0 0% 0% !important;
+    --foreground: 210 40% 98%;
+    
+    /* Novo Azul Apoiotec: Mais escuro e futurista */
+    --primary: 210 100% 40% !important; 
+    --primary-foreground: 210 40% 98%;
+    
+    --border: 210 100% 30% / 0.3 !important;
   }
 
-  html {
-    /* Aumenta a escala global do sistema */
-    font-size: 112.5% !important; /* De 16px para 18px */
-  }
-
-  body {
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-  }
-}
-
-/* Melhoria nos Campos de Filtro (Alta Visibilidade) */
-input, select, .filter-container {
-  font-size: 1rem !important; /* Garante que o input não fique pequeno */
-  border: 2px solid #ccff00 !important; /* Lima Neon */
-  background-color: #0a0a0a !important;
-  color: #ccff00 !important;
-  border-radius: 8px !important;
-  padding: 12px !important; /* Mais espaço para tocar no celular */
-}
-
-/* Estilo para labels de filtros */
-label {
-  font-weight: 600 !important;
-  color: #00ffff !important; /* Ciano para os títulos dos filtros */
-  margin-bottom: 4px;
-  display: block;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-}
-
-/* Ajuste de legibilidade para textos secundários */
-.text-muted-foreground {
-  color: #a1a1aa !important; /* Um cinza mais claro para não sumir no preto */
-}
-/* --- APOIOTEC-UI-UPGRADE-END --- */
-
-
-/* --- APOIOTEC-BLACKOUT-START --- */
-@layer base {
-  :root, .dark {
-    --background: 0 0% 0% !important;   /* Fundo da Tela Preto */
-    --card: 0 0% 0% !important;         /* Fundo do Card Preto */
-    --popover: 0 0% 0% !important;
-    --muted: 240 10% 10% !important;    /* Cinza bem escuro para itens secundários */
-  }
-
-  body, html, #root, main {
-    background-color: #000000 !important;
+  /* Forçar arredondamento em tudo que for Card ou Modal */
+  .card, [role="dialog"], .bg-card, .border-2 {
+    border-radius: 0.75rem !important;
   }
 }
 
-/* Forçar fundo preto em qualquer elemento que se comporte como card ou painel */
-div[class*="bg-card"], 
-div[class*="bg-background"], 
-.card, 
-.bg-white,
-section {
+body {
   background-color: #000000 !important;
-  /* NÃO mexemos na borda aqui para não perder suas cores */
+  color: #ffffff !important;
 }
 
-/* --- CLASSES DE BORDAS NEON QUE VOCÊ JÁ TEM --- */
-.neon-border-cyan { border: 1px solid #00ffff !important; box-shadow: 0 0 8px #00ffff33 !important; }
-.neon-border-purple { border: 1px solid #bc13fe !important; box-shadow: 0 0 8px #bc13fe33 !important; }
-.neon-border-green { border: 1px solid #39ff14 !important; box-shadow: 0 0 8px #39ff1433 !important; }
-.neon-border-yellow { border: 1px solid #ccff00 !important; box-shadow: 0 0 8px #ccff0033 !important; }
-
-/* Destaque para os Filtros (Alta Visibilidade) */
-.filter-focus {
-  border: 2px solid #ccff00 !important;
-  background-color: #050505 !important;
-  color: #ccff00 !important;
-}
-/* --- APOIOTEC-BLACKOUT-END --- */
-
-
-
-
-
-
-
-
-
-
-
-
-/* --- APOIOTEC VIBRANT THEME --- */
-@layer base {
-  :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --primary: 221.2 83.2% 53.3%; /* Azul Tech Vivo */
-    --radius: 0.75rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 3.5%; /* Fundo Deep Sea */
-    --card: 222.2 84% 6%;
-    --primary: 199 89% 48%; /* Ciano Elétrico */
-    --border: 217.2 32.6% 18%;
-  }
+/* Efeito Neon Futurista (Azul mais escuro) */
+.neon-border-blue { 
+  border: 2px solid #0055ff !important; 
+  box-shadow: 0 0 15px #0055ff33, inset 0 0 5px #0055ff22 !important; 
 }
 
-@layer components {
-  .glass-panel {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  }
-  
-  .btn-vibrant {
-    background: linear-gradient(45deg, hsl(var(--primary)), #3b82f6);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
-  }
+/* Ajuste de fontes para campos de filtro (Branco para não sumir) */
+input, select {
+  border-radius: 0.5rem !important;
+  border-color: #0055ff55 !important;
+  color: white !important;
 }
-/* ------------------------------ */
 
+label {
+  color: #00ccff !important; /* Ciano para os labels */
+}
+/* --- END THEME --- */
+/* 1. NÚCLEO DO TAILWIND (Sempre no topo) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* 2. DEFINIÇÃO DE TEMA CYBER-NEON (Regras Globais) */
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+  :root, .dark {
+    /* Fundo Preto Absoluto */
+    --background: 0 0% 0% !important;
+    --foreground: 210 40% 98% !important;
+    
+    /* Cards e Popups Pretos */
+    --card: 0 0% 0% !important;
+    --card-foreground: 210 40% 98% !important;
+    --popover: 0 0% 0% !important;
+    --popover-foreground: 210 40% 98% !important;
+    
+    /* Cores de Destaque */
+    --primary: 180 100% 50% !important; /* Ciano */
+    --primary-foreground: 222.2 47.4% 11.2% !important;
+    
+    --muted: 240 10% 10% !important;
+    --muted-foreground: 215 20% 90% !important; /* Cinza claro para não sumir */
+    
+    --border: 180 100% 50% / 0.2 !important;
+    --input: 180 100% 50% / 0.2 !important;
+    --ring: 180 100% 50% !important;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-@layer base {
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground; }
+/* 3. UTILITÁRIOS NEON DA APOIOTEC */
+@layer components {
+  .neon-border-cyan { border: 1px solid #00ffff !important; box-shadow: 0 0 10px #00ffff44 !important; }
+  .neon-border-yellow { border: 1px solid #ccff00 !important; box-shadow: 0 0 10px #ccff0044 !important; }
+  .neon-border-green { border: 1px solid #39ff14 !important; box-shadow: 0 0 10px #39ff1444 !important; }
+  .neon-border-purple { border: 1px solid #bc13fe !important; box-shadow: 0 0 10px #bc13fe44 !important; }
+
+  /* Campos de Filtro de Alta Visibilidade */
+  input, select, textarea, [role="combobox"] {
+    background-color: #0a0a0a !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(0, 255, 255, 0.4) !important;
+    border-radius: 8px !important;
+  }
+
+  input:focus {
+    border-color: #ccff00 !important; /* Lima ao focar */
+    box-shadow: 0 0 8px #ccff0044 !important;
+  }
+
+  label {
+    @apply text-xs font-bold uppercase tracking-wider mb-1 block;
+    color: #00ffff !important;
+  }
+}
+
+/* 4. FIX DE CONTRASTE PARA ELEMENTOS SHADCN/UI */
+.bg-white, .bg-background, .bg-card {
+  background-color: #000000 !important;
+}
+
+.text-muted-foreground, .text-gray-500, .text-slate-500 {
+  color: #d1d1d1 !important; /* Branco acinzentado para leitura */
 }

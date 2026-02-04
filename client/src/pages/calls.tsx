@@ -978,21 +978,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(actionType === "service" || actionType === "invoice") && (
-                  <FormField
-                    control={form.control}
-                    name="equipment"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Resolução</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Ex: Troca de HD, Formatação, Limpeza..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
+                
 
                 {actionType === "edit" && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">

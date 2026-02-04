@@ -1,4 +1,9 @@
+const fs = require('fs');
+const path = require('path');
 
+const DASHBOARD_PATH = path.join(process.cwd(), 'client', 'src', 'pages', 'dashboard.tsx');
+
+const NEW_DASHBOARD_CODE = `
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Wrench, 
@@ -13,7 +18,9 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-extrabold tracking-tighter text-blue-500 uppercase italic">Dashboard</h1>
+        <h2 className="text-3xl font-bold tracking-tight text-white uppercase italic">
+          Apoiotec / <span className="text-cyan-500">Command Center</span>
+        </h2>
       </div>
 
       {/* KPI CARDS - ALTA VISIBILIDADE */}
@@ -94,4 +101,12 @@ export default function Dashboard() {
       </div>
     </div>
   );
+}
+`;
+
+try {
+    fs.writeFileSync(DASHBOARD_PATH, NEW_DASHBOARD_CODE);
+    console.log("🚀 [APOIOTEC] dashboard.tsx reescrito com sucesso!");
+} catch (err) {
+    console.error("❌ Erro ao escrever arquivo: " + err.message);
 }

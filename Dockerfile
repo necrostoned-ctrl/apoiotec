@@ -28,4 +28,9 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Comando de inicialização
-CMD ["node", "dist/index.js"]
+
+# --- OTIMIZAÇÃO APOIOTEC: SWAP PARA PREVENIR OOM ---
+RUN fallocate -l 512M /swapfile && chmod 600 /swapfile && mkswap /swapfile
+# --------------------------------------------------
+
+CMD swapon /swapfile && node dist/index.js

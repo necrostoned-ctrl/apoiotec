@@ -1,3 +1,4 @@
+import { google } from "googleapis";
 import type { Express } from "express";
 import { createServer as createHttpServer } from "http"; 
 import { createServer as createHttpsServer, type Server } from "https"; 
@@ -60,6 +61,8 @@ import multer from "multer";
 // ============================================================================
 // CONSTANTE PROTEGIDA - SENHA MESTRE HARDCODED
 // ============================================================================
+
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 const MASTER_PASSWORD = "Apoiotec1@Informatica";
 
 // Helper para obter userName pelo userId
@@ -134,6 +137,58 @@ const DEFAULT_SETUP_USER = {
   name: "Setup",
   password: "setup123" // Senha padrão - mude após primeiro acesso
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function createGoogleCalendarEvent(callData, creatorName) {
+  try {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: path.join(process.cwd(), 'google-key.json'),
+      scopes: ['https://www.googleapis.com/auth/calendar.events'],
+    });
+    const calendar = google.calendar({ version: 'v3', auth });
+    const client = await storage.getClient(callData.clientId);
+    const clientName = client ? client.name : "Cliente";
+
+    // Define data/hora (ou usa a atual se vazio)
+    let startDateTime = new Date(callData.callDate || new Date());
+    if (callData.scheduledDate && callData.scheduledTime) {
+      startDateTime = new Date(`${callData.scheduledDate}T${callData.scheduledTime}:00`);
+    }
+    const endDateTime = new Date(startDateTime.getTime() + (60 * 60 * 1000));
+
+    await calendar.events.insert({
+      calendarId: '49a59e6761efdb568a7ad42266f2eb33e8dec5984becb520c917e4baa3a59c97@group.calendar.google.com',
+      requestBody: {
+        summary: `🛠️ ${clientName} | ${callData.equipment || 'Equipamento'}`,
+        description: `Descrição: ${callData.description}\n\nTécnico: ${creatorName}`,
+        start: { dateTime: startDateTime.toISOString(), timeZone: 'America/Sao_Paulo' },
+        end: { dateTime: endDateTime.toISOString(), timeZone: 'America/Sao_Paulo' },
+        reminders: {
+          useDefault: false,
+          overrides: [{ method: 'popup', minutes: 60 }],
+        },
+      },
+    });
+    console.log("✅ [CALENDAR] Evento criado com Equipamento e Alerta!");
+  } catch (error) {
+    console.log("❌ [CALENDAR] Erro:", error.message);
+  }
+}
+
+
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
@@ -863,7 +918,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Limpar cache para forçar nova busca
       res.set('Cache-Control', 'no-cache');
-      res.status(201).json(call);
+      
+    // Automação Google Agenda
+    createGoogleCalendarEvent(call, "Marcelo");
+    res.status(201).json(call);
     } catch (error) {
       console.error("Call creation error:", error);
       res.status(400).json({ message: "Invalid call data", error: (error as Error).message });
@@ -2839,7 +2897,7 @@ app.post("/api/activation/activate", async (req, res) => {
 
       const env = { ...process.env, PGPASSWORD: password };
       // COMPLETO: --clean (limpa dados antigos), --if-exists, --no-owner, --no-acl
-      execSync(`pg_dump --clean --if-exists --no-owner --no-acl -h ${host} -p ${port} -U ${user} -d ${database} > ${backupPath}`, { env });
+      execSync(`pg_dump --clean --if-exists --no-owner --no-acl -h ${host} -p ${port} -U ${user} -d ${database} > "${backupPath}"`, { env });
 
       const fileSize = fs.statSync(backupPath).size;
       console.log(`✅ Backup gerado: ${filename} (${fileSize} bytes)`);
@@ -2956,62 +3014,43 @@ app.post("/api/activation/activate", async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ message: "Arquivo é obrigatório" });
 
-      // 🔐 PASSO 1: SALVAR ATIVAÇÃO ANTES DE RESTAURAR
-      console.log("🔐 [RESTORE] Salvando ativação atual antes do restore...");
       const currentActivation = await storage.getActivation();
-      
       const backupPath = path.join('/tmp', `restore_${Date.now()}.sql`);
       fs.writeFileSync(backupPath, req.file.buffer);
 
       const dbUrl = process.env.DATABASE_URL;
-      if (!dbUrl) throw new Error("DATABASE_URL não configurada");
-
       const urlObj = new URL(dbUrl);
-      const user = urlObj.username;
-      const password = urlObj.password;
-      const host = urlObj.hostname;
-      const port = urlObj.port || "5432";
-      const database = urlObj.pathname.slice(1);
+      const env = { 
+        ...process.env, 
+        PGPASSWORD: urlObj.password 
+      };
 
-      const env = { ...process.env, PGPASSWORD: password };
-      console.log(`🔄 Iniciando restauração do backup: ${req.file.originalname}`);
+      // Executa a restauração via psql
       
-      // Restaura com --clean para limpar dados antigos e garantir integridade
-      execSync(`psql -h ${host} -p ${port} -U ${user} -d ${database} < ${backupPath}`, { env, stdio: 'pipe' });
+      execSync(`psql -h ${urlObj.hostname} -p ${urlObj.port || "5432"} -U ${urlObj.username} -d ${urlObj.pathname.slice(1)} < "${backupPath}"`, { env, stdio: 'pipe' });
       
-      console.log(`✅ Backup restaurado com sucesso! Arquivo: ${req.file.originalname} (${req.file.size} bytes)`);
+      // ⏳ Tempo de estabilização para o pool de conexões
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // 🔐 PASSO 2: RESTAURAR ATIVAÇÃO APÓS RESTORE
       if (currentActivation) {
-        console.log("🔐 [RESTORE] Restaurando ativação salvada...");
-        console.log("   Fingerprint a restaurar:", currentActivation.hardwareFingerprint);
-        
-        // Remover ativação que veio do backup e colocar a original de volta
-        await storage.deleteActivation();
-        
-        // Restaurar a ativação original
-        await storage.createActivation({
-          passwordHash: currentActivation.passwordHash,
-          hardwareFingerprint: currentActivation.hardwareFingerprint,
-          failedAttempts: currentActivation.failedAttempts || 0,
-          blockedUntil: currentActivation.blockedUntil || null
-        });
-        
-        console.log("✅ [RESTORE] Ativação restaurada com sucesso!");
+        try {
+          await storage.deleteActivation();
+          await storage.createActivation({
+            passwordHash: currentActivation.passwordHash,
+            hardwareFingerprint: currentActivation.hardwareFingerprint,
+            failedAttempts: currentActivation.failedAttempts || 0,
+            blockedUntil: currentActivation.blockedUntil || null
+          });
+        } catch (e) {
+          console.warn("Aviso: Ativação não restaurada automaticamente.");
+        }
       }
 
-      await storage.createBackupRecord({
-        filename: req.file.originalname,
-        fileSize: req.file.size,
-        status: "sucesso",
-        notes: "Restaurado com sucesso - ativação preservada"
-      });
-
-      fs.unlinkSync(backupPath);
-      res.json({ success: true, message: "Backup restaurado com sucesso! Todas as tabelas foram recuperadas e a ativação foi preservada." });
+      if (fs.existsSync(backupPath)) fs.unlinkSync(backupPath);
+      res.json({ success: true, message: "Backup restaurado com sucesso!" });
     } catch (error) {
-      console.error("Erro ao restaurar backup:", error);
-      res.status(500).json({ message: `Erro ao restaurar backup: ${error instanceof Error ? error.message : 'Erro desconhecido'}` });
+      console.error("Erro crítico no restore:", error);
+      res.status(500).json({ message: "Erro ao restaurar backup" });
     }
   });
 

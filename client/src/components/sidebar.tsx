@@ -87,7 +87,7 @@ export function Sidebar({ isOpen, onClose, currentUser, onLogout }: SidebarProps
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transform transition-transform duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-black text-white transform transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -103,7 +103,7 @@ export function Sidebar({ isOpen, onClose, currentUser, onLogout }: SidebarProps
                 <div
                   className={cn(
                     "flex items-center px-6 py-3 text-white hover:bg-blue-800 hover:text-accent transition-colors cursor-pointer",
-                    isActive && "border-r-4 border-accent bg-blue-800"
+                    isActive && "border-r border-cyan-500/30-4 border-accent bg-blue-800"
                   )}
                   onClick={onClose}
                 >
@@ -117,16 +117,16 @@ export function Sidebar({ isOpen, onClose, currentUser, onLogout }: SidebarProps
 
         {/* User info, theme toggle and logout */}
         {currentUser && (
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-cyan-500/30">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-black/10 rounded-full flex items-center justify-center">
                 <User className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">
+                <div className="text-sm font-medium text-white truncate">
                   {currentUser.name || currentUser.username}
                 </div>
-                <div className="text-xs text-gray-500 capitalize">
+                <div className="text-xs text-cyan-400 capitalize">
                   {currentUser.role || "Conectado"}
                 </div>
               </div>
@@ -151,7 +151,7 @@ export function Sidebar({ isOpen, onClose, currentUser, onLogout }: SidebarProps
                 onClick={onLogout}
                 variant="outline"
                 size="sm"
-                className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20"
+                className="w-full justify-start text-red-600 border-r border-cyan-500/30ed-200 hover:bg-red-50 hover:border-r border-cyan-500/30ed-300 dark:text-red-400 dark:border-r border-cyan-500/30ed-800 dark:hover:bg-red-900/20"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sair do Sistema

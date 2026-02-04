@@ -69,7 +69,7 @@ export function BottomNav() {
 
   return (
     <div 
-      className="bg-black dark:bg-slate-950 border-t-2 border-slate-800"
+      className="bg-black dark:bg-slate-950 border-t border-cyan-500/50-2 border-slate-800"
       style={navStyle}
     >
       <div className="grid grid-cols-5 h-16 gap-0">
@@ -85,7 +85,7 @@ export function BottomNav() {
               className={`flex flex-col items-center justify-center gap-1 text-xs transition-all duration-200 p-2 ${
                 isActive 
                   ? `${colors.bg} border-b-4 ${colors.border} shadow-lg ${colors.shadow}`
-                  : "border-b-4 border-transparent"
+                  : "border-b-4 border-t border-cyan-500/50ransparent"
               }`}
             >
               <Icon className={`h-6 w-6 font-bold ${colors.icon}`} />

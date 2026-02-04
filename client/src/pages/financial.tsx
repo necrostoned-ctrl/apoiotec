@@ -1998,6 +1998,25 @@ export default function Financial({ currentUser }: { currentUser?: any }) {
                 )}
               />
 
+
+            <FormField
+              control={form.control}
+              name="equipment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-blue-400">Equipamento</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Ex: Servidor Dell, Notebook HP..." 
+                      className="bg-black/50 border-blue-500/30 text-white"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
               <FormField
                 control={form.control}
                 name="createdByUserId"

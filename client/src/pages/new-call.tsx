@@ -253,6 +253,65 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                                     </FormItem>
                                   )}
                                 />
+
+
+            <FormField
+              control={form.control}
+              name="equipment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-blue-400">Equipamento</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Servidor, Notebook..." className="bg-black/40 border-blue-500/30 text-white" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="scheduledDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-400">Data</FormLabel>
+                    <FormControl>
+                      <Input type="date" className="bg-black/40 border-blue-500/30 text-white" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="scheduledTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-blue-400">Hora</FormLabel>
+                    <FormControl>
+                      <Input type="time" className="bg-black/40 border-blue-500/30 text-white" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+
+            <FormField
+              control={form.control}
+              name="equipment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-blue-400">Equipamento</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Ex: Servidor Dell, Notebook HP, etc." 
+                      className="bg-black/50 border-blue-500/30 text-white"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
                                 <FormField
                                   control={clientForm.control}
                                   name="email"
