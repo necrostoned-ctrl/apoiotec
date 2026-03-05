@@ -29,20 +29,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertCallSchema, insertClientSchema, type Client } from "@shared/schema";
 import { useLocation } from "wouter";
-import { Save, FileText, Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Save, FileText, Plus } from "lucide-react";
 import { ClientSearch } from "@/components/ClientSearch";
 import { z } from "zod";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 
 const formSchema = insertCallSchema.extend({
-  callDate: z.date().optional(),
+  callDateStr: z.string().optional(),
 });
 
 const clientFormSchema = insertClientSchema.extend({
@@ -62,6 +59,12 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
 
   const loggedUser = currentUser || JSON.parse(localStorage.getItem("currentUser") || "{}");
 
+  const getLocalDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -73,7 +76,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
       internalNotes: "",
       status: "aguardando",
       progress: 0,
-      callDate: new Date(),
+      callDateStr: getLocalDateTime(),
     },
   });
 
@@ -93,12 +96,19 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
 
   const createCallMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      let finalCallDate = new Date();
+      if (data.callDateStr) {
+        finalCallDate = new Date(data.callDateStr);
+      }
+      
       const payload = {
         ...data,
+        callDate: finalCallDate,
         currentUserId: loggedUser?.id || 1,
         userId: loggedUser?.id || 1,
         createdByUserId: loggedUser?.id || 1
       };
+      delete payload.callDateStr;
 
       const response = await apiRequest("POST", "/api/calls", payload);
       return response.json();
@@ -175,16 +185,18 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
   }, [showNewClientDialog, newClientData, form, clientForm]);
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4 lg:p-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-yellow-400 mb-2">Novo Chamado</h2>
-        <p className="text-gray-400">Registre uma nova solicitação de serviço técnico</p>
+    <div className="min-h-screen bg-gray-900 p-6 space-y-6">
+      <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-yellow-400 mb-2">Novo Chamado</h1>
+          <p className="text-gray-400">Registre uma nova solicitação de serviço técnico</p>
+        </div>
       </div>
 
-      <Card className="max-w-4xl mx-auto bg-slate-800 border-2 border-cyan-500 shadow-lg shadow-cyan-500/30">
-        <CardHeader className="border-b border-cyan-500/30">
-          <CardTitle className="flex items-center text-cyan-300">
-            <FileText className="h-5 w-5 mr-2" />
+      <Card className="max-w-4xl bg-background dark:bg-slate-800 border-0 shadow-md">
+        <CardHeader className="pb-3 border-b border-border/50">
+          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary dark:text-blue-400" />
             Informações do Chamado
           </CardTitle>
         </CardHeader>
@@ -192,7 +204,6 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               
-              {/* Linha 1: Cliente e Equipamento */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Cliente */}
                 <FormField
@@ -201,22 +212,23 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center justify-between mb-2">
-                        <FormLabel className="text-cyan-300">Cliente *</FormLabel>
+                        <FormLabel>Cliente *</FormLabel>
                         <Dialog open={showNewClientDialog} onOpenChange={setShowNewClientDialog}>
                           <DialogTrigger asChild>
                             <Button
                               type="button"
                               size="sm"
-                              className="bg-cyan-600 hover:bg-cyan-700 text-white border-2 border-cyan-500 h-8 text-xs"
+                              variant="outline"
+                              className="h-8 text-xs font-medium"
                             >
                               <Plus className="h-3 w-3 mr-1" />
                               Novo Cliente
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="w-[95vw] max-w-md bg-slate-800 border-2 border-cyan-500 max-h-[85vh] overflow-y-auto shadow-lg shadow-cyan-500/30">
-                            <DialogHeader className="sticky top-0 bg-slate-800 pb-4 border-b border-cyan-500/30">
-                              <DialogTitle className="text-xl text-cyan-300 font-bold">Novo Cliente</DialogTitle>
-                              <DialogDescription className="text-cyan-100 text-sm mt-1">
+                          <DialogContent className="w-[95vw] max-w-md bg-background dark:bg-slate-800 max-h-[85vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Novo Cliente</DialogTitle>
+                              <DialogDescription>
                                 Preencha as informações do cliente. O nome é obrigatório.
                               </DialogDescription>
                             </DialogHeader>
@@ -226,12 +238,12 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                                   control={clientForm.control}
                                   name="name"
                                   render={({ field }) => (
-                                    <FormItem className="space-y-2">
-                                      <FormLabel className="text-cyan-300 font-semibold">Nome do Cliente *</FormLabel>
+                                    <FormItem>
+                                      <FormLabel>Nome do Cliente *</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="Ex: João Silva ou Empresa LTDA" {...field} className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 h-10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" autoFocus />
+                                        <Input placeholder="Ex: João Silva ou Empresa LTDA" {...field} autoFocus />
                                       </FormControl>
-                                      <FormMessage className="text-red-400 text-xs" />
+                                      <FormMessage />
                                     </FormItem>
                                   )}
                                 />
@@ -239,12 +251,12 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                                   control={clientForm.control}
                                   name="phone"
                                   render={({ field }) => (
-                                    <FormItem className="space-y-2">
-                                      <FormLabel className="text-cyan-300 font-semibold">Telefone</FormLabel>
+                                    <FormItem>
+                                      <FormLabel>Telefone</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="(11) 99999-9999" {...field} value={field.value || ""} className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 h-10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
+                                        <Input placeholder="(11) 99999-9999" {...field} value={field.value || ""} />
                                       </FormControl>
-                                      <FormMessage className="text-red-400 text-xs" />
+                                      <FormMessage />
                                     </FormItem>
                                   )}
                                 />
@@ -252,16 +264,16 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                                   control={clientForm.control}
                                   name="email"
                                   render={({ field }) => (
-                                    <FormItem className="space-y-2">
-                                      <FormLabel className="text-cyan-300 font-semibold">Email</FormLabel>
+                                    <FormItem>
+                                      <FormLabel>Email</FormLabel>
                                       <FormControl>
-                                        <Input type="email" placeholder="cliente@email.com" {...field} value={field.value || ""} className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 h-10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
+                                        <Input type="email" placeholder="cliente@email.com" {...field} value={field.value || ""} />
                                       </FormControl>
-                                      <FormMessage className="text-red-400 text-xs" />
+                                      <FormMessage />
                                     </FormItem>
                                   )}
                                 />
-                                <div className="flex gap-3 justify-end pt-4 border-t border-cyan-500/30">
+                                <div className="flex gap-3 justify-end pt-4">
                                   <Button
                                     type="button"
                                     variant="outline"
@@ -269,14 +281,12 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                                       setShowNewClientDialog(false);
                                       setTimeout(() => clientForm.reset(), 50);
                                     }}
-                                    className="border-2 border-slate-600 text-cyan-300 hover:bg-slate-700 hover:border-slate-500 font-semibold"
                                   >
                                     Cancelar
                                   </Button>
                                   <Button
                                     type="submit"
                                     disabled={createClientMutation.isPending}
-                                    className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold border-2 border-cyan-500 hover:border-cyan-400 min-w-[140px]"
                                   >
                                     {createClientMutation.isPending ? "Criando..." : "Criar Cliente"}
                                   </Button>
@@ -305,9 +315,9 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                   name="equipment"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-cyan-300 mb-2 block">Equipamento</FormLabel>
+                      <FormLabel>Equipamento</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 h-[42px]" />
+                        <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -315,45 +325,20 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                 />
               </div>
 
-              {/* Linha 2: Data do Chamado e Prioridade */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Data do Chamado usando Calendário */}
+                {/* Data do Chamado com input nativo datetime-local padronizado */}
                 <FormField
                   control={form.control}
-                  name="callDate"
+                  name="callDateStr"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-cyan-300 mb-1">Data do Chamado</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full pl-3 text-left font-normal bg-slate-700 border-2 border-cyan-500 text-white hover:bg-slate-600 hover:text-white h-[42px]",
-                                !field.value && "text-slate-400"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "dd/MM/yyyy")
-                              ) : (
-                                <span>Selecione uma data</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-70 text-cyan-300" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 bg-slate-800 border-2 border-cyan-500" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(date) => field.onChange(date || new Date())}
-                            disabled={false}
-                            initialFocus
-                            className="text-white"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    <FormItem>
+                      <FormLabel>Data e Hora do Chamado</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="datetime-local" 
+                          {...field} 
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -364,18 +349,18 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                   name="priority"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-cyan-300 mb-1 block">Prioridade</FormLabel>
+                      <FormLabel>Prioridade</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-slate-700 border-2 border-cyan-500 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 h-[42px]">
+                          <SelectTrigger>
                             <SelectValue placeholder="Selecione a prioridade" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-slate-800 border-cyan-500 text-white">
-                          <SelectItem value="baixa" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Baixa</SelectItem>
-                          <SelectItem value="media" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Média</SelectItem>
-                          <SelectItem value="alta" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Alta</SelectItem>
-                          <SelectItem value="urgente" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Urgente</SelectItem>
+                        <SelectContent>
+                          <SelectItem value="baixa">Baixa</SelectItem>
+                          <SelectItem value="media">Média</SelectItem>
+                          <SelectItem value="alta">Alta</SelectItem>
+                          <SelectItem value="urgente">Urgente</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -390,11 +375,11 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-cyan-300">Descrição do Problema</FormLabel>
+                    <FormLabel>Descrição do Problema</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Descreva detalhadamente o problema relatado..."
-                        className="min-h-[140px] bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 resize-none"
+                        className="min-h-[140px] resize-none"
                         {...field}
                       />
                     </FormControl>
@@ -403,19 +388,19 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                 )}
               />
 
-              <div className="flex justify-end gap-4 pt-6 border-t border-cyan-500/30">
+              <div className="flex justify-end gap-4 pt-6 border-t border-border/50">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setLocation("/calls")}
-                  className="w-32 border-2 border-slate-600 text-cyan-300 hover:bg-slate-700 hover:border-slate-500"
+                  className="w-32"
                 >
                   Cancelar
                 </Button>
                 <Button 
                   type="submit" 
                   disabled={createCallMutation.isPending}
-                  className="w-48 bg-cyan-600 hover:bg-cyan-700 text-white border-2 border-cyan-500 hover:border-cyan-400"
+                  className="w-48 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   {createCallMutation.isPending ? "Salvando..." : "Salvar Chamado"}
