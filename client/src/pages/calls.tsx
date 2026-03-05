@@ -219,15 +219,14 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     mutationFn: async ({ id, data }: { id: number; data: Partial<EditCallData> }) => {
       const updateData = {
         ...data,
-        currentUserId: loggedUser?.id || 1,  // CRÍTICO: Usar currentUserId para notificações
-        userId: editingCall?.userId || loggedUser?.id || 1, // PRESERVAR usuário criador
+        currentUserId: loggedUser?.id || 1,
+        userId: editingCall?.userId || loggedUser?.id || 1,
         createdByUserId: data.createdByUserId || editingCall?.createdByUserId || editingCall?.userId || loggedUser?.id || 1
       };
       const response = await apiRequest("PATCH", `/api/calls/${id}`, updateData);
       return response.json();
     },
     onSuccess: (updatedCall) => {
-      // CRÍTICO: Atualizar cache + refetch GARANTIDO
       queryClient.setQueryData(["/api/calls"], (old: any) => {
         if (!Array.isArray(old)) return old;
         return old.map((c: any) => c.id === updatedCall.id ? { ...c, ...updatedCall } : c);
@@ -258,15 +257,20 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         throw new Error("Chamado não possui cliente associado");
       }
 
+      // Format description to separate Service from Internal Notes cleanly
+      const formattedDescription = call.internalNotes 
+        ? `${call.description || 'Não informado'}\n\n=== OBSERVAÇÕES INTERNAS ===\n${call.internalNotes}`
+        : (call.description || 'Não informado');
+
       const serviceData = {
-        name: call.equipment ? `Manutenção: ${call.equipment}` : (call.description?.substring(0, 50) || "Serviço"),
-        description: `Equipamento: ${call.equipment || 'Não informado'}\nProblema Relatado: ${call.description || 'Não informado'}\nObservações Internas: ${call.internalNotes || 'Nenhuma'}`,
+        name: call.equipment ? `Serviço: ${call.equipment}` : "Serviço Técnico",
+        description: formattedDescription,
         basePrice: "100.00",
         estimatedTime: "2 horas",
-        category: call.serviceType || "Reparo",
+        category: "Reparo",
         clientId: call.clientId,
         callId: call.id,
-        currentUserId: loggedUser?.id || 1,  // CRÍTICO: Usar currentUserId para notificações
+        currentUserId: loggedUser?.id || 1,
         userId: (call as any).createdByUserId || call.userId || loggedUser?.id || 1,
         createdByUserId: (call as any).createdByUserId || call.userId || loggedUser?.id || 1,
         callDate: call.callDate,
@@ -280,7 +284,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       await apiRequest("PATCH", `/api/calls/${call.id}`, { 
         status: "em_andamento",
         skipNotification: true,
-        currentUserId: loggedUser?.id || 1,  // CRÍTICO: Usar currentUserId para notificações
+        currentUserId: loggedUser?.id || 1,
         userId: loggedUser?.id || 1
       });
 
@@ -406,7 +410,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       
       await apiRequest("PATCH", `/api/calls/${call.id}`, { 
         status: "orcamento_criado",
-        currentUserId: loggedUser?.id || 1,  // CRÍTICO: Usar currentUserId para notificações
+        currentUserId: loggedUser?.id || 1,
         userId: loggedUser?.id || 1
       });
       
@@ -437,7 +441,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
   const deleteCallMutation = useMutation({
     mutationFn: async (id: number) => {
       const response = await apiRequest("DELETE", `/api/calls/${id}`, {
-        currentUserId: loggedUser?.id || 1,  // CRÍTICO: Usar currentUserId para notificações
+        currentUserId: loggedUser?.id || 1,
         userId: loggedUser?.id || 1
       });
       if (!response.ok) {
@@ -492,7 +496,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       if (editingCall) {
         await apiRequest("PATCH", `/api/calls/${editingCall.id}`, { 
           status: "orcamento",
-          currentUserId: loggedUser?.id || 1,  // CRÍTICO: Usar currentUserId para notificações
+          currentUserId: loggedUser?.id || 1,
           userId: loggedUser?.id || 1
         });
       }
@@ -554,7 +558,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       if (data.callId) {
         await apiRequest("PATCH", `/api/calls/${data.callId}`, { 
           status: "faturado",
-          currentUserId: loggedUser?.id || 1,  // CRÍTICO: Usar currentUserId para notificações
+          currentUserId: loggedUser?.id || 1,
           userId: loggedUser?.id || 1
         });
       }
@@ -581,7 +585,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     },
   });
 
-  // Estatísticas rápidas
   const stats = {
     total: filteredCalls.length,
     urgentes: filteredCalls.filter(c => c.priority === "urgente").length,
@@ -592,7 +595,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
 
   return (
     <div className="min-h-screen bg-gray-900 p-6 space-y-6">
-      {/* Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-yellow-400 mb-2">Chamados em Aberto</h1>
@@ -605,8 +607,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       </div>
 
       <div>
-
-        {/* Stats Cards - Filtros Interativos */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
           <button onClick={() => {
             setSortByDate(!sortByDate);
@@ -675,7 +675,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         </div>
       </div>
 
-      {/* Filtros e Busca */}
       <Card className="mb-6 bg-background dark:bg-slate-800 border-0 shadow-md">
         <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowFilters(!showFilters)}>
           <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -687,7 +686,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         {showFilters && (
         <CardContent className="pt-6">
           <div className="space-y-4">
-            {/* Busca Principal */}
             <div className="relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary transition-colors" />
               <Input
@@ -698,9 +696,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
               />
             </div>
             
-            {/* Filtros em Grid - Mobile Optimized */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Cliente Filter */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Cliente</label>
                 <ClientFilter
@@ -710,7 +706,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                 />
               </div>
               
-              {/* Status Filter */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Status</label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -725,7 +720,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                 </Select>
               </div>
 
-              {/* Priority Filter */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Prioridade</label>
                 <Select value={priorityFilter} onValueChange={setPriorityFilter}>
@@ -742,7 +736,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                 </Select>
               </div>
 
-              {/* Criado Por Filter */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Criado Por</label>
                 <Select value={userFilter} onValueChange={setUserFilter}>
@@ -761,7 +754,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
               </div>
             </div>
 
-            {/* Botão Limpar Filtros - apenas se houver filtros ativos */}
             {(searchTerm || clientFilter || statusFilter || priorityFilter || userFilter !== "todos") && (
               <div className="flex gap-2 pt-2">
                 <Button
@@ -785,7 +777,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         )}
       </Card>
 
-      {/* Lista de Chamados */}
       {isLoading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -814,7 +805,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
               "border-green-500 dark:border-green-400 hover:shadow-green-500/50 dark:shadow-green-500/20"
             }`}>
               <CardContent className="p-0 flex flex-col flex-1 relative">
-                {/* Badge de prioridade no canto superior esquerdo */}
                 <div className="absolute top-2 left-2 z-10">
                   <Badge variant="outline" className={`${getPriorityColor(call.priority)} text-xs h-5 px-2 border font-semibold`}>
                     {getPriorityLabel(call.priority)}
@@ -822,7 +812,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                 </div>
                 
                 <div className="p-4 space-y-3 flex-1">
-                  {/* Linha 1: Cliente label e Criado Por com mais espaço */}
                   <div className="flex items-start justify-between gap-2 mb-1 mt-6">
                     <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex-shrink-0">Cliente</p>
                     <div className="text-right flex-shrink-0 max-w-xs">
@@ -831,7 +820,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                     </div>
                   </div>
 
-                  {/* Linha 2: Nome do cliente */}
                   <div className="flex justify-between items-start gap-2">
                     <p className="font-semibold text-gray-900 dark:text-white text-sm break-words flex-1">
                       {call.client?.name || "N/A"}
@@ -841,18 +829,23 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                     </span>
                   </div>
 
-                  {/* Descrição */}
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Descrição</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                      {call.description || call.equipment || "Sem descrição"}
-                    </p>
+                  {/* Mostrando Serviço (Descrição original do chamado) e Equipamento */}
+                  <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-md border border-slate-100 dark:border-slate-800">
+                    <div className="mb-2">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Equipamento</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200 line-clamp-1">
+                        {call.equipment || "Não informado"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Serviço</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        {call.description || "Nenhum serviço descrito"}
+                      </p>
+                    </div>
                   </div>
-
-
                 </div>
 
-                {/* Ações - grid compacto na parte inferior - SEMPRE NO BOTTOM */}
                 <div className="p-4 pt-3 border-t border-gray-200 dark:border-slate-700 mt-auto">
                     <div className="grid grid-cols-3 gap-1">
                       <Button
@@ -908,7 +901,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         </div>
       )}
 
-      {/* Confirmação para Enviar para Serviço */}
       {callForServiceConfirm && (
         <Dialog open={showServiceConfirmDialog} onOpenChange={setShowServiceConfirmDialog}>
           <DialogContent className="sm:max-w-md bg-slate-900 border-2 border-cyan-500 shadow-2xl shadow-cyan-500/30">
@@ -927,7 +919,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                   <strong>Equipamento:</strong> {callForServiceConfirm.equipment || "Não informado"}
                 </p>
                 <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
-                  <strong>Descrição:</strong> {callForServiceConfirm.description?.substring(0, 50)}...
+                  <strong>Serviço:</strong> {callForServiceConfirm.description?.substring(0, 80)}...
                 </p>
               </div>
               <div className="flex gap-3 justify-end">
@@ -953,14 +945,12 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         </Dialog>
       )}
 
-      {/* View Call Details Modal - NEW MODAL */}
       <CallDetailsModal 
         isOpen={!!selectedCall} 
         onClose={() => setSelectedCall(null)} 
         call={selectedCall} 
       />
 
-      {/* Dialog de Edição */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-slate-900 border-2 border-cyan-500 shadow-2xl shadow-cyan-500/30">
           <DialogHeader>
@@ -977,18 +967,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-
-                {actionType === "edit" && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    <p className="text-sm text-yellow-800">
-                      <strong>Nota:</strong> Use os botões de ação para transformar o chamado.
-                    </p>
-                  </div>
-                )}
-              </div>
-
               <FormField
                 control={form.control}
                 name="callDate"
@@ -1036,112 +1014,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                   <FormItem>
                     <div className="flex items-center justify-between mb-2">
                       <FormLabel>Cliente</FormLabel>
-                      <Dialog open={showNewClientDialog} onOpenChange={setShowNewClientDialog}>
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            size="sm"
-                            className="bg-cyan-600 hover:bg-cyan-700 text-white"
-                          >
-                            <Plus className="h-4 w-4 mr-1" />
-                            Novo Cliente
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="w-[95vw] max-w-md bg-slate-800 border-2 border-cyan-500 max-h-[85vh] overflow-y-auto">
-                          <DialogHeader className="sticky top-0 bg-slate-800 pb-4 border-b border-cyan-500/30">
-                            <DialogTitle className="text-xl text-cyan-300 font-bold">Novo Cliente</DialogTitle>
-                            <DialogDescription className="text-cyan-100 text-sm mt-1">
-                              Preencha as informações do cliente. O nome é obrigatório.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <Form {...clientForm}>
-                            <form onSubmit={clientForm.handleSubmit((data) => createClientMutation.mutate(data))} className="space-y-5 py-4">
-                              <FormField
-                                control={clientForm.control}
-                                name="name"
-                                render={({ field }) => (
-                                  <FormItem className="space-y-2">
-                                    <FormLabel className="text-cyan-300 font-semibold">Nome do Cliente *</FormLabel>
-                                    <FormControl>
-                                      <Input 
-                                        placeholder="Ex: João Silva ou Empresa LTDA" 
-                                        {...field} 
-                                        className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 h-10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
-                                        autoFocus
-                                      />
-                                    </FormControl>
-                                    <FormMessage className="text-red-400 text-xs" />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={clientForm.control}
-                                name="phone"
-                                render={({ field }) => (
-                                  <FormItem className="space-y-2">
-                                    <FormLabel className="text-cyan-300 font-semibold">Telefone</FormLabel>
-                                    <FormControl>
-                                      <Input 
-                                        placeholder="(11) 99999-9999 ou (11) 3333-3333" 
-                                        {...field} 
-                                        value={field.value || ""} 
-                                        className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 h-10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
-                                      />
-                                    </FormControl>
-                                    <FormMessage className="text-red-400 text-xs" />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={clientForm.control}
-                                name="email"
-                                render={({ field }) => (
-                                  <FormItem className="space-y-2">
-                                    <FormLabel className="text-cyan-300 font-semibold">Email</FormLabel>
-                                    <FormControl>
-                                      <Input 
-                                        placeholder="cliente@email.com" 
-                                        type="email"
-                                        {...field} 
-                                        value={field.value || ""} 
-                                        className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 h-10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
-                                      />
-                                    </FormControl>
-                                    <FormMessage className="text-red-400 text-xs" />
-                                  </FormItem>
-                                )}
-                              />
-                              <div className="flex gap-3 justify-end pt-4 border-t border-cyan-500/30">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setShowNewClientDialog(false);
-                                    setTimeout(() => clientForm.reset(), 50);
-                                  }}
-                                  className="border-2 border-slate-600 text-cyan-300 hover:bg-slate-700 hover:border-slate-500 font-semibold"
-                                >
-                                  Cancelar
-                                </Button>
-                                <Button
-                                  type="submit"
-                                  disabled={createClientMutation.isPending}
-                                  className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold border-2 border-cyan-500 hover:border-cyan-400 min-w-[140px]"
-                                >
-                                  {createClientMutation.isPending ? (
-                                    <>
-                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                      Criando...
-                                    </>
-                                  ) : (
-                                    "Criar Cliente"
-                                  )}
-                                </Button>
-                              </div>
-                            </form>
-                          </Form>
-                        </DialogContent>
-                      </Dialog>
                     </div>
                     <FormControl>
                       <ClientSearch
@@ -1158,7 +1030,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                 )}
               />
 
-              {/* Equipamento */}
               <FormField
                 control={form.control}
                 name="equipment"
@@ -1226,7 +1097,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição do Problema</FormLabel>
+                    <FormLabel>Serviço / Problema Relatado</FormLabel>
                     <FormControl>
                       <Textarea {...field} rows={3} />
                     </FormControl>
@@ -1249,61 +1120,12 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="createdByUserId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Criado Por</FormLabel>
-                    <FormControl>
-                      <Select value={field.value?.toString() || ""} onValueChange={(v) => field.onChange(parseInt(v))}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um usuário" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {users?.map(user => (
-                            <SelectItem key={user.id} value={user.id.toString()}>
-                              {user.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {actionType === "invoice" && (
-                <FormField
-                  control={form.control}
-                  name="progress"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Valor para Faturamento (R$)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.01" 
-                          placeholder="0.00"
-                          value={field.value || 0}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
                   className="flex-1 bg-primary hover:bg-blue-700"
                 >
-                  {actionType === "service" && "Transformar em Serviço"}
-                  {actionType === "invoice" && "Enviar para Faturamento"}
-                  {actionType === "edit" && "Salvar Alterações"}
+                  Salvar Alterações
                 </Button>
                 <Button
                   type="button"
