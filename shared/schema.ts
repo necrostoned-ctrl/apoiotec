@@ -52,10 +52,10 @@ export const calls = pgTable("calls", {
   clientId: integer("client_id"), // Permitir NULL para chamados sem cliente específico
   userId: integer("user_id").default(1), // Usuário criador
   createdByUserId: integer("created_by_user_id").default(1), // Usuário que criou
-  equipment: text("equipment").notNull(),
-  serviceType: text("service_type").notNull(),
+  equipment: text("equipment").notNull().default("Não informado"),
+  serviceType: text("service_type").notNull().default("Geral"), // Mantido por retrocompatibilidade
   priority: text("priority").notNull().default("media"),
-  description: text("description").notNull(),
+  description: text("description").notNull().default(""),
   internalNotes: text("internal_notes"),
   status: text("status").notNull().default("aguardando"),
   progress: integer("progress").default(0),
