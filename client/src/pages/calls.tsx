@@ -259,8 +259,8 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       }
 
       const serviceData = {
-        name: call.description || `Serviço - ${call.equipment}`,
-        description: "",
+        name: call.equipment ? `Manutenção: ${call.equipment}` : (call.description?.substring(0, 50) || "Serviço"),
+        description: `Equipamento: ${call.equipment || 'Não informado'}\nProblema Relatado: ${call.description || 'Não informado'}\nObservações Internas: ${call.internalNotes || 'Nenhuma'}`,
         basePrice: "100.00",
         estimatedTime: "2 horas",
         category: call.serviceType || "Reparo",
@@ -1152,6 +1152,21 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                         placeholder="Digite nome ou telefone do cliente..."
                         allowEmpty={false}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Equipamento */}
+              <FormField
+                control={form.control}
+                name="equipment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Equipamento</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
