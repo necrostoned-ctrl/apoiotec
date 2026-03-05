@@ -1,220 +1,262 @@
-import {
-  clients, services, calls, quotes, financialTransactions, messages, users, templates, historyEvents, systemSettings, telegramConfig, clientNotes, notificationPreferences, knowledgeBase, preventiveMaintenance, downloadLinks, systemActivation, backupHistory, backupSchedules, backupExecutionLogs, inventoryProducts, inventoryServices, inventoryMovements,
+import { db } from "./db";
+import { 
+  clients, calls, quotes, users, services, 
+  financialTransactions, messages, downloadLinks, systemSettings, templates, clientNotes,
+  historyEvents,
+  telegramConfig,
+  notificationPreferences,
+  knowledgeBase,
+  preventiveMaintenance,
+  systemActivation,
+  backupHistory,
+  backupSchedules,
+  backupExecutionLogs,
+  inventoryProducts,
+  inventoryServices,
+  inventoryMovements,
+  digitalCertificates,
+  signatureAuditLog,
+  signatureAttempts,
   type Client, type InsertClient,
-  type Service, type InsertService,
-  type Call, type InsertCall, type CallWithClient,
-  type Quote, type InsertQuote, type QuoteWithClient,
-  type FinancialTransaction, type InsertFinancialTransaction, type FinancialTransactionWithClient,
-  type Message, type InsertMessage,
+  type Call, type InsertCall,
+  type Quote, type InsertQuote,
   type User, type InsertUser,
-  type Template, type InsertTemplate,
-  type HistoryEvent, type InsertHistoryEvent,
+  type Service, type InsertService,
+  type FinancialTransaction, type InsertFinancialTransaction,
+  type Message, type InsertMessage,
+  type DownloadLink, type InsertDownloadLink,
   type SystemSettings, type InsertSystemSettings,
-  type TelegramConfig, type InsertTelegramConfig,
+  type Template, type InsertTemplate,
   type ClientNote, type InsertClientNote,
+  type HistoryEvent, type InsertHistoryEvent,
+  type TelegramConfig, type InsertTelegramConfig,
   type NotificationPreferences, type InsertNotificationPreferences,
   type KnowledgeBase, type InsertKnowledgeBase,
-  type PreventiveMaintenance, type InsertPreventiveMaintenance, type PreventiveMaintenanceWithClient,
-  type DownloadLink, type InsertDownloadLink,
+  type PreventiveMaintenance, type InsertPreventiveMaintenance,
   type SystemActivation, type InsertSystemActivation,
   type BackupHistory, type InsertBackupHistory,
   type BackupSchedule, type InsertBackupSchedule,
   type BackupExecutionLog, type InsertBackupExecutionLog,
   type InventoryProduct, type InsertInventoryProduct,
   type InventoryService, type InsertInventoryService,
-  type InventoryMovement, type InsertInventoryMovement
+  type InventoryMovement, type InsertInventoryMovement,
+  type DigitalCertificate, type InsertDigitalCertificate,
+  type SignatureAuditLog, type InsertSignatureAuditLog
 } from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, and, isNull, or, like, count, sum, asc, not, inArray } from "drizzle-orm";
+import { eq, desc, and, or, sql, isNull } from "drizzle-orm";
 
 export interface IStorage {
-  // Clients
-  getClients(): Promise<Client[]>;
-  getClient(id: number): Promise<Client | undefined>;
-  createClient(client: InsertClient): Promise<Client>;
-  updateClient(id: number, client: Partial<InsertClient>): Promise<Client | undefined>;
-  deleteClient(id: number): Promise<boolean>;
-  
-  // Client Notes
-  getClientNotes(clientId: number): Promise<ClientNote[]>;
-  createClientNote(note: InsertClientNote): Promise<ClientNote>;
-  updateClientNote(id: number, note: Partial<InsertClientNote>): Promise<ClientNote | undefined>;
-  deleteClientNote(id: number): Promise<boolean>;
-
-  // Services
-  getServices(): Promise<Service[]>;
-  getService(id: number): Promise<Service | undefined>;
-  createService(service: InsertService): Promise<Service>;
-  updateService(id: number, service: Partial<InsertService>): Promise<Service | undefined>;
-  deleteService(id: number): Promise<boolean>;
-
-  // Calls
-  getCalls(): Promise<CallWithClient[]>;
-  getCall(id: number): Promise<CallWithClient | undefined>;
-  createCall(call: InsertCall): Promise<Call>;
-  updateCall(id: number, call: Partial<InsertCall>): Promise<Call | undefined>;
-  deleteCall(id: number): Promise<boolean>;
-
-  // Quotes
-  getQuotes(): Promise<QuoteWithClient[]>;
-  getQuote(id: number): Promise<QuoteWithClient | undefined>;
-  createQuote(quote: InsertQuote): Promise<Quote>;
-  updateQuote(id: number, quote: Partial<InsertQuote>): Promise<Quote | undefined>;
-  deleteQuote(id: number): Promise<boolean>;
-
-  // Financial Transactions
-  getFinancialTransactions(): Promise<FinancialTransactionWithClient[]>;
-  getFinancialTransaction(id: number): Promise<FinancialTransactionWithClient | undefined>;
-  getInstallmentsByParentId(parentId: number): Promise<FinancialTransaction[]>;
-  createFinancialTransaction(transaction: InsertFinancialTransaction): Promise<FinancialTransaction>;
-  updateFinancialTransaction(id: number, transaction: Partial<InsertFinancialTransaction>): Promise<FinancialTransaction | undefined>;
-  deleteFinancialTransaction(id: number): Promise<boolean>;
-
-  // Messages
-  getMessages(): Promise<Message[]>;
-  getMessage(id: number): Promise<Message | undefined>;
-  createMessage(message: InsertMessage): Promise<Message>;
-  updateMessage(id: number, message: Partial<InsertMessage>): Promise<Message | undefined>;
-  deleteMessage(id: number): Promise<boolean>;
-
-  // Download Links
-  getDownloadLinks(): Promise<DownloadLink[]>;
-  getDownloadLink(id: number): Promise<DownloadLink | undefined>;
-  createDownloadLink(link: InsertDownloadLink): Promise<DownloadLink>;
-  updateDownloadLink(id: number, link: Partial<InsertDownloadLink>): Promise<DownloadLink | undefined>;
-  deleteDownloadLink(id: number): Promise<boolean>;
-
-  // Users
-  getUsers(): Promise<User[]>;
+  // Usuários
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
-  deleteUser(id: number): Promise<boolean>;
+  getUsers(): Promise<User[]>;
 
-  // Templates
-  getTemplates(): Promise<Template[]>;
-  getTemplate(id: number): Promise<Template | undefined>;
-  createTemplate(template: InsertTemplate): Promise<Template>;
-  updateTemplate(id: number, template: Partial<InsertTemplate>): Promise<Template | undefined>;
-  deleteTemplate(id: number): Promise<boolean>;
+  // Clientes
+  getClients(): Promise<Client[]>;
+  getClient(id: number): Promise<Client | undefined>;
+  createClient(client: InsertClient): Promise<Client>;
+  updateClient(id: number, client: Partial<Client>): Promise<Client | undefined>;
+  deleteClient(id: number): Promise<void>;
 
-  // Dashboard Stats
-  getDashboardStats(): Promise<{
-    todayCalls: number;
-    openServices: number;
-    monthlyRevenue: string;
-    pendingItems: number;
-  }>;
+  // Notas de Cliente
+  getClientNotes(clientId: number): Promise<ClientNote[]>;
+  createClientNote(note: InsertClientNote): Promise<ClientNote>;
+  deleteClientNote(id: number): Promise<void>;
 
-  // History Events
-  getHistoryEventsByCallId(callId: number): Promise<HistoryEvent[]>;
-  getHistoryEventsByServiceId(serviceId: number): Promise<HistoryEvent[]>;
-  getHistoryEventsByTransactionId(transactionId: number): Promise<HistoryEvent[]>;
+  // Chamados (Calls)
+  getCalls(): Promise<Call[]>;
+  getCall(id: number): Promise<Call | undefined>;
+  getCallsByClient(clientId: number): Promise<Call[]>;
+  createCall(call: InsertCall): Promise<Call>;
+  updateCall(id: number, call: Partial<Call>): Promise<Call | undefined>;
+  updateCallProgress(id: number, progress: number): Promise<Call | undefined>;
+  deleteCall(id: number): Promise<void>;
+  getCompletedCallsCount(startDate: Date, endDate: Date): Promise<number>;
+  getTotalCompletedCalls(): Promise<number>;
+  getOpenCallsCount(): Promise<number>;
+
+  // Orçamentos (Quotes)
+  getQuotes(): Promise<Quote[]>;
+  getQuote(id: number): Promise<Quote | undefined>;
+  createQuote(quote: InsertQuote): Promise<Quote>;
+  updateQuote(id: number, quote: Partial<Quote>): Promise<Quote | undefined>;
+  deleteQuote(id: number): Promise<void>;
+  getQuotesByDateRange(startDate: Date, endDate: Date): Promise<Quote[]>;
+
+  // Serviços (Services)
+  getServices(): Promise<Service[]>;
+  getService(id: number): Promise<Service | undefined>;
+  getServicesByCallId(callId: number): Promise<Service[]>;
+  createService(service: InsertService): Promise<Service>;
+  updateService(id: number, service: Partial<Service>): Promise<Service | undefined>;
+  deleteService(id: number): Promise<void>;
+
+  // Histórico (History)
+  getHistoryEvents(): Promise<HistoryEvent[]>;
+  getHistoryByCallId(callId: number): Promise<HistoryEvent[]>;
+  getHistoryByServiceId(serviceId: number): Promise<HistoryEvent[]>;
+  getHistoryByTransactionId(transactionId: number): Promise<HistoryEvent[]>;
   createHistoryEvent(event: InsertHistoryEvent): Promise<HistoryEvent>;
 
-  // System Settings
-  getSystemSettings(): Promise<SystemSettings | null>;
-  updateSystemSettings(settings: InsertSystemSettings): Promise<SystemSettings>;
+  // Financeiro (Financial Transactions)
+  getFinancialTransactions(): Promise<FinancialTransaction[]>;
+  getFinancialTransaction(id: number): Promise<FinancialTransaction | undefined>;
+  createFinancialTransaction(transaction: InsertFinancialTransaction): Promise<FinancialTransaction>;
+  updateFinancialTransaction(id: number, transaction: Partial<FinancialTransaction>): Promise<FinancialTransaction | undefined>;
+  deleteFinancialTransaction(id: number): Promise<void>;
+  getFinancialTransactionsByDateRange(startDate: Date, endDate: Date): Promise<FinancialTransaction[]>;
+  getDashboardStats(): Promise<any>;
+  generatePixCode(amount: number): string;
+  createInstallments(transactionId: number, installments: number): Promise<FinancialTransaction[]>;
+  getChildTransactions(parentId: number): Promise<FinancialTransaction[]>;
 
-  // Notification Preferences
+  // Base de Conhecimento
+  getKnowledgeBaseItems(): Promise<KnowledgeBase[]>;
+  getKnowledgeBaseItem(id: number): Promise<KnowledgeBase | undefined>;
+  createKnowledgeBaseItem(item: InsertKnowledgeBase): Promise<KnowledgeBase>;
+  updateKnowledgeBaseItem(id: number, item: Partial<KnowledgeBase>): Promise<KnowledgeBase | undefined>;
+  deleteKnowledgeBaseItem(id: number): Promise<void>;
+  incrementKnowledgeBaseViews(id: number): Promise<void>;
+  incrementKnowledgeBaseHelpful(id: number): Promise<void>;
+
+  // Manutenção Preventiva
+  getPreventiveMaintenances(): Promise<(PreventiveMaintenance & { client: Client })[]>;
+  getPreventiveMaintenance(id: number): Promise<PreventiveMaintenance | undefined>;
+  getPreventiveMaintenancesByClient(clientId: number): Promise<PreventiveMaintenance[]>;
+  createPreventiveMaintenance(maintenance: InsertPreventiveMaintenance): Promise<PreventiveMaintenance>;
+  updatePreventiveMaintenance(id: number, maintenance: Partial<PreventiveMaintenance>): Promise<PreventiveMaintenance | undefined>;
+  deletePreventiveMaintenance(id: number): Promise<void>;
+
+  // Configurações e Templates
+  getSystemSettings(): Promise<SystemSettings | undefined>;
+  updateSystemSettings(settings: Partial<SystemSettings>): Promise<SystemSettings>;
+  getTemplate(id: number): Promise<Template | undefined>;
+  updateTemplate(id: number, template: Partial<Template>): Promise<Template | undefined>;
+  createTemplate(template: InsertTemplate): Promise<Template>;
+
+  // Telegram
+  getTelegramConfig(userId: number): Promise<TelegramConfig | undefined>;
+  updateTelegramConfig(userId: number, config: Partial<TelegramConfig>): Promise<TelegramConfig>;
+  createTelegramConfig(config: InsertTelegramConfig): Promise<TelegramConfig>;
+
   getNotificationPreferences(userId: number): Promise<NotificationPreferences[]>;
-  setNotificationPreference(userId: number, notificationType: string, enabled: boolean): Promise<NotificationPreferences>;
-  isNotificationEnabled(userId: number, notificationType: string): Promise<boolean>;
+  updateNotificationPreference(userId: number, type: string, enabled: boolean): Promise<NotificationPreferences>;
 
-  // Telegram Config
-  getTelegramConfig(userId: number): Promise<TelegramConfig | null>;
-  getAllTelegramConfigs(): Promise<TelegramConfig[]>;
-  updateTelegramConfig(userId: number, config: Partial<InsertTelegramConfig> & { userId: number }): Promise<TelegramConfig>;
+  // Mensagens
+  getMessages(): Promise<Message[]>;
+  createMessage(message: InsertMessage): Promise<Message>;
+  deleteMessage(id: number): Promise<void>;
+  
+  // Links de Download
+  getDownloadLinks(): Promise<DownloadLink[]>;
+  createDownloadLink(link: InsertDownloadLink): Promise<DownloadLink>;
+  deleteDownloadLink(id: number): Promise<void>;
 
-  // Backup Schedules
-  getBackupSchedules(userId: number): Promise<BackupSchedule[]>;
+  // Sistema de Ativação
+  getActivationConfig(): Promise<SystemActivation | undefined>;
+  updateActivationConfig(config: Partial<SystemActivation>): Promise<SystemActivation>;
+  createActivationConfig(config: InsertSystemActivation): Promise<SystemActivation>;
+
+  // Backups
+  getBackupHistory(): Promise<BackupHistory[]>;
+  createBackupHistory(backup: InsertBackupHistory): Promise<BackupHistory>;
+  updateBackupHistory(id: number, backup: Partial<BackupHistory>): Promise<BackupHistory | undefined>;
+  
+  getBackupSchedules(): Promise<BackupSchedule[]>;
   getBackupSchedule(id: number): Promise<BackupSchedule | undefined>;
-  createBackupSchedule(schedule: InsertBackupSchedule): Promise<BackupSchedule>;
-  updateBackupSchedule(id: number, schedule: Partial<InsertBackupSchedule>): Promise<BackupSchedule | undefined>;
-  deleteBackupSchedule(id: number): Promise<boolean>;
   getActiveBackupSchedules(): Promise<BackupSchedule[]>;
-
-  // Backup Execution Logs
+  createBackupSchedule(schedule: InsertBackupSchedule): Promise<BackupSchedule>;
+  updateBackupSchedule(id: number, schedule: Partial<BackupSchedule>): Promise<BackupSchedule | undefined>;
+  deleteBackupSchedule(id: number): Promise<void>;
+  
   getBackupExecutionLogs(scheduleId?: number): Promise<BackupExecutionLog[]>;
   createBackupExecutionLog(log: InsertBackupExecutionLog): Promise<BackupExecutionLog>;
-  updateBackupExecutionLog(id: number, log: Partial<InsertBackupExecutionLog>): Promise<BackupExecutionLog | undefined>;
+  updateBackupExecutionLog(id: number, log: Partial<BackupExecutionLog>): Promise<BackupExecutionLog | undefined>;
 
-  // Inventory Products
+  // Produtos e Serviços (Estoque)
   getInventoryProducts(): Promise<InventoryProduct[]>;
   getInventoryProduct(id: number): Promise<InventoryProduct | undefined>;
   createInventoryProduct(product: InsertInventoryProduct): Promise<InventoryProduct>;
-  updateInventoryProduct(id: number, product: Partial<InsertInventoryProduct>): Promise<InventoryProduct | undefined>;
-  deleteInventoryProduct(id: number): Promise<boolean>;
+  updateInventoryProduct(id: number, product: Partial<InventoryProduct>): Promise<InventoryProduct | undefined>;
+  deleteInventoryProduct(id: number): Promise<void>;
 
-  // Inventory Services
   getInventoryServices(): Promise<InventoryService[]>;
   getInventoryService(id: number): Promise<InventoryService | undefined>;
   createInventoryService(service: InsertInventoryService): Promise<InventoryService>;
-  updateInventoryService(id: number, service: Partial<InsertInventoryService>): Promise<InventoryService | undefined>;
-  deleteInventoryService(id: number): Promise<boolean>;
+  updateInventoryService(id: number, service: Partial<InventoryService>): Promise<InventoryService | undefined>;
+  deleteInventoryService(id: number): Promise<void>;
 
-  // Inventory Movements
-  getInventoryMovements(): Promise<InventoryMovement[]>;
+  getInventoryMovements(productId: number): Promise<InventoryMovement[]>;
   createInventoryMovement(movement: InsertInventoryMovement): Promise<InventoryMovement>;
-  getInventoryStats(): Promise<{ totalValue: number; criticalCount: number }>;
+
+  // Certificados e Assinatura Digital
+  getDigitalCertificates(): Promise<DigitalCertificate[]>;
+  getDigitalCertificate(id: number): Promise<DigitalCertificate | undefined>;
+  createDigitalCertificate(certificate: InsertDigitalCertificate): Promise<DigitalCertificate>;
+  updateDigitalCertificate(id: number, certificate: Partial<DigitalCertificate>): Promise<DigitalCertificate | undefined>;
+  deleteDigitalCertificate(id: number): Promise<void>;
+  
+  getSignatureAuditLogs(): Promise<SignatureAuditLog[]>;
+  createSignatureAuditLog(log: InsertSignatureAuditLog): Promise<SignatureAuditLog>;
+  
+  getSignatureAttempts(userId: number): Promise<any | undefined>;
+  updateSignatureAttempts(userId: number, attempts: number, blockedUntil?: Date): Promise<void>;
+  resetSignatureAttempts(userId: number): Promise<void>;
 }
 
-
 export class DatabaseStorage implements IStorage {
+  // Usuários
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  async getUsers(): Promise<User[]> {
+    return db.select().from(users);
+  }
+
+  // Clientes
   async getClients(): Promise<Client[]> {
-    return await db.select().from(clients);
+    return db.select().from(clients).orderBy(desc(clients.createdAt));
   }
 
   async getClient(id: number): Promise<Client | undefined> {
     const [client] = await db.select().from(clients).where(eq(clients.id, id));
-    return client || undefined;
+    return client;
   }
 
   async createClient(client: InsertClient): Promise<Client> {
-    const [newClient] = await db
-      .insert(clients)
-      .values({
-        ...client,
-        email: client.email || null,
-        phone: client.phone || null,
-        cpf: client.cpf || null,
-        documentType: (client as any).documentType || "cpf",
-        address: client.address || null,
-        city: client.city || null,
-        state: client.state || null,
-        status: client.status || "ativo",
-      })
-      .returning();
+    const [newClient] = await db.insert(clients).values(client).returning();
     return newClient;
   }
 
-  async updateClient(id: number, client: Partial<InsertClient>): Promise<Client | undefined> {
+  async updateClient(id: number, clientUpdate: Partial<Client>): Promise<Client | undefined> {
     const [updatedClient] = await db
       .update(clients)
-      .set({
-        ...client,
-        email: client.email || null,
-        phone: client.phone || null,
-        cpf: client.cpf || null,
-        documentType: (client as any).documentType || undefined,
-        address: client.address || null,
-        city: client.city || null,
-        state: client.state || null,
-      })
+      .set(clientUpdate)
       .where(eq(clients.id, id))
       .returning();
-    return updatedClient || undefined;
+    return updatedClient;
   }
 
-  async deleteClient(id: number): Promise<boolean> {
-    const result = await db.delete(clients).where(eq(clients.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
+  async deleteClient(id: number): Promise<void> {
+    await db.delete(clients).where(eq(clients.id, id));
   }
 
-  // Client Notes
+  // Notas de Cliente
   async getClientNotes(clientId: number): Promise<ClientNote[]> {
-    return await db
+    return db
       .select()
       .from(clientNotes)
       .where(eq(clientNotes.clientId, clientId))
@@ -222,937 +264,224 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClientNote(note: InsertClientNote): Promise<ClientNote> {
-    const [newNote] = await db
-      .insert(clientNotes)
-      .values(note)
-      .returning();
+    const [newNote] = await db.insert(clientNotes).values(note).returning();
     return newNote;
   }
 
-  async updateClientNote(id: number, note: Partial<InsertClientNote>): Promise<ClientNote | undefined> {
-    const [updatedNote] = await db
-      .update(clientNotes)
-      .set({
-        ...note,
-        updatedAt: new Date(),
-      })
-      .where(eq(clientNotes.id, id))
+  async deleteClientNote(id: number): Promise<void> {
+    await db.delete(clientNotes).where(eq(clientNotes.id, id));
+  }
+
+  // Chamados (Calls)
+  async getCalls(): Promise<Call[]> {
+    return db.select().from(calls).orderBy(desc(calls.displayOrder), desc(calls.createdAt));
+  }
+
+  async getCall(id: number): Promise<Call | undefined> {
+    const [call] = await db.select().from(calls).where(eq(calls.id, id));
+    return call;
+  }
+
+  async getCallsByClient(clientId: number): Promise<Call[]> {
+    return db.select().from(calls).where(eq(calls.clientId, clientId)).orderBy(desc(calls.createdAt));
+  }
+
+  async createCall(call: InsertCall): Promise<Call> {
+    // Explicitly fallback values to prevent database constraint violations 
+    // even if Zod schema validates them as omitted/optional
+    const payload = {
+      ...call,
+      serviceType: call.serviceType || "Geral",
+      equipment: call.equipment || "Não informado",
+      description: call.description || ""
+    };
+    
+    const [newCall] = await db.insert(calls).values(payload).returning();
+    
+    // Registrar na timeline
+    await this.createHistoryEvent({
+      callId: newCall.id,
+      eventType: 'call_created',
+      description: 'Chamado criado no sistema',
+      userId: newCall.userId || 1,
+    });
+    
+    return newCall;
+  }
+
+  async updateCall(id: number, callUpdate: Partial<Call>): Promise<Call | undefined> {
+    const [updatedCall] = await db
+      .update(calls)
+      .set({ ...callUpdate, updatedAt: new Date() })
+      .where(eq(calls.id, id))
       .returning();
-    return updatedNote || undefined;
-  }
-
-  async deleteClientNote(id: number): Promise<boolean> {
-    const result = await db.delete(clientNotes).where(eq(clientNotes.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
-  }
-
-  async getServices(): Promise<any[]> {
-    try {
-      const servicesData = await db.select().from(services).orderBy(desc(services.createdAt));
-      return servicesData.filter(service => {
-        if (!service.name || service.name.trim() === '') return false;
-        // Permitir serviços com basePrice nulo (foi removido do formulário de criação)
-        return true;
+      
+    if (updatedCall && callUpdate.status) {
+      await this.createHistoryEvent({
+        callId: updatedCall.id,
+        eventType: 'status_changed',
+        description: `Status alterado para: ${callUpdate.status}`,
+        userId: updatedCall.userId || 1,
       });
-    } catch (error) {
-      console.error("Error fetching services:", error);
-      return [];
     }
+      
+    return updatedCall;
+  }
+
+  async updateCallProgress(id: number, progress: number): Promise<Call | undefined> {
+    const [updatedCall] = await db
+      .update(calls)
+      .set({ progress, updatedAt: new Date() })
+      .where(eq(calls.id, id))
+      .returning();
+    return updatedCall;
+  }
+
+  async deleteCall(id: number): Promise<void> {
+    await db.delete(calls).where(eq(calls.id, id));
+  }
+
+  async getCompletedCallsCount(startDate: Date, endDate: Date): Promise<number> {
+    const completedCalls = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(calls)
+      .where(
+        and(
+          eq(calls.status, 'concluido'),
+          sql`${calls.updatedAt} >= ${startDate}`,
+          sql`${calls.updatedAt} <= ${endDate}`
+        )
+      );
+    return Number(completedCalls[0]?.count || 0);
+  }
+
+  async getTotalCompletedCalls(): Promise<number> {
+    const completedCalls = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(calls)
+      .where(eq(calls.status, 'concluido'));
+    return Number(completedCalls[0]?.count || 0);
+  }
+
+  async getOpenCallsCount(): Promise<number> {
+    const openCalls = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(calls)
+      .where(or(eq(calls.status, 'aguardando'), eq(calls.status, 'em_andamento')));
+    return Number(openCalls[0]?.count || 0);
+  }
+
+  // Orçamentos (Quotes)
+  async getQuotes(): Promise<Quote[]> {
+    return db.select().from(quotes).orderBy(desc(quotes.createdAt));
+  }
+
+  async getQuote(id: number): Promise<Quote | undefined> {
+    const [quote] = await db.select().from(quotes).where(eq(quotes.id, id));
+    return quote;
+  }
+
+  async createQuote(quote: InsertQuote): Promise<Quote> {
+    const [newQuote] = await db.insert(quotes).values(quote).returning();
+    return newQuote;
+  }
+
+  async updateQuote(id: number, quoteUpdate: Partial<Quote>): Promise<Quote | undefined> {
+    const [updatedQuote] = await db
+      .update(quotes)
+      .set(quoteUpdate)
+      .where(eq(quotes.id, id))
+      .returning();
+    return updatedQuote;
+  }
+
+  async deleteQuote(id: number): Promise<void> {
+    await db.delete(quotes).where(eq(quotes.id, id));
+  }
+
+  async getQuotesByDateRange(startDate: Date, endDate: Date): Promise<Quote[]> {
+    return db
+      .select()
+      .from(quotes)
+      .where(
+        and(
+          sql`${quotes.createdAt} >= ${startDate}`,
+          sql`${quotes.createdAt} <= ${endDate}`
+        )
+      )
+      .orderBy(desc(quotes.createdAt));
+  }
+
+  // Serviços (Services)
+  async getServices(): Promise<Service[]> {
+    return db.select().from(services).orderBy(desc(services.createdAt));
   }
 
   async getService(id: number): Promise<Service | undefined> {
     const [service] = await db.select().from(services).where(eq(services.id, id));
-    return service || undefined;
+    return service;
+  }
+
+  async getServicesByCallId(callId: number): Promise<Service[]> {
+    return db.select().from(services).where(eq(services.callId, callId)).orderBy(desc(services.createdAt));
   }
 
   async createService(service: InsertService): Promise<Service> {
-    console.log("=== DATABASE STORAGE: Criando serviço ===");
-    console.log("Dados recebidos:", service);
-    console.log("ClientId a ser inserido:", service.clientId);
-    console.log("CallId a ser inserido:", service.callId);
-    console.log("Products a serem inseridos:", service.products);
+    const [newService] = await db.insert(services).values(service).returning();
     
-    const [newService] = await db
-      .insert(services)
-      .values({
-        name: service.name,
-        description: service.description || null,
-        basePrice: service.basePrice || null,
-        estimatedTime: service.estimatedTime || null,
-        category: service.category || null,
-        priority: service.priority || "media", // CRÍTICO: incluir prioridade
-        clientId: service.clientId || null,
-        callId: service.callId || null, // CRÍTICO: preservar ID do chamado
-        userId: service.userId || 1,
-        createdByUserId: service.createdByUserId || service.userId || 1,
-        products: service.products || null, // CRÍTICO: incluir products
-        callDate: service.callDate ? new Date(service.callDate) : null, // CRÍTICO: preservar data do chamado
-        serviceDate: service.serviceDate ? new Date(service.serviceDate) : new Date(), // Data do serviço
-      })
-      .returning();
-      
-    console.log("Serviço inserido no banco:", newService);
-    console.log("ClientId no serviço final:", newService.clientId);
-    console.log("CallId no serviço final:", newService.callId);
-    console.log("Products no serviço final:", newService.products);
+    // Registrar na timeline do chamado original (se existir) e do serviço
+    if (newService.callId) {
+      await this.createHistoryEvent({
+        callId: newService.callId,
+        serviceId: newService.id,
+        eventType: 'converted_to_service',
+        description: 'Chamado convertido em serviço',
+        userId: newService.userId || 1,
+      });
+    }
     
     return newService;
   }
 
-  async updateService(id: number, service: Partial<InsertService>): Promise<Service | undefined> {
-    console.log("=== UPDATING SERVICE ===");
-    console.log("Service ID:", id);
-    console.log("Update data:", service);
-    console.log("ServiceDate:", service.serviceDate);
-    
-    const updateData: any = {
-      updatedAt: new Date()
-    };
-    
-    // Só atualizar campos fornecidos - PRESERVAR TIMEZONE
-    if (service.name !== undefined) updateData.name = service.name;
-    if (service.description !== undefined) updateData.description = service.description;
-    if (service.basePrice !== undefined) updateData.basePrice = service.basePrice;
-    if (service.estimatedTime !== undefined) updateData.estimatedTime = service.estimatedTime;
-    if (service.category !== undefined) updateData.category = service.category;
-    if ((service as any).priority !== undefined) updateData.priority = (service as any).priority;
-    if (service.clientId !== undefined) updateData.clientId = service.clientId;
-    if (service.products !== undefined) updateData.products = service.products;
-    if (service.serviceDate !== undefined && service.serviceDate !== null) {
-      // CORRIGIR timezone - já vem como Date
-      updateData.serviceDate = service.serviceDate instanceof Date ? service.serviceDate : new Date(service.serviceDate);
-    }
-    if (service.userId !== undefined) updateData.userId = service.userId;
-    if (service.createdByUserId !== undefined) updateData.createdByUserId = service.createdByUserId;
-    
-    console.log("Final update data:", updateData);
-    
+  async updateService(id: number, serviceUpdate: Partial<Service>): Promise<Service | undefined> {
     const [updatedService] = await db
       .update(services)
-      .set(updateData)
+      .set(serviceUpdate)
       .where(eq(services.id, id))
       .returning();
       
-    console.log("Service updated in DB:", updatedService);
-    console.log("Updated serviceDate:", updatedService?.serviceDate);
-    console.log("Updated createdAt:", updatedService?.createdAt);
-    
-    return updatedService || undefined;
-  }
-
-  async deleteService(id: number): Promise<boolean> {
-    const result = await db.delete(services).where(eq(services.id, id));
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  async getCalls(): Promise<CallWithClient[]> {
-    try {
-      const allCalls = await db.select().from(calls).orderBy(desc(calls.updatedAt));
-      const clientsMap = new Map<number, Client>();
-      const usersMap = new Map<number, User>();
-      
-      if (allCalls.length > 0) {
-        // Buscar clientes
-        const clientIds = Array.from(new Set(allCalls.map(c => c.clientId).filter(id => id))) as number[];
-        if (clientIds.length > 0) {
-          const clientsList = await db.select().from(clients).where(inArray(clients.id, clientIds));
-          clientsList.forEach(c => clientsMap.set(c.id, c));
-        }
-        
-        // Buscar usuários - TANTO userId QUANTO createdByUserId PRESERVANDO O CRIADOR ORIGINAL
-        const userIds = Array.from(new Set(allCalls.flatMap(c => [c.userId, c.createdByUserId]).filter(id => id))) as number[];
-        if (userIds.length > 0) {
-          const usersList = await db.select().from(users).where(inArray(users.id, userIds));
-          usersList.forEach(u => usersMap.set(u.id, u));
-        }
-      }
-      
-      return allCalls.filter(call => {
-        if (call.clientId && !clientsMap.has(call.clientId)) return false;
-        if (!call.description || call.description.trim() === '') return false;
-        const client = call.clientId ? clientsMap.get(call.clientId) : undefined;
-        if (client && client.status === 'inativo') return false;
-        return true;
-      }).map(call => ({
-        ...call,
-        client: call.clientId ? clientsMap.get(call.clientId) || null : null,
-        user: call.createdByUserId ? usersMap.get(call.createdByUserId) || null : (call.userId ? usersMap.get(call.userId) || null : null),
-      })) as CallWithClient[];
-    } catch (error) {
-      console.error("Error fetching calls:", error);
-      return [];
-    }
-  }
-
-  async getCall(id: number): Promise<CallWithClient | undefined> {
-    try {
-      const [call] = await db.select().from(calls).where(eq(calls.id, id));
-      if (!call) return undefined;
-      
-      let client: Client | null = null;
-      let user: User | null = null;
-      
-      if (call.clientId) {
-        const [c] = await db.select().from(clients).where(eq(clients.id, call.clientId));
-        client = c || null;
-      }
-      
-      // PRESERVAR CRIADOR ORIGINAL - createdByUserId tem prioridade
-      if (call.createdByUserId) {
-        const [u] = await db.select().from(users).where(eq(users.id, call.createdByUserId));
-        user = u || null;
-      } else if (call.userId) {
-        const [u] = await db.select().from(users).where(eq(users.id, call.userId));
-        user = u || null;
-      }
-      
-      return { ...call, client, user } as CallWithClient;
-    } catch (error) {
-      console.error("Error fetching call:", error);
-      return undefined;
-    }
-  }
-
-  async createCall(call: InsertCall): Promise<Call> {
-    const [newCall] = await db
-      .insert(calls)
-      .values({
-        ...call,
-        userId: call.userId || 1,
-        createdByUserId: call.createdByUserId || call.userId || 1,
-        status: call.status || "aguardando",
-        priority: call.priority || "media",
-        progress: call.progress || null,
-        internalNotes: call.internalNotes || null,
-      })
-      .returning();
-    return newCall;
-  }
-
-  async updateCall(id: number, call: Partial<InsertCall>): Promise<Call | undefined> {
-    const [updatedCall] = await db
-      .update(calls)
-      .set({
-        ...call,
-        progress: call.progress || null,
-        internalNotes: call.internalNotes || null,
-        updatedAt: new Date(),
-      })
-      .where(eq(calls.id, id))
-      .returning();
-    return updatedCall || undefined;
-  }
-
-  async deleteCall(id: number): Promise<boolean> {
-    const result = await db.delete(calls).where(eq(calls.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
-  }
-
-  async getQuotes(): Promise<QuoteWithClient[]> {
-    try {
-      const allQuotes = await db.select().from(quotes);
-      const clientsMap = new Map<number, Client>();
-      if (allQuotes.length > 0) {
-        const clientIds = Array.from(new Set(allQuotes.map(q => q.clientId).filter(id => id)));
-        if (clientIds.length > 0) {
-          const clientsList = await db.select().from(clients).where(inArray(clients.id, clientIds as number[]));
-          clientsList.forEach(c => clientsMap.set(c.id, c));
-        }
-      }
-      return allQuotes.map(q => ({
-        ...q,
-        client: q.clientId ? clientsMap.get(q.clientId) || null : null,
-      })) as QuoteWithClient[];
-    } catch (error) {
-      console.error("Error fetching quotes:", error);
-      return [];
-    }
-  }
-
-  async getQuote(id: number): Promise<QuoteWithClient | undefined> {
-    try {
-      const [quote] = await db.select().from(quotes).where(eq(quotes.id, id));
-      if (!quote) return undefined;
-      
-      let client: Client | null = null;
-      if (quote.clientId) {
-        const [c] = await db.select().from(clients).where(eq(clients.id, quote.clientId));
-        client = c || null;
-      }
-      
-      return { ...quote, client } as QuoteWithClient;
-    } catch (error) {
-      console.error("Error fetching quote:", error);
-      return undefined;
-    }
-  }
-
-  async createQuote(quote: InsertQuote): Promise<Quote> {
-    const [newQuote] = await db
-      .insert(quotes)
-      .values({
-        ...quote,
-        status: quote.status || "pendente",
-        discount: quote.discount || null,
-        validUntil: quote.validUntil || null,
-      })
-      .returning();
-    return newQuote;
-  }
-
-  async updateQuote(id: number, quote: Partial<InsertQuote>): Promise<Quote | undefined> {
-    const [updatedQuote] = await db
-      .update(quotes)
-      .set({
-        ...quote,
-        discount: quote.discount || null,
-        validUntil: quote.validUntil || null,
-      })
-      .where(eq(quotes.id, id))
-      .returning();
-    return updatedQuote || undefined;
-  }
-
-  async deleteQuote(id: number): Promise<boolean> {
-    const result = await db.delete(quotes).where(eq(quotes.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
-  }
-
-  async getFinancialTransactions(): Promise<FinancialTransactionWithClient[]> {
-    try {
-      console.log("=== BUSCANDO TRANSAÇÕES FINANCEIRAS ===");
-      
-      // Buscar TODAS as transações (incluindo parcelas filhas) como transações independentes
-      const allTransactions = await db
-        .select()
-        .from(financialTransactions)
-        .leftJoin(clients, eq(financialTransactions.clientId, clients.id))
-        .leftJoin(calls, eq(financialTransactions.callId, calls.id))
-        .leftJoin(users, eq(financialTransactions.userId, users.id))
-        .orderBy(desc(financialTransactions.createdAt));
-
-      console.log("Total de transações encontradas:", allTransactions.length);
-
-      const result: FinancialTransactionWithClient[] = [];
-
-      for (const row of allTransactions) {
-        const transaction = row.financial_transactions;
-        
-        // Validações apenas de dados essenciais
-        if (!transaction.description || transaction.description.trim() === '') {
-          continue;
-        }
-        if (!transaction.amount || parseFloat(transaction.amount.toString()) <= 0) {
-          continue;
-        }
-        
-        // Garantir que client sempre tem documentType com default "cpf"
-        const clientData = row.clients ? {
-          ...row.clients,
-          documentType: (row.clients as any).documentType || "cpf"
-        } : null;
-        
-        // SEMPRE adicionar a transação - cliente pode estar null, mas transação é válida
-        const transactionData = {
-          ...transaction,
-          completedByUserId: transaction.completedByUserId || null,
-          createdByUserId: transaction.createdByUserId || null, // CRÍTICO: Garantir que createdByUserId é retornado
-          client: clientData,  // Cliente pode ser null
-          call: row.calls || null,
-          user: row.users || null,
-          childTransactions: [] // Será populado na próxima etapa
-        };
-        
-        result.push(transactionData as FinancialTransactionWithClient);
-      }
-
-      // BUSCAR TODAS AS PARCELAS SEM RELAÇÕES PROBLEMÁTICAS
-      const allInstallments = await db
-        .select()
-        .from(financialTransactions)
-        .where(not(isNull(financialTransactions.parentTransactionId)))
-        .orderBy(asc(financialTransactions.installmentNumber));
-
-      // AGRUPAR PARCELAS POR TRANSAÇÃO PAI
-      const installmentsByParent = new Map<number, any[]>();
-      for (const installment of allInstallments) {
-        if (installment.parentTransactionId) {
-          if (!installmentsByParent.has(installment.parentTransactionId)) {
-            installmentsByParent.set(installment.parentTransactionId, []);
-          }
-          installmentsByParent.get(installment.parentTransactionId)!.push(installment);
-        }
-      }
-
-      // ADICIONAR PARCELAS ÀS TRANSAÇÕES PAI
-      for (const transaction of result) {
-        if (installmentsByParent.has(transaction.id)) {
-          transaction.childTransactions = installmentsByParent.get(transaction.id) || [];
-        }
-      }
-
-      console.log("Transações retornadas:", result.length);
-      console.log("Parcelas totais encontradas:", allInstallments.length);
-      return result;
-    } catch (error) {
-      console.error("Error fetching financial transactions:", error);
-      return [];
-    }
-  }
-
-  async getFinancialTransaction(id: number): Promise<FinancialTransactionWithClient | undefined> {
-    try {
-      const transactionRows = await db
-        .select()
-        .from(financialTransactions)
-        .leftJoin(clients, eq(financialTransactions.clientId, clients.id))
-        .leftJoin(calls, eq(financialTransactions.callId, calls.id))
-        .leftJoin(users, eq(financialTransactions.userId, users.id))
-        .where(eq(financialTransactions.id, id));
-
-      if (transactionRows.length === 0) return undefined;
-
-      const row = transactionRows[0];
-      const transaction = row.financial_transactions;
-
-      // Buscar parcelas (transações filhas)
-      const childTransactionRows = await db
-        .select()
-        .from(financialTransactions)
-        .where(eq(financialTransactions.parentTransactionId, id))
-        .orderBy(asc(financialTransactions.installmentNumber));
-
-      // Garantir que client sempre tem documentType com default "cpf"
-      const clientData = row.clients ? {
-        ...row.clients,
-        documentType: (row.clients as any).documentType || "cpf"
-      } : null;
-
-      return {
-        ...transaction,
-        completedByUserId: transaction.completedByUserId || null,
-        createdByUserId: transaction.createdByUserId || null, // CRÍTICO: Garantir que createdByUserId é retornado
-        client: clientData,
-        call: row.calls || null,
-        user: row.users || null,
-        childTransactions: childTransactionRows as FinancialTransactionWithClient[]
-      } as FinancialTransactionWithClient;
-    } catch (error) {
-      console.error("Error fetching financial transaction:", error);
-      return undefined;
-    }
-  }
-
-  async createFinancialTransaction(transaction: InsertFinancialTransaction): Promise<FinancialTransaction> {
-    console.log("=== DATABASE: Criando transação financeira ===");
-    console.log("Dados recebidos:", transaction);
-    console.log("ClientId a inserir:", transaction.clientId);
-    console.log("STATUS RECEBIDO NO STORAGE:", transaction.status);
-
-    const statusToUse = transaction.status || "pendente";
-    console.log("STATUS QUE SERÁ USADO:", statusToUse);
-
-    const insertData: any = {
-      description: transaction.description,
-      resolution: transaction.resolution || null, // PRESERVAR RESOLUÇÃO
-      clientId: transaction.clientId, // CRÍTICO: preservar clientId
-      callId: transaction.callId || null,
-      serviceId: transaction.serviceId || null, // PRESERVAR REFERÊNCIA AO SERVIÇO
-      userId: transaction.userId || 1,
-      createdByUserId: transaction.createdByUserId || transaction.userId || 1, // CRÍTICO: PRESERVAR CRIADOR ORIGINAL
-      type: transaction.type,
-      amount: transaction.amount,
-      originalAmount: transaction.originalAmount || null,
-      discountAmount: transaction.discountAmount || "0",
-      status: statusToUse,
-      dueDate: transaction.dueDate || null,
-      paidAt: transaction.paidAt || null,
-      completedAt: transaction.completedAt || null,
-      completedByUserId: transaction.completedByUserId || null,
-      parentTransactionId: transaction.parentTransactionId || null,
-      installmentNumber: transaction.installmentNumber || null,
-      // CAMPOS CRÍTICOS PARA PRESERVAR DISCRIMINAÇÃO DE VALORES
-      serviceAmount: transaction.serviceAmount || null,
-      productAmount: transaction.productAmount || null,
-      serviceDetails: transaction.serviceDetails || null,
-      productDetails: transaction.productDetails || null,
-      // SEMPRE usar data ATUAL para garantir que transação aparece no topo da lista
-      createdAt: new Date(),
-    };
-
-    const [newTransaction] = await db
-      .insert(financialTransactions)
-      .values(insertData)
-      .returning();
-      
-    console.log("Transação criada no banco:", newTransaction);
-    console.log("ClientId final:", newTransaction.clientId);
-    console.log("CreatedAt no banco:", newTransaction.createdAt);
-    console.log("STATUS FINAL DA TRANSAÇÃO CRIADA:", newTransaction.status);
-    
-    return newTransaction;
-  }
-
-  async updateFinancialTransaction(id: number, transaction: Partial<InsertFinancialTransaction>): Promise<FinancialTransaction | undefined> {
-    // Buscar transação atual para preservar dados
-    const [current] = await db
-      .select()
-      .from(financialTransactions)
-      .where(eq(financialTransactions.id, id));
-    
-    if (!current) {
-      console.error("Transaction not found for update:", id);
-      return undefined;
-    }
-    
-    console.log("=== ANTES DA ATUALIZAÇÃO ===");
-    console.log("Current clientId:", current.clientId);
-    console.log("Update data:", transaction);
-    
-    // Construir objeto de atualização preservando dados existentes
-    const updateData: any = {};
-    
-    // Só incluir campos que foram fornecidos na atualização
-    if (transaction.description !== undefined) updateData.description = transaction.description;
-    if (transaction.resolution !== undefined) updateData.resolution = transaction.resolution;
-    if (transaction.clientId !== undefined) updateData.clientId = transaction.clientId;
-    if (transaction.callId !== undefined) updateData.callId = transaction.callId;
-    if (transaction.serviceId !== undefined) updateData.serviceId = transaction.serviceId;
-    if (transaction.userId !== undefined) updateData.userId = transaction.userId;
-    if (transaction.createdByUserId !== undefined) updateData.createdByUserId = transaction.createdByUserId;
-    if (transaction.completedByUserId !== undefined) updateData.completedByUserId = transaction.completedByUserId;
-    if (transaction.type !== undefined) updateData.type = transaction.type;
-    if (transaction.amount !== undefined) updateData.amount = transaction.amount;
-    if (transaction.originalAmount !== undefined) updateData.originalAmount = transaction.originalAmount;
-    if (transaction.discountAmount !== undefined) updateData.discountAmount = transaction.discountAmount;
-    if (transaction.status !== undefined) updateData.status = transaction.status;
-    if (transaction.dueDate !== undefined) updateData.dueDate = transaction.dueDate;
-    if (transaction.paidAt !== undefined) updateData.paidAt = transaction.paidAt;
-    if (transaction.completedAt !== undefined) updateData.completedAt = transaction.completedAt;
-    // PRESERVAR DISCRIMINAÇÃO DE VALORES
-    if (transaction.serviceAmount !== undefined) updateData.serviceAmount = transaction.serviceAmount;
-    if (transaction.productAmount !== undefined) updateData.productAmount = transaction.productAmount;
-    if (transaction.serviceDetails !== undefined) updateData.serviceDetails = transaction.serviceDetails;
-    if (transaction.productDetails !== undefined) updateData.productDetails = transaction.productDetails;
-    
-    // PERMITIR edição de createdAt para mover transações entre meses
-    // Sincronizar billingDate junto com createdAt para relatórios funcionarem corretamente
-    if (transaction.createdAt !== undefined) {
-      updateData.createdAt = transaction.createdAt;
-      updateData.billingDate = transaction.createdAt; // Sincronizar data de faturamento
-      console.log("=== ATUALIZANDO createdAt E billingDate ===", transaction.createdAt);
-    }
-    
-    // Sempre atualizar updatedAt
-    updateData.updatedAt = new Date();
-    
-    console.log("=== DADOS PARA ATUALIZAÇÃO ===");
-    console.log("UpdateData:", updateData);
-    console.log("Resolution field:", updateData.resolution);
-    console.log("ClientId será preservado:", !updateData.hasOwnProperty('clientId') ? current.clientId : updateData.clientId);
-    
-    const [updatedTransaction] = await db
-      .update(financialTransactions)
-      .set(updateData)
-      .where(eq(financialTransactions.id, id))
-      .returning();
-    
-    console.log("=== RESULTADO FINAL ===");
-    console.log("Final clientId:", updatedTransaction.clientId);
-    console.log("Final createdByUserId:", updatedTransaction.createdByUserId);
-    console.log("Final resolution:", updatedTransaction.resolution);
-    console.log("Final createdAt:", updatedTransaction.createdAt);
-    console.log("Updated transaction:", updatedTransaction);
-    
-    return updatedTransaction || undefined;
-  }
-
-  async getInstallmentsByParentId(parentId: number): Promise<FinancialTransaction[]> {
-    try {
-      const installments = await db
-        .select()
-        .from(financialTransactions)
-        .where(eq(financialTransactions.parentTransactionId, parentId))
-        .orderBy(financialTransactions.installmentNumber);
-      
-      return installments;
-    } catch (error) {
-      console.error("Error getting installments by parent ID:", error);
-      return [];
-    }
-  }
-
-  async deleteFinancialTransaction(id: number): Promise<boolean> {
-    try {
-      console.log(`=== DELETANDO TRANSAÇÃO ${id} ===`);
-      
-      // Check if transaction exists
-      const transaction = await db.select().from(financialTransactions).where(eq(financialTransactions.id, id)).limit(1);
-      if (transaction.length === 0) {
-        console.log("Transação não encontrada");
-        return false;
-      }
-      
-      // Recursive function to delete all child transactions first
-      const deleteChildrenRecursively = async (parentId: number): Promise<void> => {
-        const children = await db.select().from(financialTransactions).where(eq(financialTransactions.parentTransactionId, parentId));
-        
-        for (const child of children) {
-          // Recursively delete children of this child first
-          await deleteChildrenRecursively(child.id);
-          
-          // Then delete this child
-          await db.delete(financialTransactions).where(eq(financialTransactions.id, child.id));
-          console.log(`Excluída parcela filha: ${child.id}`);
-        }
-      };
-      
-      // Delete all children recursively
-      await deleteChildrenRecursively(id);
-      
-      // Finally delete the parent transaction
-      const result = await db.delete(financialTransactions).where(eq(financialTransactions.id, id));
-      const rowsDeleted = result.rowCount || 0;
-      console.log(`Transação principal excluída: ${rowsDeleted > 0}`);
-      
-      return rowsDeleted > 0;
-    } catch (error) {
-      console.error("Transaction deletion error:", error);
-      throw error;
-    }
-  }
-
-  async getMessages(): Promise<Message[]> {
-    return await db.select().from(messages);
-  }
-
-  async getMessage(id: number): Promise<Message | undefined> {
-    const [message] = await db.select().from(messages).where(eq(messages.id, id));
-    return message || undefined;
-  }
-
-  async createMessage(message: InsertMessage): Promise<Message> {
-    const [newMessage] = await db
-      .insert(messages)
-      .values(message)
-      .returning();
-    return newMessage;
-  }
-
-  async updateMessage(id: number, message: Partial<InsertMessage>): Promise<Message | undefined> {
-    const [updatedMessage] = await db
-      .update(messages)
-      .set(message)
-      .where(eq(messages.id, id))
-      .returning();
-    return updatedMessage || undefined;
-  }
-
-  async deleteMessage(id: number): Promise<boolean> {
-    const result = await db.delete(messages).where(eq(messages.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
-  }
-
-  // Download Links
-  async getDownloadLinks(): Promise<DownloadLink[]> {
-    return await db.select().from(downloadLinks).orderBy(desc(downloadLinks.createdAt));
-  }
-
-  async getDownloadLink(id: number): Promise<DownloadLink | undefined> {
-    const [link] = await db.select().from(downloadLinks).where(eq(downloadLinks.id, id));
-    return link || undefined;
-  }
-
-  async createDownloadLink(link: InsertDownloadLink): Promise<DownloadLink> {
-    const [newLink] = await db
-      .insert(downloadLinks)
-      .values(link)
-      .returning();
-    return newLink;
-  }
-
-  async updateDownloadLink(id: number, link: Partial<InsertDownloadLink>): Promise<DownloadLink | undefined> {
-    const [updated] = await db
-      .update(downloadLinks)
-      .set(link)
-      .where(eq(downloadLinks.id, id))
-      .returning();
-    return updated || undefined;
-  }
-
-  async deleteDownloadLink(id: number): Promise<boolean> {
-    const result = await db.delete(downloadLinks).where(eq(downloadLinks.id, id));
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  // Users
-  async getUsers(): Promise<User[]> {
-    return await db.select().from(users);
-  }
-
-  async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user || undefined;
-  }
-
-  async createUser(user: InsertUser): Promise<User> {
-    const userData: any = { ...user };
-    const [newUser] = await db
-      .insert(users)
-      .values(userData)
-      .returning();
-    return newUser;
-  }
-
-  async updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined> {
-    // Fazer trim dos campos de texto para remover espaços extras
-    const cleanedUser: any = {
-      ...user,
-      username: user.username ? user.username.trim() : user.username,
-      name: user.name ? user.name.trim() : user.name,
-      email: user.email ? user.email.trim() : user.email,
-    };
-
-    const [updatedUser] = await db
-      .update(users)
-      .set(cleanedUser)
-      .where(eq(users.id, id))
-      .returning();
-    return updatedUser || undefined;
-  }
-
-  async deleteUser(id: number): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id));
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  async getDashboardStats(): Promise<{
-    todayCalls: number;
-    openServices: number;
-    monthlyRevenue: string;
-    pendingItems: number;
-  }> {
-    try {
-      const allCalls = await db.select().from(calls);
-      const clientsList = await db.select().from(clients);
-      const clientsMap = new Map(clientsList.map(c => [c.id, c]));
-      
-      const validCalls = allCalls.filter(call => {
-        if (call.clientId && !clientsMap.has(call.clientId)) return false;
-        if (!call.serviceType || call.serviceType.trim() === '') return false;
-        if (!call.description || call.description.trim() === '') return false;
-        const client = call.clientId ? clientsMap.get(call.clientId) : undefined;
-        if (client && client.status === 'inativo') return false;
-        return true;
+    if (updatedService) {
+      await this.createHistoryEvent({
+        serviceId: updatedService.id,
+        callId: updatedService.callId || undefined,
+        eventType: 'service_updated',
+        description: 'Informações do serviço atualizadas',
+        userId: updatedService.userId || 1,
       });
+    }
       
-      const allServices = await db.select().from(services);
-      const allTransactions = await db.select().from(financialTransactions);
-      const allQuotes = await db.select().from(quotes);
-      
-      const todayCalls = validCalls.filter(call => 
-        call.status === "aguardando" || call.status === "aguardando_orcamento"
-      ).length;
-
-      const openServices = allServices.length;
-
-      const now = new Date();
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      
-      const monthlyRevenue = allTransactions
-        .filter(t => {
-          const transactionDate = new Date(t.createdAt);
-          return t.type === "entrada" && transactionDate >= firstDayOfMonth;
-        })
-        .reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
-
-      const pendingItems = allQuotes
-        .filter(q => q.status === "pendente")
-        .length;
-
-      return {
-        todayCalls,
-        openServices,
-        monthlyRevenue: monthlyRevenue.toFixed(2),
-        pendingItems,
-      };
-    } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-      return {
-        todayCalls: 0,
-        openServices: 0,
-        monthlyRevenue: "0.00",
-        pendingItems: 0,
-      };
-    }
+    return updatedService;
   }
 
-  // Templates
-  async getTemplates(): Promise<Template[]> {
-    try {
-      console.log("Storage: Getting templates from database");
-      const templatesList = await db.select().from(templates).orderBy(desc(templates.createdAt));
-      console.log("Storage: Found templates:", templatesList.length);
-      return templatesList;
-    } catch (error) {
-      console.error("Storage: Error getting templates:", error);
-      return [];
-    }
+  async deleteService(id: number): Promise<void> {
+    await db.delete(services).where(eq(services.id, id));
   }
 
-  async getTemplate(id: number): Promise<Template | undefined> {
-    try {
-      console.log("Storage: Getting template by id:", id);
-      const [template] = await db.select().from(templates).where(eq(templates.id, id));
-      console.log("Storage: Template found:", template ? `ID: ${template.id}` : "not found");
-      return template || undefined;
-    } catch (error) {
-      console.error("Storage: Error getting template:", error);
-      return undefined;
-    }
+  // Histórico (History Events)
+  async getHistoryEvents(): Promise<HistoryEvent[]> {
+    return db.select().from(historyEvents).orderBy(desc(historyEvents.createdAt));
   }
 
-  async createTemplate(template: InsertTemplate): Promise<Template> {
-    try {
-      console.log("Storage: Creating template");
-      const templateData: any = {
-        ...template,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      const [newTemplate] = await db
-        .insert(templates)
-        .values(templateData)
-        .returning();
-      console.log("Storage: Template created with id:", newTemplate.id);
-      return newTemplate;
-    } catch (error) {
-      console.error("Storage: Error creating template:", error);
-      throw error;
-    }
+  async getHistoryByCallId(callId: number): Promise<HistoryEvent[]> {
+    return db.select().from(historyEvents).where(eq(historyEvents.callId, callId)).orderBy(desc(historyEvents.createdAt));
   }
 
-  async updateTemplate(id: number, template: Partial<InsertTemplate>): Promise<Template | undefined> {
-    try {
-      console.log("Storage: Updating template:", id, "with data:", Object.keys(template));
-      const templateData: any = {
-        ...template,
-        updatedAt: new Date(),
-      };
-      const [updatedTemplate] = await db
-        .update(templates)
-        .set(templateData)
-        .where(eq(templates.id, id))
-        .returning();
-      console.log("Storage: Template updated:", updatedTemplate ? "success" : "not found");
-      return updatedTemplate || undefined;
-    } catch (error) {
-      console.error("Storage: Error updating template:", error);
-      throw error;
-    }
+  async getHistoryByServiceId(serviceId: number): Promise<HistoryEvent[]> {
+    return db.select().from(historyEvents).where(eq(historyEvents.serviceId, serviceId)).orderBy(desc(historyEvents.createdAt));
   }
 
-  async deleteTemplate(id: number): Promise<boolean> {
-    try {
-      console.log("Storage: Deleting template:", id);
-      const result = await db.delete(templates).where(eq(templates.id, id));
-      const success = (result.rowCount ?? 0) > 0;
-      console.log("Storage: Template deleted:", success);
-      return success;
-    } catch (error) {
-      console.error("Storage: Error deleting template:", error);
-      return false;
-    }
-  }
-
-  // History Events
-  async getHistoryEventsByCallId(callId: number): Promise<HistoryEvent[]> {
-    // Para chamados, buscar apenas eventos do chamado
-    return await db.select().from(historyEvents).where(eq(historyEvents.callId, callId)).orderBy(historyEvents.createdAt);
-  }
-
-  async getHistoryEventsByServiceId(serviceId: number): Promise<HistoryEvent[]> {
-    // Para serviços, buscar eventos do serviço E eventos do chamado relacionado
-    // Filtrar APENAS eventos relevantes: call_created, converted_to_service, service_updated
-    const relevantEventTypes = ['call_created', 'converted_to_service', 'service_updated', 'converted_to_financial', 'payment_received'];
-    
-    const serviceEvents = await db.select().from(historyEvents).where(eq(historyEvents.serviceId, serviceId));
-    
-    // Encontrar o callId relacionado através dos eventos
-    const conversionEvent = serviceEvents.find(e => e.callId !== null);
-    if (conversionEvent?.callId) {
-      const callEvents = await db.select().from(historyEvents).where(eq(historyEvents.callId, conversionEvent.callId));
-      // Combinar removendo duplicatas e ordenar cronologicamente
-      const allEvents = [...callEvents, ...serviceEvents];
-      const uniqueMap = new Map();
-      allEvents.forEach(e => {
-        // Filtrar apenas eventos relevantes
-        if (relevantEventTypes.includes(e.eventType)) {
-          const key = `${e.callId || 'null'}-${e.serviceId || 'null'}-${e.eventType}-${e.createdAt}`;
-          if (!uniqueMap.has(key)) {
-            uniqueMap.set(key, e);
-          }
-        }
-      });
-      const uniqueEvents = Array.from(uniqueMap.values());
-      return uniqueEvents.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-    }
-    
-    // Filtrar eventos relevantes
-    const filtered = serviceEvents.filter(e => relevantEventTypes.includes(e.eventType));
-    return filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-  }
-
-  async getHistoryEventsByTransactionId(transactionId: number): Promise<HistoryEvent[]> {
-    // Para transações, buscar a transação para pegar callId e serviceId
-    const transaction = await db.query.financialTransactions.findFirst({
-      where: eq(financialTransactions.id, transactionId),
-    });
-
-    if (!transaction) {
-      return [];
-    }
-
-    // Filtrar APENAS eventos relevantes
-    const relevantEventTypes = ['call_created', 'converted_to_service', 'service_updated', 'converted_to_financial', 'payment_received'];
-
-    // Buscar todos os eventos relacionados: transação, serviço e chamado
-    const allEvents: HistoryEvent[] = [];
-    
-    // Eventos da transação
-    const transactionEvents = await db.select().from(historyEvents).where(eq(historyEvents.transactionId, transactionId));
-    allEvents.push(...transactionEvents);
-    
-    // Eventos do serviço relacionado
-    if (transaction.serviceId) {
-      const serviceEvents = await db.select().from(historyEvents).where(eq(historyEvents.serviceId, transaction.serviceId));
-      allEvents.push(...serviceEvents);
-    }
-    
-    // Eventos do chamado relacionado
-    if (transaction.callId) {
-      const callEvents = await db.select().from(historyEvents).where(eq(historyEvents.callId, transaction.callId));
-      allEvents.push(...callEvents);
-    }
-    
-    // Remover duplicatas, filtrar eventos relevantes e ordenar cronologicamente
-    const uniqueMap = new Map();
-    allEvents.forEach(e => {
-      // Filtrar apenas eventos relevantes
-      if (relevantEventTypes.includes(e.eventType)) {
-        const key = `${e.callId || 'null'}-${e.serviceId || 'null'}-${e.transactionId || 'null'}-${e.eventType}-${e.createdAt}`;
-        if (!uniqueMap.has(key)) {
-          uniqueMap.set(key, e);
-        }
-      }
-    });
-    const uniqueEvents = Array.from(uniqueMap.values());
-    return uniqueEvents.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  async getHistoryByTransactionId(transactionId: number): Promise<HistoryEvent[]> {
+    return db.select().from(historyEvents).where(eq(historyEvents.transactionId, transactionId)).orderBy(desc(historyEvents.createdAt));
   }
 
   async createHistoryEvent(event: InsertHistoryEvent): Promise<HistoryEvent> {
@@ -1160,343 +489,478 @@ export class DatabaseStorage implements IStorage {
     return newEvent;
   }
 
-  async getSystemSettings(): Promise<SystemSettings | null> {
-    const settings = await db.query.systemSettings.findFirst();
-    return settings || null;
+  // Financeiro
+  async getFinancialTransactions(): Promise<FinancialTransaction[]> {
+    return db.select().from(financialTransactions).orderBy(desc(financialTransactions.createdAt));
   }
 
-  async updateSystemSettings(settings: InsertSystemSettings): Promise<SystemSettings> {
-    const existing = await this.getSystemSettings();
+  async getFinancialTransaction(id: number): Promise<FinancialTransaction | undefined> {
+    const [transaction] = await db.select().from(financialTransactions).where(eq(financialTransactions.id, id));
+    return transaction;
+  }
+
+  async getFinancialTransactionsByDateRange(startDate: Date, endDate: Date): Promise<FinancialTransaction[]> {
+    return db
+      .select()
+      .from(financialTransactions)
+      .where(
+        and(
+          sql`${financialTransactions.createdAt} >= ${startDate}`,
+          sql`${financialTransactions.createdAt} <= ${endDate}`
+        )
+      )
+      .orderBy(desc(financialTransactions.createdAt));
+  }
+
+  async createFinancialTransaction(transaction: InsertFinancialTransaction): Promise<FinancialTransaction> {
+    const [newTransaction] = await db.insert(financialTransactions).values(transaction).returning();
     
-    if (existing) {
-      const [updated] = await db
-        .update(systemSettings)
-        .set({...settings, updatedAt: new Date()})
-        .where(eq(systemSettings.id, existing.id))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db
-        .insert(systemSettings)
-        .values(settings)
-        .returning();
-      return created;
+    // Registrar histórico
+    if (newTransaction.callId || newTransaction.serviceId) {
+      await this.createHistoryEvent({
+        callId: newTransaction.callId || undefined,
+        serviceId: newTransaction.serviceId || undefined,
+        transactionId: newTransaction.id,
+        eventType: 'converted_to_financial',
+        description: `Lançamento financeiro criado: R$ ${newTransaction.amount}`,
+        userId: newTransaction.userId || 1,
+      });
     }
-  }
-
-  async getTelegramConfig(userId: number): Promise<TelegramConfig | null> {
-    const config = await db.query.telegramConfig.findFirst({
-      where: eq(telegramConfig.userId, userId),
-    });
-    return config || null;
-  }
-
-  async getAllTelegramConfigs(): Promise<TelegramConfig[]> {
-    const configs = await db.select().from(telegramConfig);
-    return configs;
-  }
-
-  async updateTelegramConfig(userId: number, config: InsertTelegramConfig): Promise<TelegramConfig> {
-    const existing = await this.getTelegramConfig(userId);
     
-    if (existing) {
-      // Atualizar APENAS os campos de configuração, preservando userId
-      const [updated] = await db
-        .update(telegramConfig)
-        .set({
-          botToken: config.botToken,
-          chatId: config.chatId,
-          isActive: config.isActive !== undefined ? config.isActive : true,
-          updatedAt: new Date()
-        })
-        .where(eq(telegramConfig.userId, userId))
-        .returning();
-      return updated;
-    } else {
-      // Criar novo com userId OBRIGATORIAMENTE
-      const [created] = await db
-        .insert(telegramConfig)
-        .values({
-          botToken: config.botToken,
-          chatId: config.chatId,
-          isActive: config.isActive !== undefined ? config.isActive : true,
-          userId
-        })
-        .returning();
-      return created;
-    }
+    return newTransaction;
   }
 
-  // Notification Preferences
+  async updateFinancialTransaction(id: number, transactionUpdate: Partial<FinancialTransaction>): Promise<FinancialTransaction | undefined> {
+    const [updatedTransaction] = await db
+      .update(financialTransactions)
+      .set({ ...transactionUpdate, updatedAt: new Date() })
+      .where(eq(financialTransactions.id, id))
+      .returning();
+      
+    if (updatedTransaction && transactionUpdate.status === 'pago') {
+      await this.createHistoryEvent({
+        callId: updatedTransaction.callId || undefined,
+        serviceId: updatedTransaction.serviceId || undefined,
+        transactionId: updatedTransaction.id,
+        eventType: 'payment_received',
+        description: `Pagamento recebido: R$ ${updatedTransaction.amount}`,
+        userId: updatedTransaction.userId || 1,
+      });
+    }
+      
+    return updatedTransaction;
+  }
+
+  async deleteFinancialTransaction(id: number): Promise<void> {
+    await db.delete(financialTransactions).where(eq(financialTransactions.id, id));
+  }
+
+  async getChildTransactions(parentId: number): Promise<FinancialTransaction[]> {
+    return db
+      .select()
+      .from(financialTransactions)
+      .where(eq(financialTransactions.parentTransactionId, parentId))
+      .orderBy(financialTransactions.installmentNumber);
+  }
+
+  async createInstallments(transactionId: number, installmentsCount: number): Promise<FinancialTransaction[]> {
+    const parent = await this.getFinancialTransaction(transactionId);
+    if (!parent) throw new Error("Transaction not found");
+
+    const installmentAmount = (Number(parent.amount) / installmentsCount).toFixed(2);
+    const createdInstallments: FinancialTransaction[] = [];
+    
+    for (let i = 1; i <= installmentsCount; i++) {
+      const dueDate = new Date(parent.dueDate || parent.createdAt);
+      dueDate.setMonth(dueDate.getMonth() + (i - 1));
+
+      const installment: InsertFinancialTransaction = {
+        ...parent,
+        amount: installmentAmount,
+        description: `${parent.description} (Parcela ${i}/${installmentsCount})`,
+        dueDate,
+        status: "pendente",
+        parentTransactionId: parent.id,
+        installmentNumber: i,
+      };
+
+      // @ts-ignore - Ignore the ID property when inserting
+      delete installment.id;
+      // @ts-ignore
+      delete installment.createdAt;
+      // @ts-ignore
+      delete installment.updatedAt;
+
+      const [newInstallment] = await db.insert(financialTransactions).values(installment as any).returning();
+      createdInstallments.push(newInstallment);
+    }
+
+    // Atualiza a transação pai para status 'parcelado'
+    await this.updateFinancialTransaction(parent.id, { status: 'parcelado' });
+
+    return createdInstallments;
+  }
+
+  generatePixCode(amount: number): string {
+    // Implementação mockada para o código PIX
+    // Em um ambiente real, isso integraria com uma API de pagamento (Mercado Pago, Asaas, etc)
+    const pixCode = `00020126580014BR.GOV.BCB.PIX0136suporte@apoiotec.com.br520400005303986540${amount.toString().length}${amount.toFixed(2)}5802BR5913Apoiotec Info6009Sao Paulo62070503***630489AB`;
+    return pixCode;
+  }
+
+  // Dashboard Stats
+  async getDashboardStats(): Promise<any> {
+    const totalClients = await db.select({ count: sql<number>`count(*)` }).from(clients);
+    
+    // Obtemos o mês atual
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    const financialStats = await db.select({
+      totalEntradas: sql<number>`sum(case when type = 'entrada' and status = 'pago' then amount else 0 end)`,
+      totalSaidas: sql<number>`sum(case when type = 'saida' and status = 'pago' then amount else 0 end)`,
+      receitaMes: sql<number>`sum(case when type = 'entrada' and status = 'pago' and created_at >= ${firstDayOfMonth} then amount else 0 end)`
+    }).from(financialTransactions);
+    
+    // Chama a função getOpenCallsCount já existente
+    const openCallsCount = await this.getOpenCallsCount();
+
+    return {
+      totalClients: Number(totalClients[0]?.count || 0),
+      openCalls: openCallsCount,
+      revenue: Number(financialStats[0]?.totalEntradas || 0) - Number(financialStats[0]?.totalSaidas || 0),
+      monthlyRevenue: Number(financialStats[0]?.receitaMes || 0),
+    };
+  }
+
+  // Configurações
+  async getSystemSettings(): Promise<SystemSettings | undefined> {
+    const settings = await db.select().from(systemSettings).limit(1);
+    
+    if (settings.length === 0) {
+      // Cria a configuração inicial se não existir
+      const defaultSettings = {
+        companyName: "Apoiotec Informática",
+        fontSize: "26",
+        pdfFontSize: "16",
+        fontFamily: "system",
+        theme: "light",
+        primaryColor: "#2563eb",
+        secondaryColor: "#00ff41",
+        cardLayout: "double"
+      };
+      
+      const [newSettings] = await db.insert(systemSettings).values(defaultSettings).returning();
+      return newSettings;
+    }
+    
+    return settings[0];
+  }
+
+  async updateSystemSettings(settingsUpdate: Partial<SystemSettings>): Promise<SystemSettings> {
+    const currentSettings = await this.getSystemSettings();
+    
+    if (!currentSettings) {
+      const [newSettings] = await db.insert(systemSettings).values(settingsUpdate as InsertSystemSettings).returning();
+      return newSettings;
+    }
+    
+    const [updatedSettings] = await db
+      .update(systemSettings)
+      .set({ ...settingsUpdate, updatedAt: new Date() })
+      .where(eq(systemSettings.id, currentSettings.id))
+      .returning();
+      
+    return updatedSettings;
+  }
+
+  async getTemplate(id: number): Promise<Template | undefined> {
+    const [template] = await db.select().from(templates).where(eq(templates.id, id));
+    return template;
+  }
+
+  async updateTemplate(id: number, templateUpdate: Partial<Template>): Promise<Template | undefined> {
+    const [updatedTemplate] = await db
+      .update(templates)
+      .set({ ...templateUpdate, updatedAt: new Date() })
+      .where(eq(templates.id, id))
+      .returning();
+    return updatedTemplate;
+  }
+
+  async createTemplate(template: InsertTemplate): Promise<Template> {
+    const [newTemplate] = await db.insert(templates).values(template).returning();
+    return newTemplate;
+  }
+
+  // Base de Conhecimento
+  async getKnowledgeBaseItems(): Promise<KnowledgeBase[]> {
+    return db.select().from(knowledgeBase).orderBy(desc(knowledgeBase.createdAt));
+  }
+
+  async getKnowledgeBaseItem(id: number): Promise<KnowledgeBase | undefined> {
+    const [item] = await db.select().from(knowledgeBase).where(eq(knowledgeBase.id, id));
+    return item;
+  }
+
+  async createKnowledgeBaseItem(item: InsertKnowledgeBase): Promise<KnowledgeBase> {
+    const [newItem] = await db.insert(knowledgeBase).values(item).returning();
+    return newItem;
+  }
+
+  async updateKnowledgeBaseItem(id: number, itemUpdate: Partial<KnowledgeBase>): Promise<KnowledgeBase | undefined> {
+    const [updatedItem] = await db
+      .update(knowledgeBase)
+      .set({ ...itemUpdate, updatedAt: new Date() })
+      .where(eq(knowledgeBase.id, id))
+      .returning();
+    return updatedItem;
+  }
+
+  async deleteKnowledgeBaseItem(id: number): Promise<void> {
+    await db.delete(knowledgeBase).where(eq(knowledgeBase.id, id));
+  }
+
+  async incrementKnowledgeBaseViews(id: number): Promise<void> {
+    await db.execute(sql`UPDATE ${knowledgeBase} SET views = views + 1 WHERE id = ${id}`);
+  }
+
+  async incrementKnowledgeBaseHelpful(id: number): Promise<void> {
+    await db.execute(sql`UPDATE ${knowledgeBase} SET helpful = helpful + 1 WHERE id = ${id}`);
+  }
+
+  // Manutenção Preventiva
+  async getPreventiveMaintenances(): Promise<(PreventiveMaintenance & { client: Client })[]> {
+    const results = await db
+      .select({
+        maintenance: preventiveMaintenance,
+        client: clients
+      })
+      .from(preventiveMaintenance)
+      .innerJoin(clients, eq(preventiveMaintenance.clientId, clients.id))
+      .orderBy(preventiveMaintenance.scheduledDate);
+      
+    return results.map(row => ({
+      ...row.maintenance,
+      client: row.client
+    }));
+  }
+
+  async getPreventiveMaintenance(id: number): Promise<PreventiveMaintenance | undefined> {
+    const [item] = await db.select().from(preventiveMaintenance).where(eq(preventiveMaintenance.id, id));
+    return item;
+  }
+
+  async getPreventiveMaintenancesByClient(clientId: number): Promise<PreventiveMaintenance[]> {
+    return db
+      .select()
+      .from(preventiveMaintenance)
+      .where(eq(preventiveMaintenance.clientId, clientId))
+      .orderBy(preventiveMaintenance.scheduledDate);
+  }
+
+  async createPreventiveMaintenance(maintenance: InsertPreventiveMaintenance): Promise<PreventiveMaintenance> {
+    const [newItem] = await db.insert(preventiveMaintenance).values(maintenance).returning();
+    return newItem;
+  }
+
+  async updatePreventiveMaintenance(id: number, update: Partial<PreventiveMaintenance>): Promise<PreventiveMaintenance | undefined> {
+    const [updatedItem] = await db
+      .update(preventiveMaintenance)
+      .set({ ...update, updatedAt: new Date() })
+      .where(eq(preventiveMaintenance.id, id))
+      .returning();
+    return updatedItem;
+  }
+
+  async deletePreventiveMaintenance(id: number): Promise<void> {
+    await db.delete(preventiveMaintenance).where(eq(preventiveMaintenance.id, id));
+  }
+
+  // Telegram e Notificações
+  async getTelegramConfig(userId: number): Promise<TelegramConfig | undefined> {
+    const [config] = await db.select().from(telegramConfig).where(eq(telegramConfig.userId, userId));
+    return config;
+  }
+
+  async updateTelegramConfig(userId: number, configUpdate: Partial<TelegramConfig>): Promise<TelegramConfig> {
+    const [updated] = await db
+      .update(telegramConfig)
+      .set({ ...configUpdate, updatedAt: new Date() })
+      .where(eq(telegramConfig.userId, userId))
+      .returning();
+    return updated;
+  }
+
+  async createTelegramConfig(config: InsertTelegramConfig): Promise<TelegramConfig> {
+    const [newConfig] = await db.insert(telegramConfig).values(config).returning();
+    return newConfig;
+  }
+
   async getNotificationPreferences(userId: number): Promise<NotificationPreferences[]> {
     return db.select().from(notificationPreferences).where(eq(notificationPreferences.userId, userId));
   }
 
-  private async getNotificationPreference(userId: number, notificationType: string): Promise<NotificationPreferences | undefined> {
-    const prefs = await db.select().from(notificationPreferences)
+  async updateNotificationPreference(userId: number, type: string, enabled: boolean): Promise<NotificationPreferences> {
+    // Primeiro tenta atualizar
+    const [updated] = await db
+      .update(notificationPreferences)
+      .set({ enabled, updatedAt: new Date() })
       .where(and(
         eq(notificationPreferences.userId, userId),
-        eq(notificationPreferences.notificationType, notificationType)
-      ));
-    return prefs[0];
-  }
+        eq(notificationPreferences.notificationType, type)
+      ))
+      .returning();
 
-  async setNotificationPreference(userId: number, notificationType: string, enabled: boolean): Promise<NotificationPreferences> {
-    const existing = await this.getNotificationPreference(userId, notificationType);
-    
-    if (existing) {
-      const [updated] = await db
-        .update(notificationPreferences)
-        .set({ enabled, updatedAt: new Date() })
-        .where(and(
-          eq(notificationPreferences.userId, userId),
-          eq(notificationPreferences.notificationType, notificationType)
-        ))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db
-        .insert(notificationPreferences)
-        .values({ userId, notificationType, enabled })
-        .returning();
+    // Se não existir, cria
+    if (!updated) {
+      const [created] = await db.insert(notificationPreferences).values({
+        userId,
+        notificationType: type,
+        enabled
+      }).returning();
       return created;
     }
+
+    return updated;
   }
 
-  async isNotificationEnabled(userId: number, notificationType: string): Promise<boolean> {
-    const pref = await this.getNotificationPreference(userId, notificationType);
-    if (!pref) {
-      // Auto-criar preferência com padrão HABILITADO para novo tipo
-      try {
-        const created = await this.setNotificationPreference(userId, notificationType, true);
-        return created?.enabled ?? true;
-      } catch {
-        return true; // Default: HABILITADO se falhar
-      }
+  // Mensagens
+  async getMessages(): Promise<Message[]> {
+    return db.select().from(messages).orderBy(desc(messages.createdAt));
+  }
+
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db.insert(messages).values(message).returning();
+    return newMessage;
+  }
+
+  async deleteMessage(id: number): Promise<void> {
+    await db.delete(messages).where(eq(messages.id, id));
+  }
+  
+  // Links de Download
+  async getDownloadLinks(): Promise<DownloadLink[]> {
+    return db.select().from(downloadLinks).orderBy(desc(downloadLinks.createdAt));
+  }
+
+  async createDownloadLink(link: InsertDownloadLink): Promise<DownloadLink> {
+    const [newLink] = await db.insert(downloadLinks).values(link).returning();
+    return newLink;
+  }
+
+  async deleteDownloadLink(id: number): Promise<void> {
+    await db.delete(downloadLinks).where(eq(downloadLinks.id, id));
+  }
+
+  // Sistema de Ativação
+  async getActivationConfig(): Promise<SystemActivation | undefined> {
+    const [config] = await db.select().from(systemActivation).limit(1);
+    return config;
+  }
+
+  async updateActivationConfig(configUpdate: Partial<SystemActivation>): Promise<SystemActivation> {
+    const currentConfig = await this.getActivationConfig();
+    
+    if (!currentConfig) {
+      throw new Error("Sistema não está ativado");
     }
-    return pref?.enabled ?? true;
-  }
-
-  // Knowledge Base
-  async getKnowledgeBase(): Promise<KnowledgeBase[]> {
-    return await db.select().from(knowledgeBase).orderBy(desc(knowledgeBase.createdAt));
-  }
-
-  async getKnowledgeArticle(id: number): Promise<KnowledgeBase | undefined> {
-    const articles = await db.select().from(knowledgeBase).where(eq(knowledgeBase.id, id));
-    return articles[0];
-  }
-
-  async createKnowledgeArticle(article: InsertKnowledgeBase): Promise<KnowledgeBase> {
-    const [created] = await db.insert(knowledgeBase).values(article).returning();
-    return created;
-  }
-
-  async updateKnowledgeArticle(id: number, article: Partial<InsertKnowledgeBase>): Promise<KnowledgeBase | undefined> {
-    const [updated] = await db.update(knowledgeBase).set({ ...article, updatedAt: new Date() }).where(eq(knowledgeBase.id, id)).returning();
-    return updated;
-  }
-
-  async deleteKnowledgeArticle(id: number): Promise<boolean> {
-    const result = await db.delete(knowledgeBase).where(eq(knowledgeBase.id, id));
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  // Preventive Maintenance
-  async getPreventiveMaintenances(): Promise<PreventiveMaintenanceWithClient[]> {
-    try {
-      const maintenances = await db.select().from(preventiveMaintenance).orderBy(desc(preventiveMaintenance.scheduledDate));
-      return await Promise.all(
-        maintenances.map(async (m) => {
-          try {
-            const client = await this.getClient(m.clientId);
-            return {
-              ...m,
-              client: client || undefined
-            };
-          } catch (err) {
-            console.error(`Erro ao buscar cliente ${m.clientId}:`, err);
-            return {
-              ...m,
-              client: undefined
-            };
-          }
-        })
-      );
-    } catch (err) {
-      console.error("Erro em getPreventiveMaintenances:", err);
-      return [];
-    }
-  }
-
-  async getPreventiveMaintenance(id: number): Promise<PreventiveMaintenanceWithClient | undefined> {
-    const m = await db.select().from(preventiveMaintenance).where(eq(preventiveMaintenance.id, id));
-    if (!m[0]) return undefined;
-    return {
-      ...m[0],
-      client: await this.getClient(m[0].clientId)
-    };
-  }
-
-  async createPreventiveMaintenance(maintenance: InsertPreventiveMaintenance): Promise<PreventiveMaintenance> {
-    const [created] = await db.insert(preventiveMaintenance).values(maintenance).returning();
-    return created;
-  }
-
-  async updatePreventiveMaintenance(id: number, maintenance: Partial<InsertPreventiveMaintenance>): Promise<PreventiveMaintenance | undefined> {
-    const [updated] = await db.update(preventiveMaintenance).set({ ...maintenance, updatedAt: new Date() }).where(eq(preventiveMaintenance.id, id)).returning();
-    return updated;
-  }
-
-  async deletePreventiveMaintenance(id: number): Promise<boolean> {
-    const result = await db.delete(preventiveMaintenance).where(eq(preventiveMaintenance.id, id));
-    return result.rowCount ? true : false;
-  }
-
-  async completePreventiveMaintenance(id: number): Promise<PreventiveMaintenance | undefined> {
-    const [updated] = await db.update(preventiveMaintenance).set({ status: "concluido", completedDate: new Date(), updatedAt: new Date() }).where(eq(preventiveMaintenance.id, id)).returning();
-    return updated;
-  }
-
-  // ============================================================================
-  // SISTEMA DE ATIVAÇÃO
-  // ============================================================================
-  async getActivation(): Promise<SystemActivation | undefined> {
-    const result = await db.select().from(systemActivation);
-    return result[0];
-  }
-
-  async createActivation(data: InsertSystemActivation): Promise<SystemActivation> {
-    const [created] = await db.insert(systemActivation).values(data).returning();
-    return created;
-  }
-
-  async updateActivation(data: Partial<InsertSystemActivation>): Promise<SystemActivation | undefined> {
-    const [updated] = await db.update(systemActivation).set(data).where(eq(systemActivation.id, 1)).returning();
-    return updated;
-  }
-
-  async recordFailedAttempt(): Promise<void> {
-    const current = await this.getActivation();
-    if (current) {
-      const failedAttempts = (current.failedAttempts || 0) + 1;
-      let blockedUntil = null;
+    
+    const [updated] = await db
+      .update(systemActivation)
+      .set(configUpdate)
+      .where(eq(systemActivation.id, currentConfig.id))
+      .returning();
       
-      // Rate limiting progressivo: 5º erro = 30s, 6º = 40s, 7º = 60s, 8º = 90s, etc
-      // Fórmula: 30 + ((failedAttempts - 5) * 10) segundos a partir do 5º erro
-      if (failedAttempts >= 5) {
-        const delaySeconds = 30 + ((failedAttempts - 5) * 10);
-        blockedUntil = new Date(Date.now() + delaySeconds * 1000);
-      }
-
-      await this.updateActivation({
-        failedAttempts,
-        blockedUntil,
-        lastAttempt: new Date()
-      });
-    }
+    return updated;
   }
 
-  async resetFailedAttempts(): Promise<void> {
-    const current = await this.getActivation();
-    if (current) {
-      await this.updateActivation({
-        failedAttempts: 0,
-        blockedUntil: null,
-        lastAttempt: new Date()
-      });
-    }
+  async createActivationConfig(config: InsertSystemActivation): Promise<SystemActivation> {
+    const [newConfig] = await db.insert(systemActivation).values(config).returning();
+    return newConfig;
   }
 
-  async deleteActivation(): Promise<boolean> {
-    const result = await db.delete(systemActivation);
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  // ============================================================================
-  // BACKUPS
-  // ============================================================================
+  // Backups
   async getBackupHistory(): Promise<BackupHistory[]> {
     return db.select().from(backupHistory).orderBy(desc(backupHistory.createdAt));
   }
 
-  async createBackupRecord(data: InsertBackupHistory): Promise<BackupHistory> {
-    const [created] = await db.insert(backupHistory).values(data).returning();
-    return created;
+  async createBackupHistory(backup: InsertBackupHistory): Promise<BackupHistory> {
+    const [newBackup] = await db.insert(backupHistory).values(backup).returning();
+    return newBackup;
   }
 
-  async deleteBackupRecord(id: number): Promise<boolean> {
-    const result = await db.delete(backupHistory).where(eq(backupHistory.id, id));
-    return result.rowCount ? true : false;
+  async updateBackupHistory(id: number, backupUpdate: Partial<BackupHistory>): Promise<BackupHistory | undefined> {
+    const [updatedBackup] = await db
+      .update(backupHistory)
+      .set(backupUpdate)
+      .where(eq(backupHistory.id, id))
+      .returning();
+    return updatedBackup;
   }
-
-  // Backup Schedules
-  async getBackupSchedules(userId: number): Promise<BackupSchedule[]> {
-    return db.select().from(backupSchedules).where(eq(backupSchedules.userId, userId)).orderBy(desc(backupSchedules.createdAt));
+  
+  async getBackupSchedules(): Promise<BackupSchedule[]> {
+    return db.select().from(backupSchedules).orderBy(desc(backupSchedules.createdAt));
   }
-
+  
   async getBackupSchedule(id: number): Promise<BackupSchedule | undefined> {
     const [schedule] = await db.select().from(backupSchedules).where(eq(backupSchedules.id, id));
-    return schedule || undefined;
+    return schedule;
   }
-
-  async createBackupSchedule(schedule: InsertBackupSchedule): Promise<BackupSchedule> {
-    const [created] = await db.insert(backupSchedules).values(schedule).returning();
-    return created;
-  }
-
-  async updateBackupSchedule(id: number, schedule: Partial<InsertBackupSchedule>): Promise<BackupSchedule | undefined> {
-    const [updated] = await db.update(backupSchedules).set({ ...schedule, updatedAt: new Date() }).where(eq(backupSchedules.id, id)).returning();
-    return updated || undefined;
-  }
-
-  async deleteBackupSchedule(id: number): Promise<boolean> {
-    const result = await db.delete(backupSchedules).where(eq(backupSchedules.id, id));
-    return result.rowCount ? true : false;
-  }
-
+  
   async getActiveBackupSchedules(): Promise<BackupSchedule[]> {
     return db.select().from(backupSchedules).where(eq(backupSchedules.isActive, true));
   }
-
-  // Backup Execution Logs
+  
+  async createBackupSchedule(schedule: InsertBackupSchedule): Promise<BackupSchedule> {
+    const [newSchedule] = await db.insert(backupSchedules).values(schedule).returning();
+    return newSchedule;
+  }
+  
+  async updateBackupSchedule(id: number, scheduleUpdate: Partial<BackupSchedule>): Promise<BackupSchedule | undefined> {
+    const [updatedSchedule] = await db
+      .update(backupSchedules)
+      .set({ ...scheduleUpdate, updatedAt: new Date() })
+      .where(eq(backupSchedules.id, id))
+      .returning();
+    return updatedSchedule;
+  }
+  
+  async deleteBackupSchedule(id: number): Promise<void> {
+    await db.delete(backupSchedules).where(eq(backupSchedules.id, id));
+  }
+  
   async getBackupExecutionLogs(scheduleId?: number): Promise<BackupExecutionLog[]> {
     if (scheduleId) {
-      return db.select().from(backupExecutionLogs).where(eq(backupExecutionLogs.scheduleId, scheduleId)).orderBy(desc(backupExecutionLogs.createdAt));
+      return db.select().from(backupExecutionLogs)
+        .where(eq(backupExecutionLogs.scheduleId, scheduleId))
+        .orderBy(desc(backupExecutionLogs.createdAt));
     }
     return db.select().from(backupExecutionLogs).orderBy(desc(backupExecutionLogs.createdAt));
   }
-
+  
   async createBackupExecutionLog(log: InsertBackupExecutionLog): Promise<BackupExecutionLog> {
-    const [created] = await db.insert(backupExecutionLogs).values(log).returning();
-    return created;
+    const [newLog] = await db.insert(backupExecutionLogs).values(log).returning();
+    return newLog;
+  }
+  
+  async updateBackupExecutionLog(id: number, logUpdate: Partial<BackupExecutionLog>): Promise<BackupExecutionLog | undefined> {
+    const [updatedLog] = await db
+      .update(backupExecutionLogs)
+      .set(logUpdate)
+      .where(eq(backupExecutionLogs.id, id))
+      .returning();
+    return updatedLog;
   }
 
-  async updateBackupExecutionLog(id: number, log: Partial<InsertBackupExecutionLog>): Promise<BackupExecutionLog | undefined> {
-    const [updated] = await db.update(backupExecutionLogs).set(log).where(eq(backupExecutionLogs.id, id)).returning();
-    return updated || undefined;
-  }
-
-  async deleteBackupExecutionLog(id: number): Promise<boolean> {
-    const result = await db.delete(backupExecutionLogs).where(eq(backupExecutionLogs.id, id));
-    return result.rowCount ? true : false;
-  }
-
-  async clearAllBackupExecutionLogs(): Promise<number> {
-    const result = await db.delete(backupExecutionLogs);
-    return result.rowCount || 0;
-  }
-
-  // ============================================================================
-  // INVENTORY PRODUCTS
-  // ============================================================================
+  // Estoque - Produtos
   async getInventoryProducts(): Promise<InventoryProduct[]> {
-    return await db.select().from(inventoryProducts).orderBy(desc(inventoryProducts.createdAt));
+    return db.select().from(inventoryProducts).orderBy(desc(inventoryProducts.createdAt));
   }
 
   async getInventoryProduct(id: number): Promise<InventoryProduct | undefined> {
     const [product] = await db.select().from(inventoryProducts).where(eq(inventoryProducts.id, id));
-    return product || undefined;
+    return product;
   }
 
   async createInventoryProduct(product: InsertInventoryProduct): Promise<InventoryProduct> {
@@ -1504,30 +968,27 @@ export class DatabaseStorage implements IStorage {
     return newProduct;
   }
 
-  async updateInventoryProduct(id: number, product: Partial<InsertInventoryProduct>): Promise<InventoryProduct | undefined> {
-    const [updated] = await db
+  async updateInventoryProduct(id: number, productUpdate: Partial<InventoryProduct>): Promise<InventoryProduct | undefined> {
+    const [updatedProduct] = await db
       .update(inventoryProducts)
-      .set({ ...product, updatedAt: new Date() })
+      .set({ ...productUpdate, updatedAt: new Date() })
       .where(eq(inventoryProducts.id, id))
       .returning();
-    return updated || undefined;
+    return updatedProduct;
   }
 
-  async deleteInventoryProduct(id: number): Promise<boolean> {
-    const result = await db.delete(inventoryProducts).where(eq(inventoryProducts.id, id));
-    return result.rowCount ? true : false;
+  async deleteInventoryProduct(id: number): Promise<void> {
+    await db.delete(inventoryProducts).where(eq(inventoryProducts.id, id));
   }
 
-  // ============================================================================
-  // INVENTORY SERVICES
-  // ============================================================================
+  // Estoque - Serviços
   async getInventoryServices(): Promise<InventoryService[]> {
-    return await db.select().from(inventoryServices).orderBy(desc(inventoryServices.createdAt));
+    return db.select().from(inventoryServices).orderBy(desc(inventoryServices.createdAt));
   }
 
   async getInventoryService(id: number): Promise<InventoryService | undefined> {
     const [service] = await db.select().from(inventoryServices).where(eq(inventoryServices.id, id));
-    return service || undefined;
+    return service;
   }
 
   async createInventoryService(service: InsertInventoryService): Promise<InventoryService> {
@@ -1535,25 +996,25 @@ export class DatabaseStorage implements IStorage {
     return newService;
   }
 
-  async updateInventoryService(id: number, service: Partial<InsertInventoryService>): Promise<InventoryService | undefined> {
-    const [updated] = await db
+  async updateInventoryService(id: number, serviceUpdate: Partial<InventoryService>): Promise<InventoryService | undefined> {
+    const [updatedService] = await db
       .update(inventoryServices)
-      .set({ ...service, updatedAt: new Date() })
+      .set({ ...serviceUpdate, updatedAt: new Date() })
       .where(eq(inventoryServices.id, id))
       .returning();
-    return updated || undefined;
+    return updatedService;
   }
 
-  async deleteInventoryService(id: number): Promise<boolean> {
-    const result = await db.delete(inventoryServices).where(eq(inventoryServices.id, id));
-    return result.rowCount ? true : false;
+  async deleteInventoryService(id: number): Promise<void> {
+    await db.delete(inventoryServices).where(eq(inventoryServices.id, id));
   }
 
-  // ============================================================================
-  // INVENTORY MOVEMENTS & STATS
-  // ============================================================================
-  async getInventoryMovements(): Promise<InventoryMovement[]> {
-    return await db.select().from(inventoryMovements).orderBy(desc(inventoryMovements.createdAt));
+  // Estoque - Movimentações
+  async getInventoryMovements(productId: number): Promise<InventoryMovement[]> {
+    return db.select()
+      .from(inventoryMovements)
+      .where(eq(inventoryMovements.productId, productId))
+      .orderBy(desc(inventoryMovements.createdAt));
   }
 
   async createInventoryMovement(movement: InsertInventoryMovement): Promise<InventoryMovement> {
@@ -1561,11 +1022,74 @@ export class DatabaseStorage implements IStorage {
     return newMovement;
   }
 
-  async getInventoryStats(): Promise<{ totalValue: number; criticalCount: number }> {
-    const products = await db.select().from(inventoryProducts);
-    const totalValue = products.reduce((sum, p) => sum + (parseFloat(p.price.toString()) * parseInt(p.quantity.toString())), 0);
-    const criticalCount = products.filter(p => parseInt(p.quantity.toString()) <= p.minAlert).length;
-    return { totalValue, criticalCount };
+  // Certificados e Assinatura Digital
+  async getDigitalCertificates(): Promise<DigitalCertificate[]> {
+    return db.select().from(digitalCertificates).orderBy(desc(digitalCertificates.createdAt));
+  }
+
+  async getDigitalCertificate(id: number): Promise<DigitalCertificate | undefined> {
+    const [certificate] = await db.select().from(digitalCertificates).where(eq(digitalCertificates.id, id));
+    return certificate;
+  }
+
+  async createDigitalCertificate(certificate: InsertDigitalCertificate): Promise<DigitalCertificate> {
+    const [newCertificate] = await db.insert(digitalCertificates).values(certificate).returning();
+    return newCertificate;
+  }
+
+  async updateDigitalCertificate(id: number, certificateUpdate: Partial<DigitalCertificate>): Promise<DigitalCertificate | undefined> {
+    const [updatedCertificate] = await db
+      .update(digitalCertificates)
+      .set({ ...certificateUpdate, updatedAt: new Date() })
+      .where(eq(digitalCertificates.id, id))
+      .returning();
+    return updatedCertificate;
+  }
+
+  async deleteDigitalCertificate(id: number): Promise<void> {
+    await db.delete(digitalCertificates).where(eq(digitalCertificates.id, id));
+  }
+  
+  async getSignatureAuditLogs(): Promise<SignatureAuditLog[]> {
+    return db.select().from(signatureAuditLog).orderBy(desc(signatureAuditLog.createdAt));
+  }
+  
+  async createSignatureAuditLog(log: InsertSignatureAuditLog): Promise<SignatureAuditLog> {
+    const [newLog] = await db.insert(signatureAuditLog).values(log).returning();
+    return newLog;
+  }
+
+  async getSignatureAttempts(userId: number): Promise<any | undefined> {
+    const [attempts] = await db.select().from(signatureAttempts).where(eq(signatureAttempts.userId, userId));
+    return attempts;
+  }
+  
+  async updateSignatureAttempts(userId: number, attemptCount: number, blockedUntil?: Date): Promise<void> {
+    const existing = await this.getSignatureAttempts(userId);
+    
+    if (existing) {
+      await db.update(signatureAttempts)
+        .set({ 
+          attemptCount, 
+          blockedUntil: blockedUntil || null,
+          lastAttempt: new Date() 
+        })
+        .where(eq(signatureAttempts.userId, userId));
+    } else {
+      await db.insert(signatureAttempts)
+        .values({ 
+          userId, 
+          attemptCount, 
+          blockedUntil: blockedUntil || null,
+          lastAttempt: new Date() 
+        });
+    }
+  }
+  
+  async resetSignatureAttempts(userId: number): Promise<void> {
+    await db.update(signatureAttempts)
+      .set({ attemptCount: 0, blockedUntil: null })
+      .where(eq(signatureAttempts.userId, userId));
   }
 }
 
