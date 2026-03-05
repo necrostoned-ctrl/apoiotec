@@ -29,16 +29,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertCallSchema, insertClientSchema, type Client } from "@shared/schema";
 import { useLocation } from "wouter";
-import { Save, FileText, Plus } from "lucide-react";
+import { Save, FileText, Plus, Calendar as CalendarIcon } from "lucide-react";
 import { ClientSearch } from "@/components/ClientSearch";
 import { z } from "zod";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const formSchema = insertCallSchema.extend({
-  callDateStr: z.string().optional(),
+  callDate: z.date().optional(),
 });
 
 const clientFormSchema = insertClientSchema.extend({
@@ -58,23 +62,10 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
 
   const loggedUser = currentUser || JSON.parse(localStorage.getItem("currentUser") || "{}");
 
-  const { data: clients = [], isLoading: clientsLoading } = useQuery<Client[]>({
-    queryKey: ["/api/clients"],
-  });
-
-  const activeClients = clients.filter(client => client.status === 'ativo');
-
-  // Helper to format date to YYYY-MM-DDThh:mm for datetime-local
-  const getLocalDateTime = () => {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 16);
-  };
-
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      clientId: null,
+      clientId: undefined as any,
       equipment: "",
       serviceType: "",
       priority: "media",
@@ -82,7 +73,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
       internalNotes: "",
       status: "aguardando",
       progress: 0,
-      callDateStr: getLocalDateTime(),
+      callDate: new Date(),
     },
   });
 
@@ -102,19 +93,12 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
 
   const createCallMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      let finalCallDate = new Date();
-      if (data.callDateStr) {
-        finalCallDate = new Date(data.callDateStr);
-      }
-      
       const payload = {
         ...data,
-        callDate: finalCallDate,
         currentUserId: loggedUser?.id || 1,
         userId: loggedUser?.id || 1,
         createdByUserId: loggedUser?.id || 1
       };
-      delete payload.callDateStr;
 
       const response = await apiRequest("POST", "/api/calls", payload);
       return response.json();
@@ -207,6 +191,8 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
         <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              
+              {/* Linha 1: Cliente e Equipamento */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Cliente */}
                 <FormField
@@ -215,15 +201,15 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center justify-between mb-2">
-                        <FormLabel className="text-cyan-300">Cliente</FormLabel>
+                        <FormLabel className="text-cyan-300">Cliente *</FormLabel>
                         <Dialog open={showNewClientDialog} onOpenChange={setShowNewClientDialog}>
                           <DialogTrigger asChild>
                             <Button
                               type="button"
                               size="sm"
-                              className="bg-cyan-600 hover:bg-cyan-700 text-white border-2 border-cyan-500"
+                              className="bg-cyan-600 hover:bg-cyan-700 text-white border-2 border-cyan-500 h-8 text-xs"
                             >
-                              <Plus className="h-4 w-4 mr-1" />
+                              <Plus className="h-3 w-3 mr-1" />
                               Novo Cliente
                             </Button>
                           </DialogTrigger>
@@ -304,7 +290,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                         <ClientSearch
                           value={field.value}
                           onSelect={(clientId) => field.onChange(clientId || null)}
-                          placeholder="Digite nome ou telefone do cliente..."
+                          placeholder="Buscar cliente existente..."
                           allowEmpty={false}
                         />
                       </FormControl>
@@ -313,19 +299,15 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                   )}
                 />
 
-                {/* Data e Hora */}
+                {/* Equipamento */}
                 <FormField
                   control={form.control}
-                  name="callDateStr"
+                  name="equipment"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-cyan-300">Data e Hora do Chamado</FormLabel>
+                      <FormLabel className="text-cyan-300 mb-2 block">Equipamento</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="datetime-local" 
-                          {...field} 
-                          className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" 
-                        />
+                        <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 h-[42px]" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -333,31 +315,59 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                 />
               </div>
 
-              {/* Equipamento */}
-              <FormField
-                control={form.control}
-                name="equipment"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-cyan-300">Equipamento</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Linha 2: Data do Chamado e Prioridade */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Data do Chamado usando Calendário */}
+                <FormField
+                  control={form.control}
+                  name="callDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="text-cyan-300 mb-1">Data do Chamado</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal bg-slate-700 border-2 border-cyan-500 text-white hover:bg-slate-600 hover:text-white h-[42px]",
+                                !field.value && "text-slate-400"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy")
+                              ) : (
+                                <span>Selecione uma data</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-70 text-cyan-300" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-slate-800 border-2 border-cyan-500" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => field.onChange(date || new Date())}
+                            disabled={false}
+                            initialFocus
+                            className="text-white"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="priority"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-cyan-300">Prioridade</FormLabel>
+                      <FormLabel className="text-cyan-300 mb-1 block">Prioridade</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-slate-700 border-2 border-cyan-500 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400">
+                          <SelectTrigger className="bg-slate-700 border-2 border-cyan-500 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 h-[42px]">
                             <SelectValue placeholder="Selecione a prioridade" />
                           </SelectTrigger>
                         </FormControl>
@@ -372,30 +382,9 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-cyan-300">Status</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-slate-700 border-2 border-cyan-500 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400">
-                            <SelectValue placeholder="Selecione o status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-slate-800 border-cyan-500 text-white">
-                          <SelectItem value="aguardando" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Aguardando</SelectItem>
-                          <SelectItem value="aguardando_orcamento" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Aguardando Orçamento</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
+              {/* Descrição */}
               <FormField
                 control={form.control}
                 name="description"
@@ -405,7 +394,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                     <FormControl>
                       <Textarea
                         placeholder="Descreva detalhadamente o problema relatado..."
-                        className="min-h-[120px] bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
+                        className="min-h-[140px] bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 resize-none"
                         {...field}
                       />
                     </FormControl>
