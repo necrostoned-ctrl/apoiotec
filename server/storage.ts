@@ -338,6 +338,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteCall(id: number): Promise<void> {
+    // Delete associated history events first to avoid foreign key constraint violations
+    await db.delete(historyEvents).where(eq(historyEvents.callId, id));
+    
+    // Update any services that might reference this call to remove the reference
+    await db.update(services).set({ callId: null }).where(eq(services.callId, id));
+    
+    // Update any quotes that might reference this call
+    await db.update(quotes).set({ callId: null }).where(eq(quotes.callId, id));
+    
+    // Update any financial transactions that might reference this call
+    await db.update(financialTransactions).set({ callId: null }).where(eq(financialTransactions.callId, id));
+    
+    // Finally delete the call
     await db.delete(calls).where(eq(calls.id, id));
   }
 
@@ -464,6 +477,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteService(id: number): Promise<void> {
+    // Delete associated history events first to avoid foreign key constraints
+    await db.delete(historyEvents).where(eq(historyEvents.serviceId, id));
+    
+    // Set serviceId to null on associated transactions before deleting
+    await db.update(financialTransactions).set({ serviceId: null }).where(eq(financialTransactions.serviceId, id));
+    
     await db.delete(services).where(eq(services.id, id));
   }
 
@@ -552,6 +571,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteFinancialTransaction(id: number): Promise<void> {
+    // Delete associated history events first
+    await db.delete(historyEvents).where(eq(historyEvents.transactionId, id));
+    
+    // Also delete any child transactions (installments)
+    await db.delete(financialTransactions).where(eq(financialTransactions.parentTransactionId, id));
+    
     await db.delete(financialTransactions).where(eq(financialTransactions.id, id));
   }
 
