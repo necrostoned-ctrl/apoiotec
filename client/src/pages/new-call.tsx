@@ -37,7 +37,13 @@ import { Save, FileText, Plus } from "lucide-react";
 import { ClientSearch } from "@/components/ClientSearch";
 import { z } from "zod";
 
-const formSchema = insertCallSchema.extend({
+// Create a specific schema for the form that makes hidden fields optional
+const formSchema = z.object({
+  clientId: z.number().min(1, "Cliente é obrigatório"),
+  equipment: z.string().optional(),
+  priority: z.string(),
+  description: z.string().optional(),
+  internalNotes: z.string().optional(),
   callDateStr: z.string().optional(),
 });
 
@@ -72,8 +78,6 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
       priority: "media",
       description: "",
       internalNotes: "",
-      status: "aguardando",
-      progress: 0,
       callDateStr: getLocalDateTime(),
     },
   });
@@ -101,14 +105,18 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
       
       const payload = {
         ...data,
+        status: "aguardando", // Hardcoded standard status
+        progress: 0,
         callDate: finalCallDate,
         currentUserId: loggedUser?.id || 1,
         userId: loggedUser?.id || 1,
         createdByUserId: loggedUser?.id || 1
       };
-      delete payload.callDateStr;
+      
+      // Clean up UI-only field
+      const { callDateStr, ...submitPayload } = payload as any;
 
-      const response = await apiRequest("POST", "/api/calls", payload);
+      const response = await apiRequest("POST", "/api/calls", submitPayload);
       return response.json();
     },
     onSuccess: () => {
@@ -315,7 +323,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                     <FormItem>
                       <FormLabel>Equipamento</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} />
+                        <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -335,6 +343,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                         <Input 
                           type="datetime-local" 
                           {...field} 
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormMessage />
@@ -380,6 +389,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                           placeholder="Ex: Cliente relata que o equipamento não liga..."
                           className="min-h-[140px] resize-none"
                           {...field}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormMessage />
