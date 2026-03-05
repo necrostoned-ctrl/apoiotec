@@ -37,7 +37,9 @@ import { Save, FileText, Plus } from "lucide-react";
 import { ClientSearch } from "@/components/ClientSearch";
 import { z } from "zod";
 
-const formSchema = insertCallSchema;
+const formSchema = insertCallSchema.extend({
+  callDateStr: z.string().optional(),
+});
 
 const clientFormSchema = insertClientSchema.extend({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -60,8 +62,14 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
     queryKey: ["/api/clients"],
   });
 
-  // Filtrar apenas clientes ativos
   const activeClients = clients.filter(client => client.status === 'ativo');
+
+  // Helper to format date to YYYY-MM-DDThh:mm for datetime-local
+  const getLocalDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -74,6 +82,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
       internalNotes: "",
       status: "aguardando",
       progress: 0,
+      callDateStr: getLocalDateTime(),
     },
   });
 
@@ -93,12 +102,21 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
 
   const createCallMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await apiRequest("POST", "/api/calls", {
+      let finalCallDate = new Date();
+      if (data.callDateStr) {
+        finalCallDate = new Date(data.callDateStr);
+      }
+      
+      const payload = {
         ...data,
+        callDate: finalCallDate,
         currentUserId: loggedUser?.id || 1,
         userId: loggedUser?.id || 1,
         createdByUserId: loggedUser?.id || 1
-      });
+      };
+      delete payload.callDateStr;
+
+      const response = await apiRequest("POST", "/api/calls", payload);
       return response.json();
     },
     onSuccess: () => {
@@ -129,13 +147,8 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
     },
     onSuccess: (newClient: Client) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
-      
-      // Armazenar o cliente criado
       setNewClientData(newClient);
-      
-      // Fechar dialog (isso vai disparar o useEffect)
       setShowNewClientDialog(false);
-      
       toast({
         title: "✅ Cliente Criado!",
         description: `"${newClient.name}" foi adicionado e selecionado.`,
@@ -151,7 +164,6 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
   });
 
   const onSubmit = (data: FormData) => {
-    // BLOQUEAR se o modal está aberto
     if (modalOpenRef.current) {
       console.warn("❌ Submissão bloqueada: modal de novo cliente está aberto");
       return;
@@ -163,15 +175,12 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
     createClientMutation.mutate(data);
   };
 
-  // Atualizar ref do modal
   useEffect(() => {
     modalOpenRef.current = showNewClientDialog;
   }, [showNewClientDialog]);
 
-  // Quando o modal fecha e temos um novo cliente, preencher o formulário
   useEffect(() => {
     if (!showNewClientDialog && newClientData) {
-      // Usar setTimeout para garantir que o formulário está pronto
       const timer = setTimeout(() => {
         form.setValue("clientId", newClientData.id);
         clientForm.reset();
@@ -253,65 +262,6 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                                     </FormItem>
                                   )}
                                 />
-
-
-            <FormField
-              control={form.control}
-              name="equipment"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-blue-400">Equipamento</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: Servidor, Notebook..." className="bg-black/40 border-blue-500/30 text-white" {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="scheduledDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-blue-400">Data</FormLabel>
-                    <FormControl>
-                      <Input type="date" className="bg-black/40 border-blue-500/30 text-white" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="scheduledTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-blue-400">Hora</FormLabel>
-                    <FormControl>
-                      <Input type="time" className="bg-black/40 border-blue-500/30 text-white" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-
-            <FormField
-              control={form.control}
-              name="equipment"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-blue-400">Equipamento</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Ex: Servidor Dell, Notebook HP, etc." 
-                      className="bg-black/50 border-blue-500/30 text-white"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
                                 <FormField
                                   control={clientForm.control}
                                   name="email"
@@ -329,7 +279,10 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                                   <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={() => setShowNewClientDialog(false)}
+                                    onClick={() => {
+                                      setShowNewClientDialog(false);
+                                      setTimeout(() => clientForm.reset(), 50);
+                                    }}
                                     className="border-2 border-slate-600 text-cyan-300 hover:bg-slate-700 hover:border-slate-500 font-semibold"
                                   >
                                     Cancelar
@@ -350,9 +303,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                       <FormControl>
                         <ClientSearch
                           value={field.value}
-                          onSelect={(clientId) => {
-                            field.onChange(clientId || null);
-                          }}
+                          onSelect={(clientId) => field.onChange(clientId || null)}
                           placeholder="Digite nome ou telefone do cliente..."
                           allowEmpty={false}
                         />
@@ -362,42 +313,19 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                   )}
                 />
 
-        
-
-                {/* Tipo de Serviço */}
+                {/* Data e Hora */}
                 <FormField
                   control={form.control}
-                  name="serviceType"
+                  name="callDateStr"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-cyan-300">Tipo de Serviço</FormLabel>
+                      <FormLabel className="text-cyan-300">Data e Hora do Chamado</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ex: Reparo, Manutenção, Instalação" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Prioridade */}
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-cyan-300">Prioridade</FormLabel>
-                      <FormControl>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a prioridade" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="baixa">Baixa</SelectItem>
-                            <SelectItem value="media">Média</SelectItem>
-                            <SelectItem value="alta">Alta</SelectItem>
-                            <SelectItem value="urgente">Urgente</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input 
+                          type="datetime-local" 
+                          {...field} 
+                          className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -405,7 +333,69 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                 />
               </div>
 
-              {/* Descrição */}
+              {/* Equipamento */}
+              <FormField
+                control={form.control}
+                name="equipment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-cyan-300">Equipamento</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} className="bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-cyan-300">Prioridade</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-slate-700 border-2 border-cyan-500 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400">
+                            <SelectValue placeholder="Selecione a prioridade" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-slate-800 border-cyan-500 text-white">
+                          <SelectItem value="baixa" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Baixa</SelectItem>
+                          <SelectItem value="media" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Média</SelectItem>
+                          <SelectItem value="alta" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Alta</SelectItem>
+                          <SelectItem value="urgente" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Urgente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-cyan-300">Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-slate-700 border-2 border-cyan-500 text-white focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400">
+                            <SelectValue placeholder="Selecione o status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-slate-800 border-cyan-500 text-white">
+                          <SelectItem value="aguardando" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Aguardando</SelectItem>
+                          <SelectItem value="aguardando_orcamento" className="focus:bg-slate-700 focus:text-white hover:bg-slate-700">Aguardando Orçamento</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
                 name="description"
@@ -414,8 +404,8 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                     <FormLabel className="text-cyan-300">Descrição do Problema</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Descreva detalhadamente o problema ou serviço solicitado..."
-                        rows={4}
+                        placeholder="Descreva detalhadamente o problema relatado..."
+                        className="min-h-[120px] bg-slate-700 border-2 border-cyan-500 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
                         {...field}
                       />
                     </FormControl>
@@ -424,43 +414,22 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                 )}
               />
 
-              {/* Observações Internas */}
-              <FormField
-                control={form.control}
-                name="internalNotes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-cyan-300">Observações Internas (Opcional)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Observações técnicas ou informações adicionais para uso interno..."
-                        rows={3}
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex gap-4 justify-end pt-6 border-t border-cyan-500/30">
+              <div className="flex justify-end gap-4 pt-6 border-t border-cyan-500/30">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setLocation("/calls")}
-                  disabled={showNewClientDialog || createCallMutation.isPending}
-                  className="border-2 border-slate-600 text-cyan-300 hover:bg-slate-700 hover:border-slate-500 font-semibold disabled:opacity-50"
+                  className="w-32 border-2 border-slate-600 text-cyan-300 hover:bg-slate-700 hover:border-slate-500"
                 >
                   Cancelar
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={createCallMutation.isPending || showNewClientDialog || createClientMutation.isPending}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold border-2 border-cyan-500 hover:border-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                <Button 
+                  type="submit" 
+                  disabled={createCallMutation.isPending}
+                  className="w-48 bg-cyan-600 hover:bg-cyan-700 text-white border-2 border-cyan-500 hover:border-cyan-400"
                 >
-                  <Save className="h-4 w-4 mr-2" />
-                  {createCallMutation.isPending ? "Criando..." : "Criar Chamado"}
+                  <Save className="w-4 h-4 mr-2" />
+                  {createCallMutation.isPending ? "Salvando..." : "Salvar Chamado"}
                 </Button>
               </div>
             </form>
