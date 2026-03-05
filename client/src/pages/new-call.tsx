@@ -36,7 +36,6 @@ import { useLocation } from "wouter";
 import { Save, FileText, Plus } from "lucide-react";
 import { ClientSearch } from "@/components/ClientSearch";
 import { z } from "zod";
-import { format } from "date-fns";
 
 const formSchema = insertCallSchema.extend({
   callDateStr: z.string().optional(),
@@ -70,7 +69,6 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
     defaultValues: {
       clientId: undefined as any,
       equipment: "",
-      serviceType: "",
       priority: "media",
       description: "",
       internalNotes: "",
@@ -326,7 +324,7 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Data do Chamado com input nativo datetime-local padronizado */}
+                {/* Data do Chamado */}
                 <FormField
                   control={form.control}
                   name="callDateStr"
@@ -369,24 +367,45 @@ export default function NewCall({ currentUser }: { currentUser?: any }) {
                 />
               </div>
 
-              {/* Descrição */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descrição do Problema</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Descreva detalhadamente o problema relatado..."
-                        className="min-h-[140px] resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Descrição e Observações */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descrição / Serviço a realizar</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Ex: Cliente relata que o equipamento não liga..."
+                          className="min-h-[140px] resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="internalNotes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Observações Internas (Uso Técnico)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Ex: Verificar também o cabo da fonte. Trazer chave torque..."
+                          className="min-h-[140px] resize-none bg-blue-50/50 dark:bg-blue-900/10"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="flex justify-end gap-4 pt-6 border-t border-border/50">
                 <Button
