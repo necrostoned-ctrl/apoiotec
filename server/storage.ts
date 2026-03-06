@@ -35,6 +35,12 @@ function toDate(value: any): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+// Helper: garante sempre um Date válido, nunca null/string
+function toDateOrNow(value: any): Date {
+  const d = toDate(value);
+  return d instanceof Date ? d : new Date();
+}
+
 export interface IStorage {
   // Clients
   getClients(): Promise<Client[]>;
@@ -275,15 +281,11 @@ export class DatabaseStorage implements IStorage {
   async createService(service: InsertService): Promise<Service> {
     console.log("=== DATABASE STORAGE: Criando serviço ===");
     console.log("Dados recebidos:", service);
-    console.log("ClientId a ser inserido:", service.clientId);
-    console.log("CallId a ser inserido:", service.callId);
-    console.log("Products a serem inseridos:", service.products);
 
-    // FIX: garantir que todos os campos de data são Date ou null — nunca string
+    // CORREÇÃO: toDateOrNow garante que NUNCA seja string ou null — sempre Date válido
     const callDateSafe = toDate((service as any).callDate);
-    const serviceDateSafe = toDate((service as any).serviceDate) || new Date();
-    // Se createdAt foi fornecido (conversão de chamado), usar ele para preservar o timestamp original
-    const createdAtSafe = toDate((service as any).createdAt);
+    const serviceDateSafe = toDateOrNow((service as any).serviceDate);
+    const createdAtSafe = toDateOrNow((service as any).createdAt);
 
     const insertValues: any = {
       name: service.name,
@@ -299,12 +301,10 @@ export class DatabaseStorage implements IStorage {
       products: service.products || null,
       callDate: callDateSafe,
       serviceDate: serviceDateSafe,
+      createdAt: createdAtSafe,
     };
 
-    // Só incluir createdAt se for um Date válido (não deixar o Drizzle receber string)
-    if (createdAtSafe) {
-      insertValues.createdAt = createdAtSafe;
-    }
+    console.log("insertValues.createdAt (tipo):", typeof insertValues.createdAt, insertValues.createdAt);
 
     const [newService] = await db
       .insert(services)
@@ -312,10 +312,6 @@ export class DatabaseStorage implements IStorage {
       .returning();
       
     console.log("Serviço inserido no banco:", newService);
-    console.log("ClientId no serviço final:", newService.clientId);
-    console.log("CallId no serviço final:", newService.callId);
-    console.log("Products no serviço final:", newService.products);
-    
     return newService;
   }
 
@@ -323,7 +319,6 @@ export class DatabaseStorage implements IStorage {
     console.log("=== UPDATING SERVICE ===");
     console.log("Service ID:", id);
     console.log("Update data:", service);
-    console.log("ServiceDate:", service.serviceDate);
     
     const updateData: any = {
       updatedAt: new Date()
@@ -338,12 +333,10 @@ export class DatabaseStorage implements IStorage {
     if (service.clientId !== undefined) updateData.clientId = service.clientId;
     if (service.products !== undefined) updateData.products = service.products;
     if (service.serviceDate !== undefined && service.serviceDate !== null) {
-      updateData.serviceDate = toDate(service.serviceDate) || new Date();
+      updateData.serviceDate = toDateOrNow(service.serviceDate);
     }
     if (service.userId !== undefined) updateData.userId = service.userId;
     if (service.createdByUserId !== undefined) updateData.createdByUserId = service.createdByUserId;
-    
-    console.log("Final update data:", updateData);
     
     const [updatedService] = await db
       .update(services)
@@ -351,10 +344,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(services.id, id))
       .returning();
       
-    console.log("Service updated in DB:", updatedService);
-    console.log("Updated serviceDate:", updatedService?.serviceDate);
-    console.log("Updated createdAt:", updatedService?.createdAt);
-    
     return updatedService || undefined;
   }
 
