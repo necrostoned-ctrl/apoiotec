@@ -184,18 +184,12 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       return response.json();
     },
     onSuccess: (newClient: any) => {
-      // Atualizar lista de clientes
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
-      
-      // Fechar dialog e preencher campo do cliente
       setShowNewClientDialog(false);
       clientForm.reset();
-      
-      // Usar setTimeout mínimo para garantir sincronização
       setTimeout(() => {
         form.setValue("clientId", newClient.id);
       }, 50);
-      
       toast({
         title: "✅ Cliente Criado!",
         description: `"${newClient.name}" foi adicionado e selecionado no formulário.`,
@@ -243,7 +237,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       queryClient.invalidateQueries({ queryKey: ["/api/calls"] });
       queryClient.refetchQueries({ queryKey: ["/api/calls"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
-      
       setShowEditDialog(false);
       setEditingCall(null);
       toast({
@@ -267,7 +260,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         throw new Error("Chamado não possui cliente associado");
       }
 
-      // Format description to separate Service from Internal Notes cleanly
       const formattedDescription = call.internalNotes 
         ? `${call.description || 'Não informado'}\n\n=== OBSERVAÇÕES INTERNAS ===\n${call.internalNotes}`
         : (call.description || 'Não informado');
@@ -289,6 +281,10 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
       };
 
       const serviceResponse = await apiRequest("POST", "/api/services", serviceData);
+      // FIX BUG 3: verifica resposta antes de prosseguir
+      if (!serviceResponse.ok) {
+        throw new Error("Falha ao criar serviço");
+      }
       const newService = await serviceResponse.json();
       
       await apiRequest("PATCH", `/api/calls/${call.id}`, { 
@@ -328,7 +324,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     const matchesStatus = !statusFilter || statusFilter === "todos" || call.status === statusFilter;
     const matchesClient = !clientFilter || clientFilter === "todos" ||
       (callClientId?.toString() === clientFilter);
-    // Se quickFilterPriority está ativo, usar ele; senão usar priorityFilter
     const effectivePriorityFilter = quickFilterPriority || priorityFilter;
     const matchesPriority = !effectivePriorityFilter || effectivePriorityFilter === "todos" || call.priority === effectivePriorityFilter;
     const matchesUser = !userFilter || userFilter === "todos" || call.userId?.toString() === userFilter;
@@ -339,11 +334,9 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     
     return matchesStatus && matchesClient && matchesPriority && matchesSearch && matchesUser;
   }).sort((a, b) => {
-    // Se sortByDate está ativo, ordenar cronologicamente (criados primeiro)
     if (sortByDate) {
       return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     }
-    // Senão, ordenar por prioridade (urgente primeiro)
     const priorityOrder: Record<string, number> = { urgente: 0, alta: 1, media: 2, baixa: 3 };
     return (priorityOrder[a.priority] ?? 4) - (priorityOrder[b.priority] ?? 4);
   });
@@ -377,8 +370,10 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     setShowInvoiceDialog(true);
   };
 
+  // FIX BUG 4: confirmInvoice não fecha o dialog mais — isso agora fica no onSuccess
   const confirmInvoice = () => {
-    if (!callForInvoice || !invoiceAmount) return;
+    // FIX BUG 7: validar valor > 0
+    if (!callForInvoice || !invoiceAmount || parseFloat(invoiceAmount) <= 0) return;
     
     const transactionData = {
       description: `Faturamento - ${callForInvoice.equipment}`,
@@ -392,10 +387,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     };
     
     createTransactionMutation.mutate(transactionData);
-    
-    setShowInvoiceDialog(false);
-    setCallForInvoice(null);
-    setInvoiceAmount("");
+    // Não fecha aqui — o dialog fecha no onSuccess da mutation
   };
 
   const transformToQuoteMutation = useMutation({
@@ -499,14 +491,18 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     }
   };
 
+  // FIX BUG 6: createQuoteMutation passa callId no retorno para não depender de estado externo stale
   const createQuoteMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest("POST", "/api/quotes", data);
-      return response.json();
+      if (!response.ok) throw new Error("Failed to create quote");
+      const result = await response.json();
+      return { ...result, _callId: data.callId };
     },
-    onSuccess: async () => {
-      if (editingCall) {
-        await apiRequest("PATCH", `/api/calls/${editingCall.id}`, { 
+    onSuccess: async (result) => {
+      // FIX: usa callId do resultado da mutation, não do estado externo (editingCall)
+      if (result._callId) {
+        await apiRequest("PATCH", `/api/calls/${result._callId}`, { 
           status: "orcamento",
           currentUserId: loggedUser?.id || 1,
           userId: loggedUser?.id || 1
@@ -535,13 +531,20 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     if (editingCall) {
       const processedData = {
         ...data,
-        callDate: data.callDate || undefined,
+        // FIX BUG 5: preserva callDate original se o form não tiver sido alterado
+        callDate: data.callDate || editingCall.callDate ? new Date(data.callDate || editingCall.callDate!) : undefined,
         userId: loggedUser?.id || 1,
         createdByUserId: data.createdByUserId || loggedUser?.id || 1,
       };
       
       if (actionType === "service") {
-        const updatedCall = { ...editingCall, ...processedData, status: "em_andamento", callDate: processedData.callDate || null };
+        const updatedCall = { 
+          ...editingCall, 
+          ...processedData, 
+          status: "em_andamento",
+          // FIX BUG 5: garantir que callDate nunca seja undefined ao converter
+          callDate: processedData.callDate || editingCall.callDate || new Date(),
+        };
         transformToServiceMutation.mutate(updatedCall as CallWithClient);
       } else if (actionType === "invoice") {
         const transactionData = {
@@ -563,9 +566,15 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
     }
   };
 
+  // FIX BUG 1+2: lê response.json() ANTES do PATCH, e verifica response.ok
   const createTransactionMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest("POST", "/api/financial-transactions", data);
+      if (!response.ok) {
+        throw new Error("Falha ao criar transação financeira");
+      }
+      // Lê o JSON antes de fazer o PATCH (stream HTTP consumido corretamente)
+      const transaction = await response.json();
       
       if (data.callId) {
         await apiRequest("PATCH", `/api/calls/${data.callId}`, { 
@@ -575,12 +584,16 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         });
       }
       
-      return response.json();
+      return transaction;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/calls"] });
       queryClient.invalidateQueries({ queryKey: ["/api/financial-transactions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      // FIX BUG 4: fecha os dialogs aqui (onSuccess), não na função confirmInvoice
+      setShowInvoiceDialog(false);
+      setCallForInvoice(null);
+      setInvoiceAmount("");
       setShowEditDialog(false);
       setEditingCall(null);
       toast({
@@ -841,7 +854,6 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
                     </span>
                   </div>
 
-                  {/* Mostrando Serviço (Descrição original do chamado) e Equipamento */}
                   <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-md border border-slate-100 dark:border-slate-800">
                     <div className="mb-2">
                       <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Equipamento</p>
