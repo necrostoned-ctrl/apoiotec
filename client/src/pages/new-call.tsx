@@ -1,1 +1,446 @@
-import { useState, useEffect, useRef } from \"react\";\nimport { useForm } from \"react-hook-form\";\nimport { zodResolver } from \"@hookform/resolvers/zod\";\nimport { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { Card, CardContent, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Button } from \"@/components/ui/button\";\nimport {\n  Form,\n  FormControl,\n  FormField,\n  FormItem,\n  FormLabel,\n  FormMessage,\n} from \"@/components/ui/form\";\nimport { Input } from \"@/components/ui/input\";\nimport { Textarea } from \"@/components/ui/textarea\";\nimport {\n  Select,\n  SelectContent,\n  SelectItem,\n  SelectTrigger,\n  SelectValue,\n} from \"@/components/ui/select\";\nimport {\n  Dialog,\n  DialogContent,\n  DialogDescription,\n  DialogHeader,\n  DialogTitle,\n  DialogTrigger,\n} from \"@/components/ui/dialog\";\nimport { useToast } from \"@/hooks/use-toast\";\nimport { apiRequest } from \"@/lib/queryClient\";\nimport { insertCallSchema, insertClientSchema, type Client } from \"@shared/schema\";\nimport { useLocation } from \"wouter\";\nimport { Save, FileText, Plus } from \"lucide-react\";\nimport { ClientSearch } from \"@/components/ClientSearch\";\nimport { z } from \"zod\";\n\n// Create a specific schema for the form that makes hidden fields optional\nconst formSchema = z.object({\n  clientId: z.number().min(1, \"Cliente é obrigatório\"),\n  equipment: z.string().optional(),\n  priority: z.string(),\n  description: z.string().optional(),\n  internalNotes: z.string().optional(),\n  callDateStr: z.string().optional(),\n});\n\nconst clientFormSchema = insertClientSchema.extend({\n  name: z.string().min(1, \"Nome é obrigatório\"),\n});\n\ntype FormData = z.infer<typeof formSchema>;\ntype ClientFormData = z.infer<typeof clientFormSchema>;\n\nexport default function NewCall({ currentUser }: { currentUser?: any }) {\n  const [, setLocation] = useLocation();\n  const [showNewClientDialog, setShowNewClientDialog] = useState(false);\n  const [newClientData, setNewClientData] = useState<Client | null>(null);\n  const modalOpenRef = useRef(false);\n  const { toast } = useToast();\n  const queryClient = useQueryClient();\n\n  const loggedUser = currentUser || JSON.parse(localStorage.getItem(\"currentUser\") || \"{}\");\n\n  const getLocalDateTime = () => {\n    const now = new Date();\n    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());\n    return now.toISOString().slice(0, 16);\n  };\n\n  const form = useForm<FormData>({\n    resolver: zodResolver(formSchema),\n    defaultValues: {\n      clientId: undefined as any,\n      equipment: \"\",\n      priority: \"media\",\n      description: \"\",\n      internalNotes: \"\",\n      callDateStr: getLocalDateTime(),\n    },\n  });\n\n  const clientForm = useForm<ClientFormData>({\n    resolver: zodResolver(clientFormSchema),\n    defaultValues: {\n      name: \"\",\n      email: \"\",\n      phone: \"\",\n      cpf: \"\",\n      address: \"\",\n      city: \"\",\n      state: \"\",\n      status: \"ativo\",\n    },\n  });\n\n  const createCallMutation = useMutation({\n    mutationFn: async (data: FormData) => {\n      let finalCallDate = new Date();\n      if (data.callDateStr) {\n        finalCallDate = new Date(data.callDateStr);\n      }\n      \n      const payload = {\n        ...data,\n        status: \"aguardando\", // Hardcoded standard status\n        progress: 0,\n        callDate: finalCallDate,\n        currentUserId: loggedUser?.id || 1,\n        userId: loggedUser?.id || 1,\n        createdByUserId: loggedUser?.id || 1\n      };\n      \n      // Clean up UI-only field\n      const { callDateStr, ...submitPayload } = payload as any;\n\n      const response = await apiRequest(\"POST\", \"/api/calls\", submitPayload);\n      return response.json();\n    },\n    onSuccess: () => {\n      queryClient.invalidateQueries({ queryKey: [\"/api/calls\"] });\n      queryClient.invalidateQueries({ queryKey: [\"/api/dashboard/stats\"] });\n      toast({\n        title: \"Sucesso\",\n        description: \"Chamado criado com sucesso!\",\n      });\n      setLocation(\"/calls\");\n    },\n    onError: () => {\n      toast({\n        title: \"Erro\",\n        description: \"Erro ao criar chamado. Tente novamente.\",\n        variant: \"destructive\",\n      });\n    },\n  });\n\n  const createClientMutation = useMutation({\n    mutationFn: async (data: ClientFormData) => {\n      const response = await apiRequest(\"POST\", \"/api/clients\", {\n        ...data,\n        userId: loggedUser?.id || 1\n      });\n      return response.json();\n    },\n    onSuccess: (newClient: Client) => {\n      queryClient.invalidateQueries({ queryKey: [\"/api/clients\"] });\n      setNewClientData(newClient);\n      setShowNewClientDialog(false);\n      toast({\n        title: \"✅ Cliente Criado!\",\n        description: `\"${newClient.name}\" foi adicionado e selecionado.`,\n      });\n    },\n    onError: () => {\n      toast({\n        title: \"❌ Erro ao Criar Cliente\",\n        description: \"Verifique as informações e tente novamente.\",\n        variant: \"destructive\",\n      });\n    },\n  });\n\n  const onSubmit = (data: FormData) => {\n    if (modalOpenRef.current) {\n      console.warn(\"❌ Submissão bloqueada: modal de novo cliente está aberto\");\n      return;\n    }\n    createCallMutation.mutate(data);\n  };\n\n  const onClientSubmit = (data: ClientFormData) => {\n    createClientMutation.mutate(data);\n  };\n\n  useEffect(() => {\n    modalOpenRef.current = showNewClientDialog;\n  }, [showNewClientDialog]);\n\n  useEffect(() => {\n    if (!showNewClientDialog && newClientData) {\n      const timer = setTimeout(() => {\n        form.setValue(\"clientId\", newClientData.id);\n        clientForm.reset();\n        setNewClientData(null);\n      }, 100);\n      return () => clearTimeout(timer);\n    }\n  }, [showNewClientDialog, newClientData, form, clientForm]);\n\n  return (\n    <div className=\"min-h-screen bg-gray-900 px-3 sm:px-6 py-6\">\n      <div className=\"mx-auto w-full max-w-4xl space-y-6\">\n        <div className=\"mb-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4\">\n          <div>\n            <h1 className=\"text-3xl font-bold text-yellow-400 mb-2\">Novo Chamado</h1>\n            <p className=\"text-gray-400\">Registre uma nova solicitação de serviço técnico</p>\n          </div>\n        </div>\n\n        <Card className=\"w-full bg-background dark:bg-slate-800 border-0 shadow-md\">\n          <CardHeader className=\"pb-3 border-b border-border/50\">\n            <CardTitle className=\"text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2\">\n              <FileText className=\"h-5 w-5 text-primary dark:text-blue-400\" />\n              Informações do Chamado\n            </CardTitle>\n          </CardHeader>\n          <CardContent className=\"pt-6\">\n            <Form {...form}>\n              <form onSubmit={form.handleSubmit(onSubmit)} className=\"space-y-6\">\n                \n                <div className=\"grid grid-cols-1 lg:grid-cols-2 gap-6\">\n                  {/* Cliente */}\n                  <FormField\n                    control={form.control}\n                    name=\"clientId\"\n                    render={({ field }) => (\n                      <FormItem>\n                        <div className=\"flex items-center justify-between mb-2\">\n                          <FormLabel>Cliente *</FormLabel>\n                          <Dialog open={showNewClientDialog} onOpenChange={setShowNewClientDialog}>\n                            <DialogTrigger asChild>\n                              <Button\n                                type=\"button\"\n                                size=\"sm\"\n                                variant=\"outline\"\n                                className=\"h-8 text-xs font-medium\"\n                              >\n                                <Plus className=\"h-3 w-3 mr-1\" />\n                                Novo Cliente\n                              </Button>\n                            </DialogTrigger>\n                            <DialogContent className=\"w-[95vw] max-w-md bg-background dark:bg-slate-800 max-h-[85vh] overflow-y-auto\">\n                              <DialogHeader>\n                                <DialogTitle>Novo Cliente</DialogTitle>\n                                <DialogDescription>\n                                  Preencha as informações do cliente. O nome é obrigatório.\n                                </DialogDescription>\n                              </DialogHeader>\n                              <Form {...clientForm}>\n                                <form onSubmit={clientForm.handleSubmit(onClientSubmit)} className=\"space-y-5 py-4\">\n                                  <FormField\n                                    control={clientForm.control}\n                                    name=\"name\"\n                                    render={({ field }) => (\n                                      <FormItem>\n                                        <FormLabel>Nome do Cliente *</FormLabel>\n                                        <FormControl>\n                                          <Input placeholder=\"Ex: João Silva ou Empresa LTDA\" {...field} autoFocus />\n                                        </FormControl>\n                                        <FormMessage />\n                                      </FormItem>\n                                    )}\n                                  />\n                                  <FormField\n                                    control={clientForm.control}\n                                    name=\"phone\"\n                                    render={({ field }) => (\n                                      <FormItem>\n                                        <FormLabel>Telefone</FormLabel>\n                                        <FormControl>\n                                          <Input placeholder=\"(11) 99999-9999\" {...field} value={field.value || \"\"} />\n                                        </FormControl>\n                                        <FormMessage />\n                                      </FormItem>\n                                    )}\n                                  />\n                                  <FormField\n                                    control={clientForm.control}\n                                    name=\"email\"\n                                    render={({ field }) => (\n                                      <FormItem>\n                                        <FormLabel>Email</FormLabel>\n                                        <FormControl>\n                                          <Input type=\"email\" placeholder=\"cliente@email.com\" {...field} value={field.value || \"\"} />\n                                        </FormControl>\n                                        <FormMessage />\n                                      </FormItem>\n                                    )}\n                                  />\n                                  <div className=\"flex gap-3 justify-end pt-4\">\n                                    <Button\n                                      type=\"button\"\n                                      variant=\"outline\"\n                                      onClick={() => {\n                                        setShowNewClientDialog(false);\n                                        setTimeout(() => clientForm.reset(), 50);\n                                      }}\n                                    >\n                                      Cancelar\n                                    </Button>\n                                    <Button\n                                      type=\"submit\"\n                                      disabled={createClientMutation.isPending}\n                                    >\n                                      {createClientMutation.isPending ? \"Criando...\" : \"Criar Cliente\"}\n                                    </Button>\n                                  </div>\n                                </form>\n                              </Form>\n                            </DialogContent>\n                          </Dialog>\n                        </div>\n                        <FormControl>\n                          <ClientSearch\n                            value={field.value}\n                            onSelect={(clientId) => field.onChange(clientId || null)}\n                            placeholder=\"Buscar cliente existente...\"\n                            allowEmpty={false}\n                          />\n                        </FormControl>\n                        <FormMessage />\n                      </FormItem>\n                    )}\n                  />\n\n                  {/* Equipamento */}\n                  <FormField\n                    control={form.control}\n                    name=\"equipment\"\n                    render={({ field }) => (\n                      <FormItem>\n                        <FormLabel>Equipamento</FormLabel>\n                        <FormControl>\n                          <Input placeholder=\"Ex: Servidor Dell, Notebook HP, etc.\" {...field} value={field.value || \"\"} />\n                        </FormControl>\n                        <FormMessage />\n                      </FormItem>\n                    )}\n                  />\n                </div>\n\n                <div className=\"grid grid-cols-1 lg:grid-cols-2 gap-6\">\n                  {/* Data do Chamado */}\n                  <FormField\n                    control={form.control}\n                    name=\"callDateStr\"\n                    render={({ field }) => (\n                      <FormItem>\n                        <FormLabel>Data e Hora do Chamado</FormLabel>\n                        <FormControl>\n                          <Input \n                            type=\"datetime-local\" \n                            {...field} \n                            value={field.value || \"\"}\n                          />\n                        </FormControl>\n                        <FormMessage />\n                      </FormItem>\n                    )}\n                  />\n\n                  <FormField\n                    control={form.control}\n                    name=\"priority\"\n                    render={({ field }) => (\n                      <FormItem>\n                        <FormLabel>Prioridade</FormLabel>\n                        <Select onValueChange={field.onChange} defaultValue={field.value}>\n                          <FormControl>\n                            <SelectTrigger>\n                              <SelectValue placeholder=\"Selecione a prioridade\" />\n                            </SelectTrigger>\n                          </FormControl>\n                          <SelectContent>\n                            <SelectItem value=\"baixa\">Baixa</SelectItem>\n                            <SelectItem value=\"media\">Média</SelectItem>\n                            <SelectItem value=\"alta\">Alta</SelectItem>\n                            <SelectItem value=\"urgente\">Urgente</SelectItem>\n                          </SelectContent>\n                        </Select>\n                        <FormMessage />\n                      </FormItem>\n                    )}\n                  />\n                </div>\n\n                {/* Descrição e Observações */}\n                <div className=\"grid grid-cols-1 md:grid-cols-2 gap-6\">\n                  <FormField\n                    control={form.control}\n                    name=\"description\"\n                    render={({ field }) => (\n                      <FormItem>\n                        <FormLabel>Descrição / Serviço a realizar</FormLabel>\n                        <FormControl>\n                          <Textarea\n                            placeholder=\"Ex: Cliente relata que o equipamento não liga...\"\n                            className=\"min-h-[140px] resize-none\"\n                            {...field}\n                            value={field.value || \"\"}\n                          />\n                        </FormControl>\n                        <FormMessage />\n                      </FormItem>\n                    )}\n                  />\n\n                  <FormField\n                    control={form.control}\n                    name=\"internalNotes\"\n                    render={({ field }) => (\n                      <FormItem>\n                        <FormLabel>Observações Internas (Uso Técnico)</FormLabel>\n                        <FormControl>\n                          <Textarea\n                            placeholder=\"Ex: Verificar também o cabo da fonte. Trazer chave torque...\"\n                            className=\"min-h-[140px] resize-none bg-blue-50/50 dark:bg-blue-900/10\"\n                            {...field}\n                            value={field.value || \"\"}\n                          />\n                        </FormControl>\n                        <FormMessage />\n                      </FormItem>\n                    )}\n                  />\n                </div>\n\n                <div className=\"flex justify-end gap-4 pt-6 border-t border-border/50\">\n                  <Button\n                    type=\"button\"\n                    variant=\"outline\"\n                    onClick={() => setLocation(\"/calls\")}\n                    className=\"w-32\"\n                  >\n                    Cancelar\n                  </Button>\n                  <Button \n                    type=\"submit\" \n                    disabled={createCallMutation.isPending}\n                    className=\"w-48 bg-primary hover:bg-primary/90 text-primary-foreground\"\n                  >\n                    <Save className=\"w-4 h-4 mr-2\" />\n                    {createCallMutation.isPending ? \"Salvando...\" : \"Salvar Chamado\"}\n                  </Button>\n                </div>\n              </form>\n            </Form>\n          </CardContent>\n        </Card>\n      </div>\n    </div>\n  );\n}\n
+import { useState, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { insertCallSchema, insertClientSchema, type Client } from "@shared/schema";
+import { useLocation } from "wouter";
+import { Save, FileText, Plus } from "lucide-react";
+import { ClientSearch } from "@/components/ClientSearch";
+import { z } from "zod";
+
+// Create a specific schema for the form that makes hidden fields optional
+const formSchema = z.object({
+  clientId: z.number().min(1, "Cliente é obrigatório"),
+  equipment: z.string().optional(),
+  priority: z.string(),
+  description: z.string().optional(),
+  internalNotes: z.string().optional(),
+  callDateStr: z.string().optional(),
+});
+
+const clientFormSchema = insertClientSchema.extend({
+  name: z.string().min(1, "Nome é obrigatório"),
+});
+
+type FormData = z.infer<typeof formSchema>;
+type ClientFormData = z.infer<typeof clientFormSchema>;
+
+export default function NewCall({ currentUser }: { currentUser?: any }) {
+  const [, setLocation] = useLocation();
+  const [showNewClientDialog, setShowNewClientDialog] = useState(false);
+  const [newClientData, setNewClientData] = useState<Client | null>(null);
+  const modalOpenRef = useRef(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const loggedUser = currentUser || JSON.parse(localStorage.getItem("currentUser") || "{}");
+
+  const getLocalDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      clientId: undefined as any,
+      equipment: "",
+      priority: "media",
+      description: "",
+      internalNotes: "",
+      callDateStr: getLocalDateTime(),
+    },
+  });
+
+  const clientForm = useForm<ClientFormData>({
+    resolver: zodResolver(clientFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      cpf: "",
+      address: "",
+      city: "",
+      state: "",
+      status: "ativo",
+    },
+  });
+
+  const createCallMutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      let finalCallDate = new Date();
+      if (data.callDateStr) {
+        finalCallDate = new Date(data.callDateStr);
+      }
+      
+      const payload = {
+        ...data,
+        status: "aguardando", // Hardcoded standard status
+        progress: 0,
+        callDate: finalCallDate,
+        currentUserId: loggedUser?.id || 1,
+        userId: loggedUser?.id || 1,
+        createdByUserId: loggedUser?.id || 1
+      };
+      
+      // Clean up UI-only field
+      const { callDateStr, ...submitPayload } = payload as any;
+
+      const response = await apiRequest("POST", "/api/calls", submitPayload);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/calls"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      toast({
+        title: "Sucesso",
+        description: "Chamado criado com sucesso!",
+      });
+      setLocation("/calls");
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Erro ao criar chamado. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const createClientMutation = useMutation({
+    mutationFn: async (data: ClientFormData) => {
+      const response = await apiRequest("POST", "/api/clients", {
+        ...data,
+        userId: loggedUser?.id || 1
+      });
+      return response.json();
+    },
+    onSuccess: (newClient: Client) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
+      setNewClientData(newClient);
+      setShowNewClientDialog(false);
+      toast({
+        title: "✅ Cliente Criado!",
+        description: `"${newClient.name}" foi adicionado e selecionado.`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "❌ Erro ao Criar Cliente",
+        description: "Verifique as informações e tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: FormData) => {
+    if (modalOpenRef.current) {
+      console.warn("❌ Submissão bloqueada: modal de novo cliente está aberto");
+      return;
+    }
+    createCallMutation.mutate(data);
+  };
+
+  const onClientSubmit = (data: ClientFormData) => {
+    createClientMutation.mutate(data);
+  };
+
+  useEffect(() => {
+    modalOpenRef.current = showNewClientDialog;
+  }, [showNewClientDialog]);
+
+  useEffect(() => {
+    if (!showNewClientDialog && newClientData) {
+      const timer = setTimeout(() => {
+        form.setValue("clientId", newClientData.id);
+        clientForm.reset();
+        setNewClientData(null);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [showNewClientDialog, newClientData, form, clientForm]);
+
+  return (
+    <div className="min-h-screen bg-gray-900 px-3 sm:px-6 py-6">
+      <div className="mx-auto w-full max-w-4xl space-y-6">
+        <div className="mb-2 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-yellow-400 mb-2">Novo Chamado</h1>
+            <p className="text-gray-400">Registre uma nova solicitação de serviço técnico</p>
+          </div>
+        </div>
+
+        <Card className="w-full bg-background dark:bg-slate-800 border-0 shadow-md">
+          <CardHeader className="pb-3 border-b border-border/50">
+            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary dark:text-blue-400" />
+              Informações do Chamado
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Cliente */}
+                  <FormField
+                    control={form.control}
+                    name="clientId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center justify-between mb-2">
+                          <FormLabel>Cliente *</FormLabel>
+                          <Dialog open={showNewClientDialog} onOpenChange={setShowNewClientDialog}>
+                            <DialogTrigger asChild>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                className="h-8 text-xs font-medium"
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Novo Cliente
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="w-[95vw] max-w-md bg-background dark:bg-slate-800 max-h-[85vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Novo Cliente</DialogTitle>
+                                <DialogDescription>
+                                  Preencha as informações do cliente. O nome é obrigatório.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <Form {...clientForm}>
+                                <form onSubmit={clientForm.handleSubmit(onClientSubmit)} className="space-y-5 py-4">
+                                  <FormField
+                                    control={clientForm.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Nome do Cliente *</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="Ex: João Silva ou Empresa LTDA" {...field} autoFocus />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={clientForm.control}
+                                    name="phone"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Telefone</FormLabel>
+                                        <FormControl>
+                                          <Input placeholder="(11) 99999-9999" {...field} value={field.value || ""} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={clientForm.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                          <Input type="email" placeholder="cliente@email.com" {...field} value={field.value || ""} />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <div className="flex gap-3 justify-end pt-4">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setShowNewClientDialog(false);
+                                        setTimeout(() => clientForm.reset(), 50);
+                                      }}
+                                    >
+                                      Cancelar
+                                    </Button>
+                                    <Button
+                                      type="submit"
+                                      disabled={createClientMutation.isPending}
+                                    >
+                                      {createClientMutation.isPending ? "Criando..." : "Criar Cliente"}
+                                    </Button>
+                                  </div>
+                                </form>
+                              </Form>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                        <FormControl>
+                          <ClientSearch
+                            value={field.value}
+                            onSelect={(clientId) => field.onChange(clientId || null)}
+                            placeholder="Buscar cliente existente..."
+                            allowEmpty={false}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Equipamento */}
+                  <FormField
+                    control={form.control}
+                    name="equipment"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Equipamento</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Servidor Dell, Notebook HP, etc." {...field} value={field.value || ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Data do Chamado */}
+                  <FormField
+                    control={form.control}
+                    name="callDateStr"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Data e Hora do Chamado</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="datetime-local" 
+                            {...field} 
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="priority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Prioridade</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione a prioridade" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="baixa">Baixa</SelectItem>
+                            <SelectItem value="media">Média</SelectItem>
+                            <SelectItem value="alta">Alta</SelectItem>
+                            <SelectItem value="urgente">Urgente</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Descrição e Observações */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Descrição / Serviço a realizar</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Ex: Cliente relata que o equipamento não liga..."
+                            className="min-h-[140px] resize-none"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="internalNotes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Observações Internas (Uso Técnico)</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Ex: Verificar também o cabo da fonte. Trazer chave torque..."
+                            className="min-h-[140px] resize-none bg-blue-50/50 dark:bg-blue-900/10"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-4 pt-6 border-t border-border/50">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setLocation("/calls")}
+                    className="w-32"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={createCallMutation.isPending}
+                    className="w-48 bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {createCallMutation.isPending ? "Salvando..." : "Salvar Chamado"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
