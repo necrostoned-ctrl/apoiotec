@@ -446,22 +446,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("=== SERVER: Recebendo criação de serviço ===");
       console.log("Body recebido:", req.body);
 
-      // Helper para converter valor em Date de forma segura
-      function toDateSafe(value: any): Date | null {
+      // CORREÇÃO DEFINITIVA: helper que SEMPRE retorna Date — nunca string, nunca null
+      function toDateOrNow(value: any): Date {
+        if (value instanceof Date && !isNaN(value.getTime())) return value;
+        if (value) {
+          const d = new Date(value);
+          if (!isNaN(d.getTime())) return d;
+        }
+        return new Date();
+      }
+
+      function toDateOrNull(value: any): Date | null {
         if (!value) return null;
-        if (value instanceof Date) return value;
+        if (value instanceof Date && !isNaN(value.getTime())) return value;
         const d = new Date(value);
         return isNaN(d.getTime()) ? null : d;
       }
       
-      // Usar diretamente os dados do frontend, preservando clientId, products E userId
       const serviceData = {
         name: req.body.name || "Novo Serviço",
         description: req.body.description || "",
         priority: req.body.priority || "media",
         callId: req.body.callId || null,
-        callDate: toDateSafe(req.body.callDate),
-        serviceDate: toDateSafe(req.body.serviceDate) || new Date(),
+        callDate: toDateOrNull(req.body.callDate),
+        serviceDate: toDateOrNow(req.body.serviceDate),
         basePrice: req.body.basePrice || null,
         estimatedTime: req.body.estimatedTime || null,
         category: req.body.category || null,
@@ -469,11 +477,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         products: req.body.products || null,
         userId: req.body.userId || 1,
         createdByUserId: req.body.createdByUserId || req.body.userId || 1,
-        // FIX: converter createdAt string → Date para o Drizzle ORM
-        createdAt: toDateSafe(req.body.createdAt) || null,
+        // CRÍTICO: sempre Date válido, nunca string
+        createdAt: toDateOrNow(req.body.createdAt),
       };
       
       console.log("Dados processados para criação:", serviceData);
+      console.log("createdAt tipo:", typeof serviceData.createdAt, serviceData.createdAt instanceof Date);
       console.log("ClientId preservado:", serviceData.clientId);
       
       const service = await storage.createService(serviceData);
