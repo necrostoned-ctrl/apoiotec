@@ -272,6 +272,7 @@ export default function Calls({ currentUser }: { currentUser?: any }) {
         category: "Reparo",
         clientId: resolvedClientId,
         callId: call.id,
+        priority: call.priority || "media", // FIX: preserva prioridade do chamado
         currentUserId: loggedUser?.id || 1,
         userId: (call as any).createdByUserId || call.userId || loggedUser?.id || 1,
         createdByUserId: (call as any).createdByUserId || call.userId || loggedUser?.id || 1,
