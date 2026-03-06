@@ -27,6 +27,14 @@ import {
 import { db } from "./db";
 import { eq, desc, and, isNull, or, like, count, sum, asc, not, inArray } from "drizzle-orm";
 
+// Helper global: converte qualquer valor em Date de forma segura
+function toDate(value: any): Date | null {
+  if (!value) return null;
+  if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 export interface IStorage {
   // Clients
   getClients(): Promise<Client[]>;
@@ -251,7 +259,6 @@ export class DatabaseStorage implements IStorage {
       const servicesData = await db.select().from(services).orderBy(desc(services.createdAt));
       return servicesData.filter(service => {
         if (!service.name || service.name.trim() === '') return false;
-        // Permitir serviços com basePrice nulo (foi removido do formulário de criação)
         return true;
       });
     } catch (error) {
@@ -271,24 +278,37 @@ export class DatabaseStorage implements IStorage {
     console.log("ClientId a ser inserido:", service.clientId);
     console.log("CallId a ser inserido:", service.callId);
     console.log("Products a serem inseridos:", service.products);
-    
+
+    // FIX: garantir que todos os campos de data são Date ou null — nunca string
+    const callDateSafe = toDate((service as any).callDate);
+    const serviceDateSafe = toDate((service as any).serviceDate) || new Date();
+    // Se createdAt foi fornecido (conversão de chamado), usar ele para preservar o timestamp original
+    const createdAtSafe = toDate((service as any).createdAt);
+
+    const insertValues: any = {
+      name: service.name,
+      description: service.description || null,
+      basePrice: service.basePrice || null,
+      estimatedTime: service.estimatedTime || null,
+      category: service.category || null,
+      priority: service.priority || "media",
+      clientId: service.clientId || null,
+      callId: service.callId || null,
+      userId: service.userId || 1,
+      createdByUserId: service.createdByUserId || service.userId || 1,
+      products: service.products || null,
+      callDate: callDateSafe,
+      serviceDate: serviceDateSafe,
+    };
+
+    // Só incluir createdAt se for um Date válido (não deixar o Drizzle receber string)
+    if (createdAtSafe) {
+      insertValues.createdAt = createdAtSafe;
+    }
+
     const [newService] = await db
       .insert(services)
-      .values({
-        name: service.name,
-        description: service.description || null,
-        basePrice: service.basePrice || null,
-        estimatedTime: service.estimatedTime || null,
-        category: service.category || null,
-        priority: service.priority || "media", // CRÍTICO: incluir prioridade
-        clientId: service.clientId || null,
-        callId: service.callId || null, // CRÍTICO: preservar ID do chamado
-        userId: service.userId || 1,
-        createdByUserId: service.createdByUserId || service.userId || 1,
-        products: service.products || null, // CRÍTICO: incluir products
-        callDate: service.callDate ? new Date(service.callDate) : null, // CRÍTICO: preservar data do chamado
-        serviceDate: service.serviceDate ? new Date(service.serviceDate) : new Date(), // Data do serviço
-      })
+      .values(insertValues)
       .returning();
       
     console.log("Serviço inserido no banco:", newService);
@@ -309,7 +329,6 @@ export class DatabaseStorage implements IStorage {
       updatedAt: new Date()
     };
     
-    // Só atualizar campos fornecidos - PRESERVAR TIMEZONE
     if (service.name !== undefined) updateData.name = service.name;
     if (service.description !== undefined) updateData.description = service.description;
     if (service.basePrice !== undefined) updateData.basePrice = service.basePrice;
@@ -319,8 +338,7 @@ export class DatabaseStorage implements IStorage {
     if (service.clientId !== undefined) updateData.clientId = service.clientId;
     if (service.products !== undefined) updateData.products = service.products;
     if (service.serviceDate !== undefined && service.serviceDate !== null) {
-      // CORRIGIR timezone - já vem como Date
-      updateData.serviceDate = service.serviceDate instanceof Date ? service.serviceDate : new Date(service.serviceDate);
+      updateData.serviceDate = toDate(service.serviceDate) || new Date();
     }
     if (service.userId !== undefined) updateData.userId = service.userId;
     if (service.createdByUserId !== undefined) updateData.createdByUserId = service.createdByUserId;
@@ -352,14 +370,12 @@ export class DatabaseStorage implements IStorage {
       const usersMap = new Map<number, User>();
       
       if (allCalls.length > 0) {
-        // Buscar clientes
         const clientIds = Array.from(new Set(allCalls.map(c => c.clientId).filter(id => id))) as number[];
         if (clientIds.length > 0) {
           const clientsList = await db.select().from(clients).where(inArray(clients.id, clientIds));
           clientsList.forEach(c => clientsMap.set(c.id, c));
         }
         
-        // Buscar usuários - TANTO userId QUANTO createdByUserId PRESERVANDO O CRIADOR ORIGINAL
         const userIds = Array.from(new Set(allCalls.flatMap(c => [c.userId, c.createdByUserId]).filter(id => id))) as number[];
         if (userIds.length > 0) {
           const usersList = await db.select().from(users).where(inArray(users.id, userIds));
@@ -397,7 +413,6 @@ export class DatabaseStorage implements IStorage {
         client = c || null;
       }
       
-      // PRESERVAR CRIADOR ORIGINAL - createdByUserId tem prioridade
       if (call.createdByUserId) {
         const [u] = await db.select().from(users).where(eq(users.id, call.createdByUserId));
         user = u || null;
@@ -522,7 +537,6 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log("=== BUSCANDO TRANSAÇÕES FINANCEIRAS ===");
       
-      // Buscar TODAS as transações (incluindo parcelas filhas) como transações independentes
       const allTransactions = await db
         .select()
         .from(financialTransactions)
@@ -538,7 +552,6 @@ export class DatabaseStorage implements IStorage {
       for (const row of allTransactions) {
         const transaction = row.financial_transactions;
         
-        // Validações apenas de dados essenciais
         if (!transaction.description || transaction.description.trim() === '') {
           continue;
         }
@@ -546,34 +559,30 @@ export class DatabaseStorage implements IStorage {
           continue;
         }
         
-        // Garantir que client sempre tem documentType com default "cpf"
         const clientData = row.clients ? {
           ...row.clients,
           documentType: (row.clients as any).documentType || "cpf"
         } : null;
         
-        // SEMPRE adicionar a transação - cliente pode estar null, mas transação é válida
         const transactionData = {
           ...transaction,
           completedByUserId: transaction.completedByUserId || null,
-          createdByUserId: transaction.createdByUserId || null, // CRÍTICO: Garantir que createdByUserId é retornado
-          client: clientData,  // Cliente pode ser null
+          createdByUserId: transaction.createdByUserId || null,
+          client: clientData,
           call: row.calls || null,
           user: row.users || null,
-          childTransactions: [] // Será populado na próxima etapa
+          childTransactions: []
         };
         
         result.push(transactionData as FinancialTransactionWithClient);
       }
 
-      // BUSCAR TODAS AS PARCELAS SEM RELAÇÕES PROBLEMÁTICAS
       const allInstallments = await db
         .select()
         .from(financialTransactions)
         .where(not(isNull(financialTransactions.parentTransactionId)))
         .orderBy(asc(financialTransactions.installmentNumber));
 
-      // AGRUPAR PARCELAS POR TRANSAÇÃO PAI
       const installmentsByParent = new Map<number, any[]>();
       for (const installment of allInstallments) {
         if (installment.parentTransactionId) {
@@ -584,7 +593,6 @@ export class DatabaseStorage implements IStorage {
         }
       }
 
-      // ADICIONAR PARCELAS ÀS TRANSAÇÕES PAI
       for (const transaction of result) {
         if (installmentsByParent.has(transaction.id)) {
           transaction.childTransactions = installmentsByParent.get(transaction.id) || [];
@@ -615,14 +623,12 @@ export class DatabaseStorage implements IStorage {
       const row = transactionRows[0];
       const transaction = row.financial_transactions;
 
-      // Buscar parcelas (transações filhas)
       const childTransactionRows = await db
         .select()
         .from(financialTransactions)
         .where(eq(financialTransactions.parentTransactionId, id))
         .orderBy(asc(financialTransactions.installmentNumber));
 
-      // Garantir que client sempre tem documentType com default "cpf"
       const clientData = row.clients ? {
         ...row.clients,
         documentType: (row.clients as any).documentType || "cpf"
@@ -631,7 +637,7 @@ export class DatabaseStorage implements IStorage {
       return {
         ...transaction,
         completedByUserId: transaction.completedByUserId || null,
-        createdByUserId: transaction.createdByUserId || null, // CRÍTICO: Garantir que createdByUserId é retornado
+        createdByUserId: transaction.createdByUserId || null,
         client: clientData,
         call: row.calls || null,
         user: row.users || null,
@@ -654,12 +660,12 @@ export class DatabaseStorage implements IStorage {
 
     const insertData: any = {
       description: transaction.description,
-      resolution: transaction.resolution || null, // PRESERVAR RESOLUÇÃO
-      clientId: transaction.clientId, // CRÍTICO: preservar clientId
+      resolution: transaction.resolution || null,
+      clientId: transaction.clientId,
       callId: transaction.callId || null,
-      serviceId: transaction.serviceId || null, // PRESERVAR REFERÊNCIA AO SERVIÇO
+      serviceId: transaction.serviceId || null,
       userId: transaction.userId || 1,
-      createdByUserId: transaction.createdByUserId || transaction.userId || 1, // CRÍTICO: PRESERVAR CRIADOR ORIGINAL
+      createdByUserId: transaction.createdByUserId || transaction.userId || 1,
       type: transaction.type,
       amount: transaction.amount,
       originalAmount: transaction.originalAmount || null,
@@ -671,12 +677,10 @@ export class DatabaseStorage implements IStorage {
       completedByUserId: transaction.completedByUserId || null,
       parentTransactionId: transaction.parentTransactionId || null,
       installmentNumber: transaction.installmentNumber || null,
-      // CAMPOS CRÍTICOS PARA PRESERVAR DISCRIMINAÇÃO DE VALORES
       serviceAmount: transaction.serviceAmount || null,
       productAmount: transaction.productAmount || null,
       serviceDetails: transaction.serviceDetails || null,
       productDetails: transaction.productDetails || null,
-      // SEMPRE usar data ATUAL para garantir que transação aparece no topo da lista
       createdAt: new Date(),
     };
 
@@ -694,7 +698,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateFinancialTransaction(id: number, transaction: Partial<InsertFinancialTransaction>): Promise<FinancialTransaction | undefined> {
-    // Buscar transação atual para preservar dados
     const [current] = await db
       .select()
       .from(financialTransactions)
@@ -709,10 +712,8 @@ export class DatabaseStorage implements IStorage {
     console.log("Current clientId:", current.clientId);
     console.log("Update data:", transaction);
     
-    // Construir objeto de atualização preservando dados existentes
     const updateData: any = {};
     
-    // Só incluir campos que foram fornecidos na atualização
     if (transaction.description !== undefined) updateData.description = transaction.description;
     if (transaction.resolution !== undefined) updateData.resolution = transaction.resolution;
     if (transaction.clientId !== undefined) updateData.clientId = transaction.clientId;
@@ -729,21 +730,17 @@ export class DatabaseStorage implements IStorage {
     if (transaction.dueDate !== undefined) updateData.dueDate = transaction.dueDate;
     if (transaction.paidAt !== undefined) updateData.paidAt = transaction.paidAt;
     if (transaction.completedAt !== undefined) updateData.completedAt = transaction.completedAt;
-    // PRESERVAR DISCRIMINAÇÃO DE VALORES
     if (transaction.serviceAmount !== undefined) updateData.serviceAmount = transaction.serviceAmount;
     if (transaction.productAmount !== undefined) updateData.productAmount = transaction.productAmount;
     if (transaction.serviceDetails !== undefined) updateData.serviceDetails = transaction.serviceDetails;
     if (transaction.productDetails !== undefined) updateData.productDetails = transaction.productDetails;
     
-    // PERMITIR edição de createdAt para mover transações entre meses
-    // Sincronizar billingDate junto com createdAt para relatórios funcionarem corretamente
     if (transaction.createdAt !== undefined) {
       updateData.createdAt = transaction.createdAt;
-      updateData.billingDate = transaction.createdAt; // Sincronizar data de faturamento
+      updateData.billingDate = transaction.createdAt;
       console.log("=== ATUALIZANDO createdAt E billingDate ===", transaction.createdAt);
     }
     
-    // Sempre atualizar updatedAt
     updateData.updatedAt = new Date();
     
     console.log("=== DADOS PARA ATUALIZAÇÃO ===");
@@ -786,31 +783,24 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`=== DELETANDO TRANSAÇÃO ${id} ===`);
       
-      // Check if transaction exists
       const transaction = await db.select().from(financialTransactions).where(eq(financialTransactions.id, id)).limit(1);
       if (transaction.length === 0) {
         console.log("Transação não encontrada");
         return false;
       }
       
-      // Recursive function to delete all child transactions first
       const deleteChildrenRecursively = async (parentId: number): Promise<void> => {
         const children = await db.select().from(financialTransactions).where(eq(financialTransactions.parentTransactionId, parentId));
         
         for (const child of children) {
-          // Recursively delete children of this child first
           await deleteChildrenRecursively(child.id);
-          
-          // Then delete this child
           await db.delete(financialTransactions).where(eq(financialTransactions.id, child.id));
           console.log(`Excluída parcela filha: ${child.id}`);
         }
       };
       
-      // Delete all children recursively
       await deleteChildrenRecursively(id);
       
-      // Finally delete the parent transaction
       const result = await db.delete(financialTransactions).where(eq(financialTransactions.id, id));
       const rowsDeleted = result.rowCount || 0;
       console.log(`Transação principal excluída: ${rowsDeleted > 0}`);
@@ -910,7 +900,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined> {
-    // Fazer trim dos campos de texto para remover espaços extras
     const cleanedUser: any = {
       ...user,
       username: user.username ? user.username.trim() : user.username,
@@ -1072,26 +1061,20 @@ export class DatabaseStorage implements IStorage {
 
   // History Events
   async getHistoryEventsByCallId(callId: number): Promise<HistoryEvent[]> {
-    // Para chamados, buscar apenas eventos do chamado
     return await db.select().from(historyEvents).where(eq(historyEvents.callId, callId)).orderBy(historyEvents.createdAt);
   }
 
   async getHistoryEventsByServiceId(serviceId: number): Promise<HistoryEvent[]> {
-    // Para serviços, buscar eventos do serviço E eventos do chamado relacionado
-    // Filtrar APENAS eventos relevantes: call_created, converted_to_service, service_updated
     const relevantEventTypes = ['call_created', 'converted_to_service', 'service_updated', 'converted_to_financial', 'payment_received'];
     
     const serviceEvents = await db.select().from(historyEvents).where(eq(historyEvents.serviceId, serviceId));
     
-    // Encontrar o callId relacionado através dos eventos
     const conversionEvent = serviceEvents.find(e => e.callId !== null);
     if (conversionEvent?.callId) {
       const callEvents = await db.select().from(historyEvents).where(eq(historyEvents.callId, conversionEvent.callId));
-      // Combinar removendo duplicatas e ordenar cronologicamente
       const allEvents = [...callEvents, ...serviceEvents];
       const uniqueMap = new Map();
       allEvents.forEach(e => {
-        // Filtrar apenas eventos relevantes
         if (relevantEventTypes.includes(e.eventType)) {
           const key = `${e.callId || 'null'}-${e.serviceId || 'null'}-${e.eventType}-${e.createdAt}`;
           if (!uniqueMap.has(key)) {
@@ -1103,13 +1086,11 @@ export class DatabaseStorage implements IStorage {
       return uniqueEvents.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     }
     
-    // Filtrar eventos relevantes
     const filtered = serviceEvents.filter(e => relevantEventTypes.includes(e.eventType));
     return filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   }
 
   async getHistoryEventsByTransactionId(transactionId: number): Promise<HistoryEvent[]> {
-    // Para transações, buscar a transação para pegar callId e serviceId
     const transaction = await db.query.financialTransactions.findFirst({
       where: eq(financialTransactions.id, transactionId),
     });
@@ -1118,32 +1099,25 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
 
-    // Filtrar APENAS eventos relevantes
     const relevantEventTypes = ['call_created', 'converted_to_service', 'service_updated', 'converted_to_financial', 'payment_received'];
 
-    // Buscar todos os eventos relacionados: transação, serviço e chamado
     const allEvents: HistoryEvent[] = [];
     
-    // Eventos da transação
     const transactionEvents = await db.select().from(historyEvents).where(eq(historyEvents.transactionId, transactionId));
     allEvents.push(...transactionEvents);
     
-    // Eventos do serviço relacionado
     if (transaction.serviceId) {
       const serviceEvents = await db.select().from(historyEvents).where(eq(historyEvents.serviceId, transaction.serviceId));
       allEvents.push(...serviceEvents);
     }
     
-    // Eventos do chamado relacionado
     if (transaction.callId) {
       const callEvents = await db.select().from(historyEvents).where(eq(historyEvents.callId, transaction.callId));
       allEvents.push(...callEvents);
     }
     
-    // Remover duplicatas, filtrar eventos relevantes e ordenar cronologicamente
     const uniqueMap = new Map();
     allEvents.forEach(e => {
-      // Filtrar apenas eventos relevantes
       if (relevantEventTypes.includes(e.eventType)) {
         const key = `${e.callId || 'null'}-${e.serviceId || 'null'}-${e.transactionId || 'null'}-${e.eventType}-${e.createdAt}`;
         if (!uniqueMap.has(key)) {
@@ -1200,7 +1174,6 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getTelegramConfig(userId);
     
     if (existing) {
-      // Atualizar APENAS os campos de configuração, preservando userId
       const [updated] = await db
         .update(telegramConfig)
         .set({
@@ -1213,7 +1186,6 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return updated;
     } else {
-      // Criar novo com userId OBRIGATORIAMENTE
       const [created] = await db
         .insert(telegramConfig)
         .values({
@@ -1266,12 +1238,11 @@ export class DatabaseStorage implements IStorage {
   async isNotificationEnabled(userId: number, notificationType: string): Promise<boolean> {
     const pref = await this.getNotificationPreference(userId, notificationType);
     if (!pref) {
-      // Auto-criar preferência com padrão HABILITADO para novo tipo
       try {
         const created = await this.setNotificationPreference(userId, notificationType, true);
         return created?.enabled ?? true;
       } catch {
-        return true; // Default: HABILITADO se falhar
+        return true;
       }
     }
     return pref?.enabled ?? true;
@@ -1382,8 +1353,6 @@ export class DatabaseStorage implements IStorage {
       const failedAttempts = (current.failedAttempts || 0) + 1;
       let blockedUntil = null;
       
-      // Rate limiting progressivo: 5º erro = 30s, 6º = 40s, 7º = 60s, 8º = 90s, etc
-      // Fórmula: 30 + ((failedAttempts - 5) * 10) segundos a partir do 5º erro
       if (failedAttempts >= 5) {
         const delaySeconds = 30 + ((failedAttempts - 5) * 10);
         blockedUntil = new Date(Date.now() + delaySeconds * 1000);
